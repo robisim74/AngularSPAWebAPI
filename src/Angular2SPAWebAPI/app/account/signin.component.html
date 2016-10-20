@@ -1,0 +1,36 @@
+﻿<div class="account-card-container">
+
+    <md-card>
+        <md-toolbar color="primary">Sign in</md-toolbar>
+        <md-card-content>
+            <form name="form" (ngSubmit)="f.form.valid && signin()" #f="ngForm" novalidate>
+                <div>
+                    <br />
+                    <br />
+                    <md-input placeholder="email" type="text" (keyup)="errorMessage = ''"
+                              name="username" [(ngModel)]="model.username" #username="ngModel" class="full-width" required></md-input>
+                    <small [hidden]="username.valid || (username.pristine && !f.submitted)" class="has-error">
+                        Required
+                    </small>
+                    <br />
+                    <br />
+                    <md-input placeholder="password" type="password" (keyup)="errorMessage = ''"
+                              name="password" [(ngModel)]="model.password" #password="ngModel" class="full-width" required></md-input>
+                    <small [hidden]="password.valid || (password.pristine && !f.submitted)" class="has-error">
+                        Required
+                    </small>
+                    <br />
+                    <small *ngIf="errorMessage != ''" class="has-error">
+                        {{ errorMessage }}
+                    </small>
+                    <br />
+                </div>
+                <div>
+                    <button md-raised-button color="accent" type="submit" class="full-width">Sign in</button>
+                    <a md-button color="primary" [routerLink]="['/signup']" class="full-width">Sign up</a>
+                </div>
+            </form>
+        </md-card-content>
+    </md-card>
+
+</div>

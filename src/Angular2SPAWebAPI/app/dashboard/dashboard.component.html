@@ -1,0 +1,19 @@
+﻿<div class="dashboard-card-container">
+
+    <md-card>
+        <md-card-title color="primary">Dashboard</md-card-title>
+    </md-card>
+
+    <md-card>
+        <md-card-content *ngFor="let user of users">
+            <md-list>
+                <md-list-item>
+                    <p md-line><strong>{{ user.email }}</strong></p>
+                    <button md-icon-button (click)="delete(user.userName)"><md-icon>delete</md-icon></button>
+                    <p md-line>{{ user.givenName }} {{ user.familyName }}</p>
+                </md-list-item>
+            </md-list>            
+        </md-card-content>
+    </md-card>
+
+</div>

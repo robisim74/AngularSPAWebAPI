@@ -1,0 +1,97 @@
+﻿body {
+    font-family: Roboto, 'Helvetica Neue', sans-serif;
+
+    * {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    md-sidenav {
+        width: 250px;
+        padding: 10px;
+
+        [md-button] {
+            width: 100%;
+            position: relative;
+            bottom: 0;
+            margin: 24px 0;
+        }
+    }
+
+    .app-content {
+        padding: 32px;
+    }
+
+    md-toolbar {
+        md-icon {
+            cursor: pointer;
+        }
+
+        .app-toolbar {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+    }
+
+    h1 {
+        font-size: 20px;
+    }
+
+    md-list {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+    }
+
+    md-nav-list {
+
+        a[md-list-item].active .md-list-item {
+            color: #1976D2;
+        }
+    }
+
+    .fill-remaining-space {
+        flex: 1 1 auto;
+    }
+}
+
+.app-card-container {
+    display: flex;
+    justify-content: center;
+
+    md-card {
+        margin: 8px;
+        width: 500px;
+    }
+
+    img {
+        background-color: gray;
+    }
+}
+
+.account-card-container {
+    display: flex;
+    justify-content: center;
+
+    md-card {
+        margin: 8px;
+        width: 400px;
+    }
+}
+
+.resources-card-container, .dashboard-card-container {
+    display: flex;
+    flex-direction: column;
+
+    md-card {
+        margin: 8px;
+        max-width: 400px;
+    }
+}
+
+.full-width {
+    width: 100%;
+}
+
+.has-error {
+    color: #D32F2F;
+}

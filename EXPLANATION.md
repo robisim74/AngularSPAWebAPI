@@ -7,7 +7,7 @@ For two reasons:
 - it's simple;
 - it allows you to scale your application.
 
-Let's see what the _config.cs_ file contains for configuring IdentityServer4. The following is the identification of our client app:
+Let's see what the _Config.cs_ file contains for configuring IdentityServer4. The following is the identification of our client app:
 ```C#
 // Clients want to access resources.
 public static IEnumerable<Client> GetClients()

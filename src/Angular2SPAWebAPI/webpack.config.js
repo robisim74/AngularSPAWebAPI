@@ -25,7 +25,8 @@ if (!isProd) {
                     test: /\.ts$/,
                     loaders: [
                         'awesome-typescript-loader',
-                        'angular2-template-loader'
+                        'angular2-template-loader',
+                        'source-map-loader'
                     ]
                 },
                 {
@@ -57,7 +58,7 @@ if (!isProd) {
             extensions: ['.ts', '.js', '.html', '.css', '.scss']
         },
 
-        devtool: false
+        devtool: 'source-map'
 
     };
 

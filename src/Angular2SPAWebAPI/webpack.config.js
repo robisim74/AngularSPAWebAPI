@@ -7,7 +7,7 @@ let isProd = process.env.NODE_ENV === 'production';
 
 if (!isProd) {
 
-    // In development mode, we use JiT compilation without minification.
+    // In development mode, we use JiT compilation & source map file, without minification.
     module.exports = {
         entry: {
             'app': './app/main.ts'
@@ -25,21 +25,33 @@ if (!isProd) {
                     test: /\.ts$/,
                     loaders: [
                         'awesome-typescript-loader',
-                        'angular2-template-loader',
-                        'source-map-loader'
+                        'angular2-router-loader', // for lazy loading
+                        'angular2-template-loader', // for templateUrl & styleUrls
+                        'source-map-loader' // for source map files
                     ]
                 },
+                // html
                 {
                     test: /\.html$/,
-                    loader: 'raw' // html
+                    loader: 'raw-loader'
                 },
+                // css
                 {
                     test: /\.css$/,
-                    loader: "style-loader!css-loader" // css
+                    loaders: [
+                       'style-loader',
+                       'css-loader',
+                       'raw-loader'
+                    ]
                 },
+                // scss
                 {
                     test: /\.scss$/,
-                    loaders: ["style", "css", "sass"] // scss
+                    loaders: [
+                       'style-loader',
+                       'css-loader',
+                       'sass-loader'
+                    ]
                 }
             ],
             exprContextCritical: false
@@ -82,20 +94,31 @@ if (!isProd) {
                     test: /\.ts$/,
                     loaders: [
                         'awesome-typescript-loader',
-                        'angular2-template-loader'
+                        'angular2-router-loader?aot=true&genDir=aot/app'
                     ]
                 },
+                // html
                 {
                     test: /\.html$/,
-                    loader: 'raw' // html
+                    loader: 'raw-loader'
                 },
+                // css
                 {
                     test: /\.css$/,
-                    loader: "style-loader!css-loader" // css
+                    loaders: [
+                       'style-loader',
+                       'css-loader',
+                       'raw-loader'
+                    ]
                 },
+                // scss
                 {
                     test: /\.scss$/,
-                    loaders: ["style", "css", "sass"] // scss
+                    loaders: [
+                       'style-loader',
+                       'css-loader',
+                       'sass-loader'
+                    ]
                 }
             ],
             exprContextCritical: false

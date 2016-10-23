@@ -16,7 +16,7 @@ if (!isProd) {
         output: {
             path: "./wwwroot/",
             filename: "dist/[name].bundle.js",
-            chunkFilename: 'dist/[name].chunk.js'
+            chunkFilename: 'dist/[id].chunk.js'
         },
 
         module: {
@@ -81,11 +81,11 @@ if (!isProd) {
         entry: {
             'app-aot': './app/main-aot.js'
         },
-
+        // We use long term caching.
         output: {
             path: "./wwwroot/",
-            filename: "dist/[name].bundle.js",
-            chunkFilename: 'dist/[name].chunk.js'
+            filename: "dist/[name].[hash].bundle.js",
+            chunkFilename: 'dist/[id].[hash].chunk.js'
         },
 
         module: {

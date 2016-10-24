@@ -1,4 +1,5 @@
 'use strict';
+let path = require('path');
 let webpack = require('webpack');
 let CleanWebpackPlugin = require('clean-webpack-plugin');
 let HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -128,10 +129,6 @@ if (!isProd) {
             // Cleans dist folder.
             new CleanWebpackPlugin(['./wwwroot/dist']),
             // Minimizes the bundle.
-            new webpack.LoaderOptionsPlugin({
-                minimize: true,
-                debug: false
-            }),
             new webpack.optimize.UglifyJsPlugin({
                 compress: {
                     warnings: false
@@ -150,6 +147,10 @@ if (!isProd) {
         ],
 
         resolve: {
+            modules: [
+                'node_modules',
+                path.resolve(__dirname, 'app')
+            ],
             extensions: ['.ts', '.js', '.html', '.css', '.scss']
         },
 

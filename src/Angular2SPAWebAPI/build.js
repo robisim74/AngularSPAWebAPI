@@ -10,7 +10,7 @@ const chalk = require('chalk');
 echo('Start building for production...');
 
 
-/* Cleans aot & dist folder */
+/* Cleans aot & dist folders */
 rm('-Rf', 'aot/*');
 rm('-Rf', 'dist/*');
 

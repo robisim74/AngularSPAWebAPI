@@ -1,7 +1,6 @@
 'use strict';
 let path = require('path');
 let webpack = require('webpack');
-let CleanWebpackPlugin = require('clean-webpack-plugin');
 let HtmlWebpackPlugin = require('html-webpack-plugin');
 
 let isProd = process.env.NODE_ENV === 'production';

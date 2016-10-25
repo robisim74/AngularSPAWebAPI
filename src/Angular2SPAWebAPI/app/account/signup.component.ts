@@ -48,11 +48,10 @@ export class SignupComponent extends Signin {
 
                 console.log(errMsg);
 
-                this.errorMessage = "Server error. Try later."
+                this.errorMessage = "Server error. Try later.";
 
             });
 
     }
 
 }
-

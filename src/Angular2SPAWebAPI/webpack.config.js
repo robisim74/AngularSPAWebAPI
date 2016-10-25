@@ -126,8 +126,6 @@ if (!isProd) {
         },
 
         plugins: [
-            // Cleans dist folder.
-            new CleanWebpackPlugin(['./wwwroot/dist']),
             // Minimizes the bundle.
             new webpack.optimize.UglifyJsPlugin({
                 compress: {

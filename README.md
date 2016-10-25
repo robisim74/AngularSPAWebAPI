@@ -76,6 +76,7 @@ Make the changes, and simply refresh the page on the browser.
 ```Shell
 npm run build
 ```
+And from Visual Studio, start debugging.
 
 #### EF Core commands
 - Package Manager Console

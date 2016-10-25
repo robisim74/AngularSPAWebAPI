@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 
 import { tokenNotExpired } from 'angular2-jwt';
 
-import { AuthenticationService } from './services/authentication.service'
+import { AuthenticationService } from './services/authentication.service';
 
 @Component({
     selector: 'app-component',

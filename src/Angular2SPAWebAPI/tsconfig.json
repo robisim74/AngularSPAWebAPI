@@ -18,9 +18,10 @@
       "js-base64"
     ]
   },
-  "files": [
-    "app/app.module.ts",
-    "app/main.ts"
+  "exclude": [
+    "node_modules",
+    "aot",
+    "app/main-aot.ts"
   ],
   "awesomeTypescriptLoaderOptions": {
     "useWebpackText": true

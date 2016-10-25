@@ -33,7 +33,9 @@ export class Signin {
 
                 // Gets the redirect URL from authentication service.
                 // If no redirect has been set, uses the default.
-                let redirect: string = this.authenticationService.redirectUrl ? this.authenticationService.redirectUrl : '/home';
+                let redirect: string = this.authenticationService.redirectUrl
+                    ? this.authenticationService.redirectUrl
+                    : '/home';
 
                 // Redirects the user.
                 this.router.navigate([redirect]);
@@ -63,7 +65,7 @@ export class Signin {
 
                     console.log(errMsg);
 
-                    this.errorMessage = "Server error. Try later."
+                    this.errorMessage = "Server error. Try later.";
 
                 }
 

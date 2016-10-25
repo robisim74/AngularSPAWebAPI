@@ -53,7 +53,7 @@ export class DashboardComponent {
 
                     console.log(res.errors);
 
-                }               
+                }
 
             },
             (error: any) => {

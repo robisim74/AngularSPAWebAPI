@@ -34,12 +34,13 @@ The same scenarios are also supported by [AspNet.Security.OpenIdConnect.Server](
 - **Models**
 	- **ApplicationUser.cs** _Profile data for application users_
 	- **DBInitializer.cs** _Initial data for the db_
+- **build.js** _Angular 2 app building process for production_
 - **Config.cs** _IdentityServer4 configuration_
 - **IdentityDB.sqlite** _SQLite database_
 - **package.json** _Packages for Angular 2 app_
 - **Startup.cs** _Web API configuration_
 - **tsconfig.json** & **tsconfig-aot.json** _TypeScript & ngc compiler options_
-- **webpack.config.js** _Webpack configuration file for building Angular 2 app_
+- **webpack.config.js** _Webpack configuration file for development & production of Angular 2 app_
 
 ## Installing
 - Check for .NET Core: **^1.0.0-preview2-003131**
@@ -65,14 +66,14 @@ services.AddDbContext<ApplicationDbContext>(options =>
 
 #### Changing the Angular 2 app
 From the command line or Package Manager Console, go to the folder that contains _package.json_.
-- For development, we use _JiT compilation_ with files watching:
+- For development, we use _JiT compilation_ & source map files, with files watching:
 ```Shell
 npm start
 ```
 And from Visual Studio, start debugging.
 Make the changes, and simply refresh the page on the browser.
 
-- For production, we use [AoT compilation](https://angular.io/docs/ts/latest/cookbook/aot-compiler.html):
+- For production, we use [AoT compilation](https://angular.io/docs/ts/latest/cookbook/aot-compiler.html), tree shaking & minification:
 ```Shell
 npm run build
 ```

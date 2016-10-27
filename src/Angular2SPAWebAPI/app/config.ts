@@ -10,6 +10,11 @@ export class Config {
     public static readonly TOKEN_ENDPOINT: string = "/connect/token";
 
     /**
+     * Revocation endpoint.
+     */
+    public static readonly REVOCATION_ENDPOINT: string = "/connect/revocation";
+
+    /**
      * The ClientId.
      */
     public static readonly CLIENT_ID: string = "Angular2SPA";
@@ -20,8 +25,8 @@ export class Config {
     public static readonly GRANT_TYPE: string = "password";
 
     /**
-     * The Web API.
+     * The Web API & refresh tokens.
      */
-    public static readonly SCOPE: string = "WebAPI";
+    public static readonly SCOPE: string = "WebAPI offline_access";
 
 }

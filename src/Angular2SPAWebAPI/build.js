@@ -12,7 +12,9 @@ echo('Start building for production...');
 
 /* Cleans aot & dist folders */
 rm('-Rf', 'aot/*');
-rm('-Rf', 'dist/*');
+cd('wwwroot');
+rm('-rf', 'dist/*');
+cd('..');
 
 
 /* TSLint with Codelyzer */
@@ -32,7 +34,7 @@ let results = files.map(file => {
     let fileContents = program.getSourceFile(file).getFullText();
     let linter = new Linter(file, fileContents, options, program);
     let result = linter.lint();
-    
+
     if (result.failureCount > 0) {
 
         let failures = JSON.parse(result.output);

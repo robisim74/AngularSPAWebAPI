@@ -22,11 +22,12 @@ public static IEnumerable<Client> GetClients()
             AllowedGrantTypes = GrantTypes.ResourceOwnerPassword, // Resource Owner Password Credential grant.
             AllowAccessTokensViaBrowser = true,
             RequireClientSecret = false, // This client does not need a secret to request tokens from the token endpoint.
-            AccessTokenLifetime = 3600, // Lifetime of access token in seconds: you need to handle the refresh token.
+            AccessTokenLifetime = 900, // Lifetime of access token in seconds.
 
             AllowedScopes = new List<string>
             {
-                "WebAPI"
+                "WebAPI",
+                StandardScopes.OfflineAccess.Name // "offline_access" for refresh tokens.
             }
         }
     };
@@ -36,8 +37,8 @@ As you can see, you can add other clients with their own configuration.
 Our Angular 2 app, identified as _Angular2SPA_:
 - uses _ROPC_;
 - doesn't use a _secret_ key: in a client application it would be useless because visible;
-- has an _access token_ for 60 minutes, then need to refresh the token (It depends on the strategy that you want to adopt);
-- can access to the _scopes_: in this case our Web API, called with a lot of imagination _WebAPI_.
+- has an _access token_ for 15 minutes, then need to refresh the token (It depends on the strategy that you want to adopt);
+- can access to the _scopes_: in this case our Web API, called with a lot of imagination _WebAPI_, and the _offline access_ for refresh tokens.
 ```C#
 // Scopes define the resources in the system.
 public static IEnumerable<Scope> GetScopes()
@@ -57,7 +58,8 @@ public static IEnumerable<Scope> GetScopes()
                 new ScopeClaim("family_name"),
                 new ScopeClaim("role")
             }
-        }
+        },
+        StandardScopes.OfflineAccess // For refresh tokens.
     };
 }
 ```
@@ -155,13 +157,13 @@ in order to implement the client app.
 
 If you debug the app and navigate the browers to:
 
-http://localhost:5000/.well-known/openid-configuration 
+`http://localhost:5000/.well-known/openid-configuration`
 
 you should see the so-called discovery document. 
 The discovery endpoint can be used to retrieve metadata about IdentityServer.
-For an authentication, we need to send the request at the "token_endpoint":
+For an authentication, we need to send the request at the `token_endpoint`:
 
-http://localhost:5000/connect/token
+`http://localhost:5000/connect/token`
 
 For example, you can use [Postman](https://www.getpostman.com/) as client to send this POST request:
 ```
@@ -169,35 +171,37 @@ POST /connect/token HTTP/1.1
 Host: localhost:5000
 Content-Type: application/x-www-form-urlencoded
 
-client_id=Angular2SPA&grant_type=password&username=admin%40gmail.com&password=Admin01*&scope=WebAPI
+client_id=Angular2SPA&grant_type=password&username=admin%40gmail.com&password=Admin01*&scope=WebAPI+offline_access
 ```
 Note the _Content-Type_ as _x-www-form-urlencoded_, and parameters provided in the _body_. This is the response:
 ```Json
 {
 	"access_token": "eyJhbGci...",
-	"expires_in": 3600,
-	"token_type": "Bearer"
+	"expires_in": 900,
+	"token_type": "Bearer",
+	"refresh_token": "8376cea2..."
 }
 ```
-The user has been authenticated, and he has an _access token_ that will expire in 3600 seconds. 
+The user has been authenticated, and he has an _access token_ that will expire in 900 seconds, but he has also a _refresh token_.
 You can use a tool like [JSON Web Token](https://www.jsonwebtoken.io/) to decode the JWT and see the payload (with our _scope claims_):
 ```Json
 {
-	"nbf": 1476886305,
-	"exp": 1476889905,
+	"nbf": 1477564052,
+	"exp": 1477564952,
 	"iss": "http://localhost:5000",
 	"aud": "http://localhost:5000/resources",
 	"client_id": "Angular2SPA",
 	"sub": "c0bb2220-8c99-46dc-ad39-b707f37f047f",
-	"auth_time": 1476886304,
+	"auth_time": 1477564051,
 	"idp": "local",
 	"given_name": "Admin",
 	"family_name": "Admin",
 	"role": "administrator",
 	"scope": [
+		"offline_access",
 		"WebAPI"
 	],
-	"amr": [
+		"amr": [
 		"pwd"
 	]
 }
@@ -215,8 +219,17 @@ This request contains a header parameter named _Authorization_ and its value is 
     "value2"
 ]
 ```
-And when, past the 60 minutes, the token expires? The user can no longer access resources. 
-You can ask him to sign in again, or handle your refresh token strategy.
+And when, past the 15 minutes, the token expires? The user can no longer access resources. 
+You can ask him to sign in again, or handle your refresh token strategy: to get a new access token, 
+you can send a POST request, with `grant_type` set to `refresh_token` and `refresh token` as parameters:
+```
+POST /connect/token HTTP/1.1
+Host: localhost:5000
+Content-Type: application/x-www-form-urlencoded
+
+client_id=Angular2SPA&grant_type=refresh_token&refresh_token=8376cea2...
+```
+and so on.
 
 ### Implementing the Angular 2 SPA
 Ok, how do we transform the requests done via Postman in an Angular 2 app?
@@ -227,39 +240,36 @@ as in _AuthenticationService_ class:
 /**
  * Tries to sign in the user.
  *
- * @param tokenEndpoint The endpoint to request the acces token
- * @param data The data requested by endpoint for authentication
+ * @param username
+ * @param password
  * @return The user's data
  */
-public signin(tokenEndpoint: string, data: any): Observable<any> {
+public signin(username: string, password: string): Observable<any> {
 
-    // Encodes the data for the body.
-    let body: string = "";
-    for (let key in data) {
-        if (body.length) {
-            body += "&";
-        }
-        body += key + "=";
-        body += encodeURIComponent(data[key]);
-    }
+    // Token endpoint & params.
+    let tokenEndpoint: string = Config.TOKEN_ENDPOINT;
 
-    // Creates header.
-    let headers: Headers = new Headers({ 'Content-Type': 'application/x-www-form-urlencoded' });
-    let options: RequestOptions = new RequestOptions({ headers: headers });
+    let params: any = {
+        client_id: Config.CLIENT_ID,
+        grant_type: Config.GRANT_TYPE,
+        username: username,
+        password: password,
+        scope: Config.SCOPE
+    };
 
-    return this.http.post(tokenEndpoint, body, options)
+    // Encodes the parameters.
+    let body: string = this.econdeData(params);
+
+    return this.http.post(tokenEndpoint, body, this.options)
         .map((res: Response) => {
 
             let body: any = res.json();
 
             // Sign in successful if there's an access token in the response.
-            if (body != null && typeof body.access_token !== 'undefined') {
+            if (typeof body.access_token !== 'undefined') {
 
-                // Stores access token in local storage to keep user signed in.
-                localStorage.setItem('id_token', body.access_token);
-
-                // Decodes the token.
-                this.decodeToken();
+                // Stores access token & refresh token.
+                this.store(body);
 
             }
 
@@ -272,6 +282,51 @@ public signin(tokenEndpoint: string, data: any): Observable<any> {
 
 }
 ```
+By default, _AuthenticationService_ class requires and stores a _refresh token_: depending on the chosen strategy, you can request a new _access token_ for the user by calling the _getNewToken_ method:
+```TypeScript
+/**
+ * Tries to get a new token using refresh token.
+ */
+public getNewToken(): void {
+
+    let refreshToken: string = localStorage.getItem('refresh_token');
+
+    if (refreshToken != null) {
+
+        // Token endpoint & params.
+        let tokenEndpoint: string = Config.TOKEN_ENDPOINT;
+
+        let params: any = {
+            client_id: Config.CLIENT_ID,
+            grant_type: "refresh_token",
+            refresh_token: refreshToken
+        };
+
+        // Encodes the parameters.
+        let body: string = this.econdeData(params);
+
+        this.http.post(tokenEndpoint, body, this.options)
+            .subscribe(
+            (res: Response) => {
+
+                let body: any = res.json();
+
+                // Successful if there's an access token in the response.
+                if (typeof body.access_token !== 'undefined') {
+
+                    // Stores access token & refresh token.
+                    this.store(body);
+
+                }
+
+            });
+
+    }
+
+}
+```
+There are also two methods for revocation of the token, invoked by default when the user sign up: _revokeToken_ and _revokeRefreshToken_.
+
 To send authenticated requests, as in _ResourcesComponent_ class, we use angular2-jwt library, that builds for us the header with the authorization token:
 ```TypeScript
 // Sends an authenticated request.

@@ -92,7 +92,7 @@ dotnet ef database update
 ```
 
 ## Advice
-- Add your strategy for refreshing token
+- Add your strategy for refreshing token in the client app
 - Enable account confirmation and the other Identity services
 - Use a SSL certificate: [Insecure passwords](https://developer.mozilla.org/en-US/docs/Web/Security/Insecure_passwords)
 - If more than one client app requires the Web API, use an interactive flow: IdentityServer4 or the other libraries allow you to scale your application 

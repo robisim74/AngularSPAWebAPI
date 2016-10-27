@@ -35,9 +35,9 @@
                         Required
                     </small>
                     <br />
-                    <small *ngIf="errorMessage != ''" class="has-error">
-                        {{ errorMessage }}
-                    </small>
+                    <div *ngIf="errorMessage != ''" class="has-error">
+                        <small>{{ errorMessage }}</small>
+                    </div>
                     <div *ngIf="errorMessages.length > 0" class="has-error">
                         <div *ngFor="let errorMsg of errorMessages">
                             <small>{{ errorMsg.description }}</small>

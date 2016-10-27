@@ -25,7 +25,7 @@ export class AppComponent {
     get name(): string {
 
         let user: any = this.authenticationService.getUser();
-        return user != null ? user.given_name : "";
+        return (typeof user.given_name !== 'undefined') ? user.given_name : "";
 
     }
 
@@ -34,7 +34,7 @@ export class AppComponent {
 
         let user: any = this.authenticationService.getUser();
 
-        if (user != null) {
+        if (typeof user.role !== 'undefined') {
 
             let roles: string[] = user.role;
             return roles.indexOf("administrator") != -1;

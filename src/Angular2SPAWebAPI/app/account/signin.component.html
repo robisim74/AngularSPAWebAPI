@@ -20,9 +20,9 @@
                         Required
                     </small>
                     <br />
-                    <small *ngIf="errorMessage != ''" class="has-error">
-                        {{ errorMessage }}
-                    </small>
+                    <div *ngIf="errorMessage != ''" class="has-error">
+                        <small>{{ errorMessage }}</small>
+                    </div>
                     <br />
                 </div>
                 <div>

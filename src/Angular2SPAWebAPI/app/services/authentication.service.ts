@@ -7,6 +7,8 @@ import 'rxjs/add/observable/throw';
 
 import { JwtHelper, tokenNotExpired } from 'angular2-jwt';
 
+import { Config } from '../config';
+
 /**
  * ROPC Authentication service.
  */
@@ -22,49 +24,53 @@ import { JwtHelper, tokenNotExpired } from 'angular2-jwt';
      */
     private user: any = {};
 
+    private headers: Headers;
+    private options: RequestOptions;
+
     constructor(private http: Http) {
 
-        // On bootstrap or refresh gets the user's data.
+        // On bootstrap or refresh, tries to get the user's data.
         this.decodeToken();
+
+        // Creates header for post requests.
+        this.headers = new Headers({ 'Content-Type': 'application/x-www-form-urlencoded' });
+        this.options = new RequestOptions({ headers: this.headers });
 
     }
 
     /**
      * Tries to sign in the user.
      *
-     * @param tokenEndpoint The endpoint to request the acces token
-     * @param data The data requested by endpoint for authentication
+     * @param username
+     * @param password
      * @return The user's data
      */
-    public signin(tokenEndpoint: string, data: any): Observable<any> {
+    public signin(username: string, password: string): Observable<any> {
 
-        // Encodes the data for the body.
-        let body: string = "";
-        for (let key in data) {
-            if (body.length) {
-                body += "&";
-            }
-            body += key + "=";
-            body += encodeURIComponent(data[key]);
-        }
+        // Token endpoint & params.
+        let tokenEndpoint: string = Config.TOKEN_ENDPOINT;
 
-        // Creates header.
-        let headers: Headers = new Headers({ 'Content-Type': 'application/x-www-form-urlencoded' });
-        let options: RequestOptions = new RequestOptions({ headers: headers });
+        let params: any = {
+            client_id: Config.CLIENT_ID,
+            grant_type: Config.GRANT_TYPE,
+            username: username,
+            password: password,
+            scope: Config.SCOPE
+        };
 
-        return this.http.post(tokenEndpoint, body, options)
+        // Encodes the parameters.
+        let body: string = this.econdeData(params);
+
+        return this.http.post(tokenEndpoint, body, this.options)
             .map((res: Response) => {
 
                 let body: any = res.json();
 
                 // Sign in successful if there's an access token in the response.
-                if (body != null && typeof body.access_token !== 'undefined') {
+                if (typeof body.access_token !== 'undefined') {
 
-                    // Stores access token in local storage to keep user signed in.
-                    localStorage.setItem('id_token', body.access_token);
-
-                    // Decodes the token.
-                    this.decodeToken();
+                    // Stores access token & refresh token.
+                    this.store(body);
 
                 }
 
@@ -78,7 +84,114 @@ import { JwtHelper, tokenNotExpired } from 'angular2-jwt';
     }
 
     /**
-     * Removes user and token from storage to sign user out.
+     * Tries to get a new token using refresh token.
+     */
+    public getNewToken(): void {
+
+        let refreshToken: string = localStorage.getItem('refresh_token');
+
+        if (refreshToken != null) {
+
+            // Token endpoint & params.
+            let tokenEndpoint: string = Config.TOKEN_ENDPOINT;
+
+            let params: any = {
+                client_id: Config.CLIENT_ID,
+                grant_type: "refresh_token",
+                refresh_token: refreshToken
+            };
+
+            // Encodes the parameters.
+            let body: string = this.econdeData(params);
+
+            this.http.post(tokenEndpoint, body, this.options)
+                .subscribe(
+                (res: Response) => {
+
+                    let body: any = res.json();
+
+                    // Successful if there's an access token in the response.
+                    if (typeof body.access_token !== 'undefined') {
+
+                        // Stores access token & refresh token.
+                        this.store(body);
+
+                    }
+
+                });
+
+        }
+
+    }
+
+    /**
+     * Revokes token.
+     */
+    public revokeToken(): void {
+
+        let token: string = localStorage.getItem('id_token');
+
+        if (token != null) {
+
+            // Revocation endpoint & params.
+            let revocationEndpoint: string = Config.REVOCATION_ENDPOINT;
+
+            let params: any = {
+                client_id: Config.CLIENT_ID,
+                token_type_hint: "access_token",
+                token: token
+            };
+
+            // Encodes the parameters.
+            let body: string = this.econdeData(params);
+
+            this.http.post(revocationEndpoint, body, this.options)
+                .subscribe(
+                (res: Response) => {
+
+                    localStorage.removeItem('id_token');
+
+                });
+
+        }
+
+    }
+
+    /**
+     * Revokes refresh token.
+     */
+    public revokeRefreshToken(): void {
+
+        let refreshToken: string = localStorage.getItem('refresh_token');
+
+        if (refreshToken != null) {
+
+            // Revocation endpoint & params.
+            let revocationEndpoint: string = Config.REVOCATION_ENDPOINT;
+
+            let params: any = {
+                client_id: Config.CLIENT_ID,
+                token_type_hint: "refresh_token",
+                token: refreshToken
+            };
+
+            // Encodes the parameters.
+            let body: string = this.econdeData(params);
+
+            this.http.post(revocationEndpoint, body, this.options)
+                .subscribe(
+                (res: Response) => {
+
+                    localStorage.removeItem('refresh_token');
+
+                });
+
+        }
+
+    }
+
+    /**
+     * Removes user and revokes tokens.
      */
     public signout(): void {
 
@@ -86,7 +199,11 @@ import { JwtHelper, tokenNotExpired } from 'angular2-jwt';
 
         this.user = {};
 
-        localStorage.removeItem('id_token');
+        // Revokes token.
+        this.revokeToken();
+
+        // Revokes refresh token.
+        this.revokeRefreshToken();
 
     }
 
@@ -114,6 +231,43 @@ import { JwtHelper, tokenNotExpired } from 'angular2-jwt';
             this.user = jwtHelper.decodeToken(token);
 
         }
+
+    }
+
+    /**
+     * // Encodes the parameters.
+     *
+     * @param params The parameters to be encoded
+     * @return The encoded parameters
+     */
+    private econdeData(params: any): string {
+
+        let body: string = "";
+        for (let key in params) {
+            if (body.length) {
+                body += "&";
+            }
+            body += key + "=";
+            body += encodeURIComponent(params[key]);
+        }
+
+        return body;
+    }
+
+    /**
+     * Stores access token & refresh token.
+     *
+     * @param body The response of the request to the token endpoint
+     */
+    private store(body: any): void {
+
+        // Stores access token in local storage to keep user signed in.
+        localStorage.setItem('id_token', body.access_token);
+        // Stores refresh token in local storage.
+        localStorage.setItem('refresh_token', body.refresh_token);
+
+        // Decodes the token.
+        this.decodeToken();
 
     }
 

@@ -1,6 +1,5 @@
 ﻿import { Router } from '@angular/router';
 
-import { Config } from '../config';
 import { AuthenticationService } from '../services/authentication.service';
 
 /**
@@ -16,18 +15,7 @@ export class Signin {
 
     signin(): void {
 
-        // Token endpoint & data.
-        let tokenEndpoint: string = Config.TOKEN_ENDPOINT;
-
-        let data: any = {
-            client_id: Config.CLIENT_ID,
-            grant_type: Config.GRANT_TYPE,
-            username: this.model.username,
-            password: this.model.password,
-            scope: Config.SCOPE
-        };
-
-        this.authenticationService.signin(tokenEndpoint, data)
+        this.authenticationService.signin(this.model.username, this.model.password)
             .subscribe(
             () => {
 
@@ -45,6 +33,7 @@ export class Signin {
 
                 // Checks for error in response (error from the Token endpoint).
                 if (error.body != "") {
+
                     let body: any = error.json();
 
                     switch (body.error) {

@@ -23,7 +23,8 @@ namespace Angular2SPAWebAPI
                         new ScopeClaim("family_name"),
                         new ScopeClaim("role")
                     }
-                }
+                },
+                StandardScopes.OfflineAccess // For refresh tokens.
             };
         }
 
@@ -40,11 +41,12 @@ namespace Angular2SPAWebAPI
                     AllowedGrantTypes = GrantTypes.ResourceOwnerPassword, // Resource Owner Password Credential grant.
                     AllowAccessTokensViaBrowser = true,
                     RequireClientSecret = false, // This client does not need a secret to request tokens from the token endpoint.
-                    AccessTokenLifetime = 3600, // Lifetime of access token in seconds: you need to handle the refresh token.
+                    AccessTokenLifetime = 900, // Lifetime of access token in seconds.
 
                     AllowedScopes = new List<string>
                     {
-                        "WebAPI"
+                        "WebAPI",
+                        StandardScopes.OfflineAccess.Name // "offline_access" for refresh tokens.
                     }
                 }
             };

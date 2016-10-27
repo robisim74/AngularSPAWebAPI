@@ -258,7 +258,7 @@ public signin(username: string, password: string): Observable<any> {
     };
 
     // Encodes the parameters.
-    let body: string = this.econdeData(params);
+    let body: string = this.encodeParams(params);
 
     return this.http.post(tokenEndpoint, body, this.options)
         .map((res: Response) => {
@@ -303,7 +303,7 @@ public getNewToken(): void {
         };
 
         // Encodes the parameters.
-        let body: string = this.econdeData(params);
+        let body: string = this.encodeParams(params);
 
         this.http.post(tokenEndpoint, body, this.options)
             .subscribe(
@@ -325,7 +325,7 @@ public getNewToken(): void {
 
 }
 ```
-There are also two methods for revocation of the token, invoked by default when the user sign up: _revokeToken_ and _revokeRefreshToken_.
+There are also two methods for revocation of the token, invoked by default when the user sign out: _revokeToken_ and _revokeRefreshToken_.
 
 To send authenticated requests, as in _ResourcesComponent_ class, we use angular2-jwt library, that builds for us the header with the authorization token:
 ```TypeScript
@@ -347,7 +347,6 @@ angular2-jwt also provides some very useful helpers, as _decodeToken_ method to 
 and _tokenNotExpired_ method to check the expiration of the token.
 
 ### Building the Angular 2 app with AoT compilation & webpack
-
 For production, we build the Angular 2 app through [ngc compiler](https://angular.io/docs/ts/latest/cookbook/aot-compiler.html) & webpack. 
 To do this, after the AoT compilation, in _webpack.config.js_ file we set as entry point _main-aot.ts_:
 ```JavaScript

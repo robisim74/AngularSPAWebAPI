@@ -59,7 +59,7 @@ import { Config } from '../config';
         };
 
         // Encodes the parameters.
-        let body: string = this.econdeData(params);
+        let body: string = this.encodeParams(params);
 
         return this.http.post(tokenEndpoint, body, this.options)
             .map((res: Response) => {
@@ -102,7 +102,7 @@ import { Config } from '../config';
             };
 
             // Encodes the parameters.
-            let body: string = this.econdeData(params);
+            let body: string = this.encodeParams(params);
 
             this.http.post(tokenEndpoint, body, this.options)
                 .subscribe(
@@ -143,7 +143,7 @@ import { Config } from '../config';
             };
 
             // Encodes the parameters.
-            let body: string = this.econdeData(params);
+            let body: string = this.encodeParams(params);
 
             this.http.post(revocationEndpoint, body, this.options)
                 .subscribe(
@@ -176,7 +176,7 @@ import { Config } from '../config';
             };
 
             // Encodes the parameters.
-            let body: string = this.econdeData(params);
+            let body: string = this.encodeParams(params);
 
             this.http.post(revocationEndpoint, body, this.options)
                 .subscribe(
@@ -240,7 +240,7 @@ import { Config } from '../config';
      * @param params The parameters to be encoded
      * @return The encoded parameters
      */
-    private econdeData(params: any): string {
+    private encodeParams(params: any): string {
 
         let body: string = "";
         for (let key in params) {

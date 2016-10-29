@@ -139,8 +139,7 @@ and to _Values_ controller, that returns the resources for the authenticated use
 public class ValuesController : Controller
 ...
 ```
-Remember: when we have defined our _scope_, we have also included the _role_ claim to allow the client application 
-to know the user's role.
+Remember: when we have defined our _scope_, we have also included the _role_ claim to allow the client application to know the user's role.
 
 Finally, we set the startup on the entry point of the client application:
 ```C#
@@ -234,7 +233,7 @@ and so on.
 ### Implementing the Angular 2 SPA
 Ok, how do we transform the requests done via Postman in an Angular 2 app?
 
-In this sample, to send unauthenticated requests for sign in and sign up, we use the Angular 2 _http_ module, 
+In this sample, to send unauthenticated requests for signing in and signing up the user, we use the Angular 2 _http_ module, 
 as in _AuthenticationService_ class:
 ```TypeScript
 /**
@@ -325,7 +324,7 @@ public getNewToken(): void {
 
 }
 ```
-There are also two methods for revocation of the token, invoked by default when the user sign out: _revokeToken_ and _revokeRefreshToken_.
+There are also two methods for revocation of the tokens, invoked by default when the user signs out: _revokeToken_ and _revokeRefreshToken_.
 
 To send authenticated requests, as in _ResourcesComponent_ class, we use angular2-jwt library, that builds for us the header with the authorization token:
 ```TypeScript

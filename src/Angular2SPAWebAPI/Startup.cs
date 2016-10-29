@@ -3,11 +3,13 @@ using Angular2SPAWebAPI.Models;
 using Angular2SPAWebAPI.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Linq;
 
 namespace Angular2SPAWebAPI
 {
@@ -75,10 +77,30 @@ namespace Angular2SPAWebAPI
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, ApplicationDbContext context)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, ApplicationDbContext _context)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
+
+            // Router on the server must match the router on the client (see app.routing.ts) to use PathLocationStrategy.
+            var appRoutes = new[] {
+                 "/home",
+                 "/resources",
+                 "/dashboard",
+                 "/resources",
+                 "/signin",
+                 "/signup"
+             };
+
+            app.Use(async (context, next) =>
+            {
+                if (context.Request.Path.HasValue && appRoutes.Contains(context.Request.Path.Value))
+                {
+                    context.Request.Path = new PathString("/");
+                }
+
+                await next();
+            });
 
             // IdentityServer4.AccessTokenValidation: authentication middleware for the API.
             app.UseIdentityServerAuthentication(new IdentityServerAuthenticationOptions
@@ -105,7 +127,7 @@ namespace Angular2SPAWebAPI
             app.UseIdentityServer();
 
             // Initializes the database.
-            DbInitializer.Initialize(context);
+            DbInitializer.Initialize(_context);
         }
     }
 }

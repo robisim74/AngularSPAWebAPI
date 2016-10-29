@@ -147,7 +147,7 @@ import { Config } from '../config';
 
             this.http.post(revocationEndpoint, body, this.options)
                 .subscribe(
-                (res: Response) => {
+                () => {
 
                     localStorage.removeItem('id_token');
 
@@ -180,7 +180,7 @@ import { Config } from '../config';
 
             this.http.post(revocationEndpoint, body, this.options)
                 .subscribe(
-                (res: Response) => {
+                () => {
 
                     localStorage.removeItem('refresh_token');
 

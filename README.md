@@ -22,6 +22,7 @@ The same scenarios are also supported by [AspNet.Security.OpenIdConnect.Server](
 
 **Links**
 - [Creating your own OpenID Connect server with ASOS](http://kevinchalet.com/2016/07/13/creating-your-own-openid-connect-server-with-asos-introduction/)
+- [Bearer Token Authentication in ASP.NET Core](https://blogs.msdn.microsoft.com/webdev/2016/10/27/bearer-token-authentication-in-asp-net-core/)
 
 ## Project structure
 **Angular2SPAWebAPI** _ASP.NET Core Web API project_

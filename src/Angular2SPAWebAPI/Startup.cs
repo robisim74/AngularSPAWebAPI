@@ -70,7 +70,8 @@ namespace Angular2SPAWebAPI
             services.AddTransient<ISmsSender, AuthMessageSender>();
 
             // Adds IdentityServer.
-            services.AddDeveloperIdentityServer()
+            services.AddIdentityServer()
+                .AddTemporarySigningCredential()
                 .AddInMemoryScopes(Config.GetScopes())
                 .AddInMemoryClients(Config.GetClients())
                 .AddAspNetIdentity<ApplicationUser>(); // IdentityServer4.AspNetIdentity.

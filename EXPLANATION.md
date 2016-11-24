@@ -3,9 +3,7 @@
 ### Configuring the ASP.NET Core Web API & IdentityServer4
 Why should you use a service like IdentityServer4 for _Resource Owner Password Credentials grant_ (ROPC) in ASP.NET Core?
 Sure, it would be possible to implement it, as in this very useful guide: [ASP.NET Core Token Authentication Guide](https://stormpath.com/blog/token-authentication-asp-net-core).
-For two reasons:
-- it's simple;
-- it allows you to scale your application.
+Because it allows you to scale your application.
 
 Let's see what the _Config.cs_ file contains for configuring IdentityServer4. The following is the identification of our client app:
 ```C#
@@ -80,7 +78,8 @@ app.UseIdentityServerAuthentication(new IdentityServerAuthenticationOptions
 We complete the configuration by adding IdentityServer in _ConfigureServices_ method:
 ```C#
 // Adds IdentityServer.
-services.AddDeveloperIdentityServer()
+services.AddIdentityServer()
+	.AddTemporarySigningCredential()
     .AddInMemoryScopes(Config.GetScopes())
     .AddInMemoryClients(Config.GetClients())
     .AddAspNetIdentity<ApplicationUser>(); // IdentityServer4.AspNetIdentity.
@@ -90,8 +89,6 @@ The extension method _AddAspNetIdentity_ to use the ASP.NET Identity requires an
 // Adds IdentityServer.
 app.UseIdentityServer();
 ```
-That's it for IdentityServer4!
-
 Now we can add related services: Identity and for simplicity SQLite. 
 ```C#
 // Identity & SQLite.

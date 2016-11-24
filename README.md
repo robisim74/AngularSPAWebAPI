@@ -44,8 +44,8 @@ The same scenarios are also supported by [AspNet.Security.OpenIdConnect.Server](
 - **webpack.config.js** _Webpack configuration file for development & production of Angular 2 app_
 
 ## Installing
-- Check for .NET Core: **^1.0.0-preview2-003131**
-- Check for TypeScript for Visual Studio 2015: **^2.0.3**
+- Check for .NET Core 1.1: **^1.0.0-preview2-1-003177** and the latest Visual Studio Tools: https://www.microsoft.com/net/download/core
+- Check for the latest TypeScript for Visual Studio: https://www.typescriptlang.org/#download-links
 - Edit `ConnectionStrings` in _appsettings.json_
 - Wait for packages restoring and build the solution
 - Start debugging
@@ -56,8 +56,8 @@ To use another database simply:
 - Edit `ConnectionStrings` in _appsettings.json_
 - Edit `dependencies` in _project.json_:
 ```
-"Microsoft.EntityFrameworkCore.Sqlite": "1.0.1",
-"Microsoft.EntityFrameworkCore.Sqlite.Design": "1.0.1"
+"Microsoft.EntityFrameworkCore.Sqlite": "1.1.0",
+"Microsoft.EntityFrameworkCore.Sqlite.Design": "1.1.0"
 ```
 - Edit in _Startup.cs_:
 ```

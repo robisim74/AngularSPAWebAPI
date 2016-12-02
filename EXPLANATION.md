@@ -371,7 +371,7 @@ public startupTokenRefresh() {
                 () => {
                     this.scheduleRefresh();
                 },
-                (error: any) => { this.unscheduleRefresh(); }
+                (error: any) => { console.log(error); }
             );
         });
 

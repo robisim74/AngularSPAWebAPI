@@ -39,7 +39,7 @@ import { Config } from '../config';
     /**
      * Delay offset for the scheduling to avoid the inconsistency of data on the client.
      */
-    private offsetSeconds: number = 10;
+    private offsetSeconds: number = 30;
 
     private headers: Headers;
     private options: RequestOptions;
@@ -154,7 +154,7 @@ import { Config } from '../config';
                     () => {
                         this.scheduleRefresh();
                     },
-                    (error: any) => { this.unscheduleRefresh(); }
+                    (error: any) => { console.log(error); }
                 );
             });
 

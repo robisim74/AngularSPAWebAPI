@@ -79,6 +79,7 @@ namespace Angular2SPAWebAPI.Controllers
                 new IdentityUserClaim<string> { ClaimType = JwtClaimTypes.GivenName, ClaimValue = model.givenName },
                 new IdentityUserClaim<string> { ClaimType = JwtClaimTypes.FamilyName, ClaimValue = model.familyName },
                 new IdentityUserClaim<string> { ClaimType = JwtClaimTypes.Role, ClaimValue = "user" }
+                // Add new claims, for example other roles.
             };
             foreach (var claim in claims)
             {

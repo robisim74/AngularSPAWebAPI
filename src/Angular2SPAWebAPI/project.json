@@ -1,4 +1,4 @@
-﻿{
+{
   "dependencies": {
     "IdentityServer4": "1.0.0-rc3",
     "IdentityServer4.AccessTokenValidation": "1.0.1-rc3",

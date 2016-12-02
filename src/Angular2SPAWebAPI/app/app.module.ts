@@ -24,9 +24,11 @@ import { MaterialModule } from '@angular/material';
 import { AuthHttp, AuthConfig } from 'angular2-jwt';
 import { Http } from '@angular/http';
 
+// Set tokenGetter to use the same storage in AuthenticationService.Helpers.
 export function getAuthHttp(http: Http) {
     return new AuthHttp(new AuthConfig({
-        noJwtError: true
+        noJwtError: true,
+        tokenGetter: (() => localStorage.getItem('id_token'))
     }), http);
 }
 

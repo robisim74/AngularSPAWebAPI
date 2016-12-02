@@ -1,9 +1,7 @@
 ﻿import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { tokenNotExpired } from 'angular2-jwt';
-
-import { AuthenticationService } from './services/authentication.service';
+import { AuthenticationService, tokenNotExpired } from './services/authentication.service';
 
 @Component({
     selector: 'app-component',
@@ -12,7 +10,12 @@ import { AuthenticationService } from './services/authentication.service';
 
 export class AppComponent {
 
-    constructor(public authenticationService: AuthenticationService, private router: Router) { }
+    constructor(public authenticationService: AuthenticationService, private router: Router) {
+
+        // Optional strategy for refresh token through a scheduler.
+        this.authenticationService.startupTokenRefresh();
+
+    }
 
     // Checks if user is signed in (token in not expired).
     get signedIn(): boolean {

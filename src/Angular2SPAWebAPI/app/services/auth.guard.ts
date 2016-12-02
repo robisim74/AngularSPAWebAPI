@@ -1,9 +1,7 @@
 ﻿import { Injectable } from '@angular/core';
 import { Router, CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 
-import { tokenNotExpired } from 'angular2-jwt';
-
-import { AuthenticationService } from './authentication.service';
+import { AuthenticationService, tokenNotExpired } from './authentication.service';
 
 /**
  * Decides if a route can be activated.

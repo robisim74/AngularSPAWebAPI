@@ -4,8 +4,10 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/observable/throw';
+import 'rxjs/add/observable/interval';
+import 'rxjs/add/observable/timer';
 
-import { JwtHelper, tokenNotExpired } from 'angular2-jwt';
+import { AuthHttp } from 'angular2-jwt';
 
 import { Config } from '../config';
 
@@ -24,13 +26,28 @@ import { Config } from '../config';
      */
     private user: any = {};
 
+    /**
+     * Token info.
+     */
+    private expiresIn: number;
+    private authTime: number;
+
+    /**
+     * Scheduling of the refresh token.
+     */
+    private refreshSubscription: any;
+    /**
+     * Delay offset for the scheduling to avoid the inconsistency of data on the client.
+     */
+    private offsetSeconds: number = 10;
+
     private headers: Headers;
     private options: RequestOptions;
 
-    constructor(private http: Http) {
+    constructor(private http: Http, private authHttp: AuthHttp) {
 
-        // On bootstrap or refresh, tries to get the user's data.
-        this.decodeToken();
+        // On bootstrap or refresh, tries to get users'data.
+        this.userInfo();
 
         // Creates header for post requests.
         this.headers = new Headers({ 'Content-Type': 'application/x-www-form-urlencoded' });
@@ -61,12 +78,128 @@ import { Config } from '../config';
         // Encodes the parameters.
         let body: string = this.encodeParams(params);
 
+        this.authTime = new Date().valueOf();
+
         return this.http.post(tokenEndpoint, body, this.options)
             .map((res: Response) => {
 
                 let body: any = res.json();
 
                 // Sign in successful if there's an access token in the response.
+                if (typeof body.access_token !== 'undefined') {
+
+                    // Stores access token & refresh token.
+                    this.store(body);
+                    // Gets user info.
+                    this.userInfo();
+
+                }
+
+            }).catch((error: any) => {
+
+                // Error on post request.
+                return Observable.throw(error);
+
+            });
+
+    }
+
+    /**
+     * Optional strategy for refresh token through a scheduler.
+     *
+     * It will schedule a refresh at the appropriate time.
+     */
+    public scheduleRefresh() {
+
+        let source = this.authHttp.tokenStream.flatMap(
+            (token: string) => {
+
+                let delay: number = this.expiresIn - this.offsetSeconds * 1000;
+
+                return Observable.interval(delay);
+
+            });
+
+        this.refreshSubscription = source.subscribe(() => {
+            this.getNewToken().subscribe(
+                () => { /*ok*/ },
+                (error: any) => { this.unscheduleRefresh(); }
+            );
+        });
+
+    }
+
+    /**
+     * Case when the user comes back to the app after closing it.
+     */
+    public startupTokenRefresh() {
+
+        // If the user is authenticated, uses the token stream
+        // provided by angular2-jwt and flatMap the token.
+        if (tokenNotExpired()) {
+
+            let source = this.authHttp.tokenStream.flatMap(
+                (token: string) => {
+                    let now: number = new Date().valueOf();
+                    let exp: number = Helpers.getExp();
+                    let delay: number = exp - now - this.offsetSeconds * 1000;
+
+                    // Uses the delay in a timer to run the refresh at the proper time. 
+                    return Observable.timer(delay);
+                });
+
+            // Once the delay time from above is reached, gets a new JWT and schedules additional refreshes.
+            source.subscribe(() => {
+                this.getNewToken().subscribe(
+                    () => {
+                        this.scheduleRefresh();
+                    },
+                    (error: any) => { this.unscheduleRefresh(); }
+                );
+            });
+
+        }
+
+    }
+
+    /**
+     * Unsubscribes from the scheduling of the refresh token.
+     */
+    public unscheduleRefresh() {
+
+        if (this.refreshSubscription) {
+            this.refreshSubscription.unsubscribe();
+        }
+
+    }
+
+    /**
+     * Tries to get a new token using refresh token.
+     */
+    public getNewToken(): Observable<any> {
+
+        let refreshToken: string = Helpers.getToken('refresh_token');
+
+        // Token endpoint & params.
+        let tokenEndpoint: string = Config.TOKEN_ENDPOINT;
+
+        let params: any = {
+            client_id: Config.CLIENT_ID,
+            grant_type: "refresh_token",
+            refresh_token: refreshToken
+        };
+
+        // Encodes the parameters.
+        let body: string = this.encodeParams(params);
+
+        this.authTime = new Date().valueOf();
+
+        return this.http.post(tokenEndpoint, body, this.options)
+            .map((res: Response) => {
+
+                let body: any = res.json();
+
+                // Successful if there's an access token in the response.
                 if (typeof body.access_token !== 'undefined') {
 
                     // Stores access token & refresh token.
@@ -84,52 +217,11 @@ import { Config } from '../config';
     }
 
     /**
-     * Tries to get a new token using refresh token.
-     */
-    public getNewToken(): void {
-
-        let refreshToken: string = localStorage.getItem('refresh_token');
-
-        if (refreshToken != null) {
-
-            // Token endpoint & params.
-            let tokenEndpoint: string = Config.TOKEN_ENDPOINT;
-
-            let params: any = {
-                client_id: Config.CLIENT_ID,
-                grant_type: "refresh_token",
-                refresh_token: refreshToken
-            };
-
-            // Encodes the parameters.
-            let body: string = this.encodeParams(params);
-
-            this.http.post(tokenEndpoint, body, this.options)
-                .subscribe(
-                (res: Response) => {
-
-                    let body: any = res.json();
-
-                    // Successful if there's an access token in the response.
-                    if (typeof body.access_token !== 'undefined') {
-
-                        // Stores access token & refresh token.
-                        this.store(body);
-
-                    }
-
-                });
-
-        }
-
-    }
-
-    /**
      * Revokes token.
      */
     public revokeToken(): void {
 
-        let token: string = localStorage.getItem('id_token');
+        let token: string = Helpers.getToken('id_token');
 
         if (token != null) {
 
@@ -149,7 +241,8 @@ import { Config } from '../config';
                 .subscribe(
                 () => {
 
-                    localStorage.removeItem('id_token');
+                    Helpers.removeToken('id_token');
+                    Helpers.removeExp();
 
                 });
 
@@ -162,7 +255,7 @@ import { Config } from '../config';
      */
     public revokeRefreshToken(): void {
 
-        let refreshToken: string = localStorage.getItem('refresh_token');
+        let refreshToken: string = Helpers.getToken('refresh_token');
 
         if (refreshToken != null) {
 
@@ -182,7 +275,7 @@ import { Config } from '../config';
                 .subscribe(
                 () => {
 
-                    localStorage.removeItem('refresh_token');
+                    Helpers.removeToken('refresh_token');
 
                 });
 
@@ -199,10 +292,11 @@ import { Config } from '../config';
 
         this.user = {};
 
-        // Revokes token.
-        this.revokeToken();
+        // Unschedules the refresh token.
+        this.unscheduleRefresh();
 
-        // Revokes refresh token.
+        // Revokes tokens.
+        this.revokeToken();
         this.revokeRefreshToken();
 
     }
@@ -219,23 +313,31 @@ import { Config } from '../config';
     }
 
     /**
-     * Decodes token through JwtHelper.
+     * Calls UserInfo endpoint to retrieve user's data.
      */
-    private decodeToken(): void {
+    public userInfo() {
 
-        if (tokenNotExpired()) {
+        let token: string = Helpers.getToken('id_token');
 
-            let token: string = localStorage.getItem('id_token');
+        if (token != null && tokenNotExpired()) {
+            this.authHttp.get(Config.USERINFO_ENDPOINT)
+                .subscribe(
+                (res: any) => {
 
-            let jwtHelper: JwtHelper = new JwtHelper();
-            this.user = jwtHelper.decodeToken(token);
+                    this.user = res.json();
 
+                },
+                (error: any) => {
+
+                    console.log(error);
+
+                });
         }
 
-    }
+    };
 
     /**
-     * // Encodes the parameters.
+     * Encodes the parameters.
      *
      * @param params The parameters to be encoded
      * @return The encoded parameters
@@ -261,13 +363,99 @@ import { Config } from '../config';
      */
     private store(body: any): void {
 
-        // Stores access token in local storage to keep user signed in.
-        localStorage.setItem('id_token', body.access_token);
-        // Stores refresh token in local storage.
-        localStorage.setItem('refresh_token', body.refresh_token);
+        // Stores access token to keep user signed in.
+        Helpers.setToken('id_token', body.access_token);
+        // Stores refresh token.
+        Helpers.setToken('refresh_token', body.refresh_token);
 
-        // Decodes the token.
-        this.decodeToken();
+        // Calculates token expiration.
+        this.expiresIn = <number>body.expires_in * 1000; // To milliseconds.
+        // Stores token expiration.
+        Helpers.setExp(this.authTime + this.expiresIn);
+
+    }
+
+}
+
+/**
+ * Checks for presence of token and that token hasn't expired.
+ * For use with the @CanActivate router decorator and NgIf.
+ */
+export function tokenNotExpired(): boolean {
+
+    let token: string = Helpers.getToken('id_token');
+
+    return token != null && (Helpers.getExp() > new Date().valueOf());
+}
+
+// Set Helpers to use the same storage in AppModule.
+class Helpers {
+
+    /**
+     * Gets the token from the storage.
+     *
+     * @param name Token's name
+     * @return The Token
+     */
+    public static getToken(name: string): string {
+
+        return localStorage.getItem(name);
+
+    }
+
+    /**
+     * Stores the token.
+     *
+     * @param name Token's name
+     * @param value The token
+     */
+    public static setToken(name: string, value: string) {
+
+        localStorage.setItem(name, value);
+
+    }
+
+    /**
+     * Removes the token from the storage.
+     *
+     * @param name Token's name
+     */
+    public static removeToken(name: string): void {
+
+        localStorage.removeItem(name);
+
+    }
+
+    /**
+     * Stores token expiration.
+     *
+     * @param exp Token expiration in milliseconds
+     */
+    public static setExp(exp: number) {
+
+        localStorage.setItem("exp", exp.toString());
+
+    }
+
+    /**
+     * Gets token expiration.
+     *
+     * @return Token expiration in milliseconds
+     */
+    public static getExp(): number {
+
+        return parseInt(localStorage.getItem("exp"));
+
+    }
+
+    /**
+     * Removes token expiration from the storage.
+     *
+     * @return Token expiration in milliseconds
+     */
+    public static removeExp(): void {
+
+        localStorage.removeItem("exp");
 
     }
 

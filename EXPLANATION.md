@@ -23,14 +23,14 @@ public static IEnumerable<Client> GetClients()
 
             AccessTokenLifetime = 900, // Lifetime of access token in seconds.
 
-            AllowedScopes = new List<string>
-            {
+            AllowedScopes = {
+                IdentityServerConstants.StandardScopes.OpenId, // For UserInfo endpoint.
+                IdentityServerConstants.StandardScopes.Profile,
                 "WebAPI",
-                StandardScopes.OfflineAccess.Name, // "offline_access" for refresh tokens.
-                StandardScopes.OpenId.Name, // "openid" for UserInfo endpoint.
-                StandardScopes.Profile.Name,
-                StandardScopes.Roles.Name
-            }
+                "roles"
+            },
+            AllowOfflineAccess = true // For refresh token.
+
         }
     };
 }
@@ -43,31 +43,32 @@ Our Angular 2 app, identified as _Angular2SPA_:
 - can access to the _scopes_: in this case our Web API, called with a lot of imagination _WebAPI_, the _OfflineAccess_ for refresh token 
 and _OpenId_ to access to the user's info.
 ```C#
-// Scopes define the resources in the system.
-public static IEnumerable<Scope> GetScopes()
+// Identity resources (used by UserInfo endpoint).
+public static IEnumerable<IdentityResource> GetIdentityResources()
 {
-    // Each scope must be in the params when the access token is request. See config.ts in the client app.
-    return new List<Scope>
+    return new List<IdentityResource>
     {
-        new Scope
-        {
-            Name = "WebAPI",
-            Description = "Web API for the Angular 2 SPA",
+        new IdentityResources.OpenId(),
+        new IdentityResources.Profile(),
+        new IdentityResource("roles", new List<string> { "role" })
+    };
+}
 
-            Type = ScopeType.Resource, // Access token is for APIs.
-
-            // Defines which user claims will be included in the access token
-            // when this scope gets requested.
-            // We include role claims because we need them to access to the resources.
-            Claims = new List<ScopeClaim>
+// Api resources.
+public static IEnumerable<ApiResource> GetApiResources()
+{
+    return new List<ApiResource>
+    {
+        new ApiResource("WebAPI" ) {
+            Scopes =
             {
-                new ScopeClaim("role")
-            }
-        },
-        StandardScopes.OfflineAccess, // For refresh token.
-        StandardScopes.OpenId, // For UserInfo endpoint: https://identityserver4.readthedocs.io/en/release/endpoints/userinfo.html
-        StandardScopes.Profile,
-        StandardScopes.Roles
+                new Scope
+                {
+                    Name = "roles"
+                }
+            },
+            UserClaims = { "role"}
+        }
     };
 }
 ```
@@ -80,7 +81,7 @@ we add the authentication middleware:
 app.UseIdentityServerAuthentication(new IdentityServerAuthenticationOptions
 {
     Authority = "http://localhost:5000/",
-    ScopeName = "WebAPI",
+    AllowedScopes = { "WebAPI" },
 
     RequireHttpsMetadata = false
 });
@@ -88,9 +89,13 @@ app.UseIdentityServerAuthentication(new IdentityServerAuthenticationOptions
 We complete the configuration by adding IdentityServer in _ConfigureServices_ method:
 ```C#
 // Adds IdentityServer.
+// The AddTemporarySigningCredential extension creates temporary key material for signing tokens on every start.
+// Again this might be useful to get started, but needs to be replaced by some persistent key material for production scenarios.
+// See the cryptography docs for more information: http://docs.identityserver.io/en/release/topics/crypto.html#refcrypto
 services.AddIdentityServer()
-	.AddTemporarySigningCredential()
-    .AddInMemoryScopes(Config.GetScopes())
+    .AddTemporarySigningCredential()
+    .AddInMemoryIdentityResources(Config.GetIdentityResources())
+    .AddInMemoryApiResources(Config.GetApiResources())
     .AddInMemoryClients(Config.GetClients())
     .AddAspNetIdentity<ApplicationUser>(); // IdentityServer4.AspNetIdentity.
 ```
@@ -146,7 +151,7 @@ and to _Values_ controller, that returns the resources for the authenticated use
 public class ValuesController : Controller
 ...
 ```
-Remember: when we have defined our _scope_, we have included the _role_ claim to allow the client application to know the user's role.
+Remember: when we have defined our _APIResource_, we have included the _roles_ with user claim _role_ to allow the user to access the resources.
 
 Finally, we set the startup on the entry point of the client application:
 ```C#

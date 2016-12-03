@@ -1,35 +1,37 @@
-﻿using IdentityServer4.Models;
+﻿using IdentityServer4;
+using IdentityServer4.Models;
 using System.Collections.Generic;
 
 namespace Angular2SPAWebAPI
 {
     public class Config
     {
-        // Scopes define the resources in the system.
-        public static IEnumerable<Scope> GetScopes()
+        // Identity resources (used by UserInfo endpoint).
+        public static IEnumerable<IdentityResource> GetIdentityResources()
         {
-            // Each scope must be in the params when the access token is request. See config.ts in the client app.
-            return new List<Scope>
+            return new List<IdentityResource>
             {
-                new Scope
-                {
-                    Name = "WebAPI",
-                    Description = "Web API for the Angular 2 SPA",
+                new IdentityResources.OpenId(),
+                new IdentityResources.Profile(),
+                new IdentityResource("roles", new List<string> { "role" })
+            };
+        }
 
-                    Type = ScopeType.Resource, // Access token is for APIs.
-
-                    // Defines which user claims will be included in the access token
-                    // when this scope gets requested.
-                    // We include role claims because we need them to access to the resources.
-                    Claims = new List<ScopeClaim>
+        // Api resources.
+        public static IEnumerable<ApiResource> GetApiResources()
+        {
+            return new List<ApiResource>
+            {
+                new ApiResource("WebAPI" ) {
+                    Scopes =
                     {
-                        new ScopeClaim("role")
-                    }
-                },
-                StandardScopes.OfflineAccess, // For refresh token.
-                StandardScopes.OpenId, // For UserInfo endpoint: https://identityserver4.readthedocs.io/en/release/endpoints/userinfo.html
-                StandardScopes.Profile,
-                StandardScopes.Roles
+                        new Scope
+                        {
+                            Name = "roles"
+                        }
+                    },
+                    UserClaims = { "role"}
+                }
             };
         }
 
@@ -49,14 +51,14 @@ namespace Angular2SPAWebAPI
 
                     AccessTokenLifetime = 900, // Lifetime of access token in seconds.
 
-                    AllowedScopes = new List<string>
-                    {
+                    AllowedScopes = {
+                        IdentityServerConstants.StandardScopes.OpenId, // For UserInfo endpoint.
+                        IdentityServerConstants.StandardScopes.Profile,
                         "WebAPI",
-                        StandardScopes.OfflineAccess.Name, // "offline_access" for refresh tokens.
-                        StandardScopes.OpenId.Name, // "openid" for UserInfo endpoint.
-                        StandardScopes.Profile.Name,
-                        StandardScopes.Roles.Name
-                    }
+                        "roles"
+                    },
+                    AllowOfflineAccess = true // For refresh token.
+
                 }
             };
         }

@@ -70,9 +70,13 @@ namespace Angular2SPAWebAPI
             services.AddTransient<ISmsSender, AuthMessageSender>();
 
             // Adds IdentityServer.
+            // The AddTemporarySigningCredential extension creates temporary key material for signing tokens on every start.
+            // Again this might be useful to get started, but needs to be replaced by some persistent key material for production scenarios.
+            // See the cryptography docs for more information: http://docs.identityserver.io/en/release/topics/crypto.html#refcrypto
             services.AddIdentityServer()
                 .AddTemporarySigningCredential()
-                .AddInMemoryScopes(Config.GetScopes())
+                .AddInMemoryIdentityResources(Config.GetIdentityResources())
+                .AddInMemoryApiResources(Config.GetApiResources())
                 .AddInMemoryClients(Config.GetClients())
                 .AddAspNetIdentity<ApplicationUser>(); // IdentityServer4.AspNetIdentity.
         }
@@ -108,7 +112,7 @@ namespace Angular2SPAWebAPI
             {
                 Authority = "http://localhost:5000/",
                 //Authority = "http://angular2spawebapi.azurewebsites.net",
-                ScopeName = "WebAPI",
+                AllowedScopes = { "WebAPI" },
 
                 RequireHttpsMetadata = false
             });

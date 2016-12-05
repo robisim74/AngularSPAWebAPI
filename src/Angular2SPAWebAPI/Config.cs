@@ -23,14 +23,7 @@ namespace Angular2SPAWebAPI
             return new List<ApiResource>
             {
                 new ApiResource("WebAPI" ) {
-                    Scopes =
-                    {
-                        new Scope
-                        {
-                            Name = "roles"
-                        }
-                    },
-                    UserClaims = { "role"}
+                    UserClaims = { "role" }
                 }
             };
         }
@@ -54,8 +47,8 @@ namespace Angular2SPAWebAPI
                     AllowedScopes = {
                         IdentityServerConstants.StandardScopes.OpenId, // For UserInfo endpoint.
                         IdentityServerConstants.StandardScopes.Profile,
-                        "WebAPI",
-                        "roles"
+                        "roles",
+                        "WebAPI"
                     },
                     AllowOfflineAccess = true // For refresh token.
 

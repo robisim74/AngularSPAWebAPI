@@ -11,7 +11,7 @@ echo('Start building for production...');
 
 
 /* Cleans aot & dist folders */
-rm('-Rf', 'aot/*');
+rm('-rf', 'aot/*');
 cd('wwwroot');
 rm('-rf', 'dist/*');
 cd('..');
@@ -22,33 +22,7 @@ cd('..');
 // https://github.com/mgechev/codelyzer
 echo('Start TSLint');
 
-const Linter = require("tslint");
-const configuration = require('./tslint.json');
-const options = {
-    formatter: 'json',
-    configuration: configuration
-};
-let program = Linter.createProgram("tsconfig.json", "app/");
-let files = Linter.getFileNames(program);
-let results = files.map(file => {
-    let fileContents = program.getSourceFile(file).getFullText();
-    let linter = new Linter(file, fileContents, options, program);
-    let result = linter.lint();
-
-    if (result.failureCount > 0) {
-
-        let failures = JSON.parse(result.output);
-        for (let i = 0; i < failures.length; i++) {
-            echo('TSLint:',
-                chalk.yellow(failures[i].failure),
-                chalk.white('[' + (failures[i].startPosition.line + 1) +
-                    ', ' + (failures[i].startPosition.character + 1) + ']'),
-                failures[i].name);
-        }
-
-    }
-
-});
+exec('tslint ./app/**/*.ts');
 
 echo(chalk.green('TSLint completed'));
 

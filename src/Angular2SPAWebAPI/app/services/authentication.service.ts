@@ -334,7 +334,7 @@ import { Config } from '../config';
                 });
         }
 
-    };
+    }
 
     /**
      * Encodes the parameters.

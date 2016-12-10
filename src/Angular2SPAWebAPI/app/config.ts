@@ -1,4 +1,5 @@
-﻿/**
+﻿
+/**
  * Configuration data for the app, as in Config.cs.
  */
 export class Config {

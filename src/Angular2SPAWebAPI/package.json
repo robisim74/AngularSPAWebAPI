@@ -63,7 +63,7 @@
     "style-loader": "0.13.1",
     "typescript": "2.0.10",
     "webpack": "2.1.0-beta.27",
-    "codelyzer": "2.0.0-beta.1",
+    "codelyzer": "2.0.0-beta.3",
     "tslint": "4.0.2",
     "shelljs": "0.7.5",
     "chalk": "1.1.3"

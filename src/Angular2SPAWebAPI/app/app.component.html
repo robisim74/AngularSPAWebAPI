@@ -21,10 +21,10 @@
             </div>
             <md-toolbar-row>
                 <span class="fill-remaining-space"></span>
-                <button md-raised-button color="accent" routerLink="/signin" *ngIf="!signedIn">Sign in</button>
-                <button md-raised-button color="primary" routerLink="/signup" *ngIf="!signedIn">Sign up</button>
-                <span *ngIf="signedIn">Hi {{ name }}!&nbsp;&nbsp;</span>
-                <button md-raised-button color="primary" (click)="signout()" *ngIf="signedIn">Sign out</button>
+                <button md-raised-button color="accent" routerLink="/signin" *ngIf="!signedIn || name == ''">Sign in</button>
+                <button md-raised-button color="primary" routerLink="/signup" *ngIf="!signedIn || name == ''">Sign up</button>
+                <span *ngIf="signedIn && name != ''">Hi {{ name }}!&nbsp;&nbsp;</span>
+                <button md-raised-button color="primary" (click)="signout()" *ngIf="signedIn && name != ''">Sign out</button>
             </md-toolbar-row>
         </md-toolbar>
     </div>

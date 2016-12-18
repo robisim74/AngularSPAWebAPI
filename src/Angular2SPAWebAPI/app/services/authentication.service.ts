@@ -1,6 +1,7 @@
 ﻿import { Injectable } from '@angular/core';
 import { Http, Headers, RequestOptions, Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/observable/throw';
@@ -22,9 +23,14 @@ import { Config } from '../config';
     public redirectUrl: string;
 
     /**
-     * User's data.
+     * Behavior subjects of the user's status, data & roles.
+     * https://netbasal.com/angular-2-persist-your-login-status-with-behaviorsubject-45da9ec43243#.14rltx9dh
      */
-    private user: any = {};
+    public signinSubject = new BehaviorSubject<boolean>(this.tokenNotExpired());
+
+    public userSubject = new BehaviorSubject<any>({});
+
+    public rolesSubject = new BehaviorSubject<string[]>([]);
 
     /**
      * Token info.
@@ -37,7 +43,7 @@ import { Config } from '../config';
      */
     private refreshSubscription: any;
     /**
-     * Delay offset for the scheduling to avoid the inconsistency of data on the client.
+     * Offset for the scheduling to avoid the inconsistency of data on the client.
      */
     private offsetSeconds: number = 30;
 
@@ -90,8 +96,12 @@ import { Config } from '../config';
 
                     // Stores access token & refresh token.
                     this.store(body);
+
                     // Gets user info.
                     this.userInfo();
+
+                    // Tells all the subscribers about the new status.
+                    this.signinSubject.next(true);
 
                 }
 
@@ -107,9 +117,9 @@ import { Config } from '../config';
     /**
      * Optional strategy for refresh token through a scheduler.
      *
-     * It will schedule a refresh at the appropriate time.
+     * Will schedule a refresh at the appropriate time.
      */
-    public scheduleRefresh() {
+    public scheduleRefresh(): void {
 
         let source = this.authHttp.tokenStream.flatMap(
             (token: string) => {
@@ -122,8 +132,13 @@ import { Config } from '../config';
 
         this.refreshSubscription = source.subscribe(() => {
             this.getNewToken().subscribe(
-                () => { /*ok*/ },
-                (error: any) => { this.unscheduleRefresh(); }
+                () => {
+                    // Scheduler works.
+                },
+                (error: any) => {
+                    // Need to handle this error.
+                    console.log(error);
+                }
             );
         });
 
@@ -132,11 +147,11 @@ import { Config } from '../config';
     /**
      * Case when the user comes back to the app after closing it.
      */
-    public startupTokenRefresh() {
+    public startupTokenRefresh(): void {
 
         // If the user is authenticated, uses the token stream
         // provided by angular2-jwt and flatMap the token.
-        if (tokenNotExpired()) {
+        if (this.signinSubject.getValue()) {
 
             let source = this.authHttp.tokenStream.flatMap(
                 (token: string) => {
@@ -154,7 +169,10 @@ import { Config } from '../config';
                     () => {
                         this.scheduleRefresh();
                     },
-                    (error: any) => { console.log(error); }
+                    (error: any) => {
+                        // Need to handle this error.
+                        console.log(error);
+                    }
                 );
             });
 
@@ -165,7 +183,7 @@ import { Config } from '../config';
     /**
      * Unsubscribes from the scheduling of the refresh token.
      */
-    public unscheduleRefresh() {
+    public unscheduleRefresh(): void {
 
         if (this.refreshSubscription) {
             this.refreshSubscription.unsubscribe();
@@ -290,7 +308,10 @@ import { Config } from '../config';
 
         this.redirectUrl = null;
 
-        this.user = {};
+        // Tells all the subscribers about the new status, data & roles.
+        this.signinSubject.next(false);
+        this.userSubject.next({});
+        this.rolesSubject.next([]);
 
         // Unschedules the refresh token.
         this.unscheduleRefresh();
@@ -302,33 +323,70 @@ import { Config } from '../config';
     }
 
     /**
+     * Checks if user is signed in.
+     *
+     * @return The user's status
+     */
+    public isSignedIn(): Observable<boolean> {
+
+        return this.signinSubject.asObservable();
+
+    }
+
+    /**
      * Gets user's data.
      *
      * @return The user's data
      */
-    public getUser(): any {
+    public getUser(): Observable<any> {
 
-        return this.user;
+        return this.userSubject.asObservable();
+
+    }
+
+    /**
+     * Gets user's roles.
+     *
+     * @return The user's roles
+     */
+    public getRoles(): Observable<any> {
+
+        return this.rolesSubject.asObservable();
+
+    }
+
+    /**
+     * Checks for presence of token and that token hasn't expired.
+     */
+    private tokenNotExpired(): boolean {
+
+        let token: string = Helpers.getToken('id_token');
+
+        return token != null && (Helpers.getExp() > new Date().valueOf());
 
     }
 
     /**
      * Calls UserInfo endpoint to retrieve user's data.
      */
-    public userInfo() {
+    private userInfo(): void {
 
-        let token: string = Helpers.getToken('id_token');
-
-        if (token != null && tokenNotExpired()) {
+        if (this.tokenNotExpired()) {
             this.authHttp.get(Config.USERINFO_ENDPOINT)
                 .subscribe(
                 (res: any) => {
 
-                    this.user = res.json();
+                    let user: any = res.json();
+                    let roles: string[] = user.role;
+
+                    // Tells all the subscribers about the new data & roles.
+                    this.userSubject.next(user);
+                    this.rolesSubject.next(user.role);
 
                 },
                 (error: any) => {
 
+                    // Need to handle this error.
                     console.log(error);
 
                 });
@@ -375,17 +433,6 @@ import { Config } from '../config';
 
     }
 
-}
-
-/**
- * Checks for presence of token and that token hasn't expired.
- * For use with the @CanActivate router decorator and NgIf.
- */
-export function tokenNotExpired(): boolean {
-
-    let token: string = Helpers.getToken('id_token');
-
-    return token != null && (Helpers.getExp() > new Date().valueOf());
 }
 
 // Set Helpers to use the same storage in AppModule.

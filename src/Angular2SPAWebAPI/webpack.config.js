@@ -70,7 +70,11 @@ if (!isProd) {
             extensions: ['.ts', '.js', '.html', '.css', '.scss']
         },
 
-        devtool: 'source-map'
+        devtool: 'source-map',
+
+        watch: true,
+
+        performance: { hints: false }
 
     };
 
@@ -151,7 +155,9 @@ if (!isProd) {
             extensions: ['.ts', '.js', '.html', '.css', '.scss']
         },
 
-        devtool: false
+        devtool: false,
+
+        performance: { hints: false }
 
     };
 

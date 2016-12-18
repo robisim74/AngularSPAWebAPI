@@ -1,7 +1,8 @@
 ﻿import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { Observable } from 'rxjs/Observable';
 
-import { AuthenticationService, tokenNotExpired } from './services/authentication.service';
+import { AuthenticationService } from './services/authentication.service';
 
 @Component({
     selector: 'app-component',
@@ -10,41 +11,24 @@ import { AuthenticationService, tokenNotExpired } from './services/authenticatio
 
 export class AppComponent {
 
+    signedIn: Observable<boolean>;
+
+    name: Observable<string>;
+
+    isAdmin: Observable<boolean>;
+
     constructor(public authenticationService: AuthenticationService, private router: Router) {
+
+        this.signedIn = this.authenticationService.isSignedIn();
+
+        this.name = this.authenticationService.getUser()
+            .map((user: any) => (typeof user.given_name !== 'undefined') ? user.given_name : null);
+
+        this.isAdmin = this.authenticationService.getRoles()
+            .map((roles: string[]) => roles.indexOf("administrator") != -1);
 
         // Optional strategy for refresh token through a scheduler.
         this.authenticationService.startupTokenRefresh();
-
-    }
-
-    // Checks if user is signed in (token in not expired).
-    get signedIn(): boolean {
-
-        return tokenNotExpired();
-
-    }
-
-    // The user's name.
-    get name(): string {
-
-        let user: any = this.authenticationService.getUser();
-        return (typeof user.given_name !== 'undefined') ? user.given_name : "";
-
-    }
-
-    // Checks for administrator user.
-    get isAdmin(): boolean {
-
-        let user: any = this.authenticationService.getUser();
-
-        if (typeof user.role !== 'undefined') {
-
-            let roles: string[] = user.role;
-            return roles.indexOf("administrator") != -1;
-
-        }
-
-        return false;
 
     }
 

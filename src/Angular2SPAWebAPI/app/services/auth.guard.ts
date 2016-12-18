@@ -1,7 +1,7 @@
 ﻿import { Injectable } from '@angular/core';
 import { Router, CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 
-import { AuthenticationService, tokenNotExpired } from './authentication.service';
+import { AuthenticationService } from './authentication.service';
 
 /**
  * Decides if a route can be activated.
@@ -12,7 +12,7 @@ import { AuthenticationService, tokenNotExpired } from './authentication.service
 
     public canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
 
-        if (tokenNotExpired()) {
+        if (this.authenticationService.signinSubject.getValue()) {
             // Signed in.
             return true;
         }

@@ -1,10 +1,6 @@
 # Angular 2 SPA Web API - Explanation
 
 ### Configuring the ASP.NET Core Web API & IdentityServer4
-Why should you use a service like IdentityServer4 for _Resource Owner Password Credentials grant_ (ROPC) in ASP.NET Core?
-Sure, it would be possible to implement it, as in this very useful guide: [ASP.NET Core Token Authentication Guide](https://stormpath.com/blog/token-authentication-asp-net-core).
-Because it allows you to scale your application.
-
 Let's see what the _Config.cs_ file contains for configuring IdentityServer4. The following is the identification of our client app:
 ```C#
 // Clients want to access resources.
@@ -60,14 +56,7 @@ public static IEnumerable<ApiResource> GetApiResources()
     return new List<ApiResource>
     {
         new ApiResource("WebAPI" ) {
-            Scopes =
-            {
-                new Scope
-                {
-                    Name = "roles"
-                }
-            },
-            UserClaims = { "role"}
+            UserClaims = { "role" }
         }
     };
 }
@@ -283,8 +272,12 @@ public signin(username: string, password: string): Observable<any> {
 
                 // Stores access token & refresh token.
                 this.store(body);
+
                 // Gets user info.
                 this.userInfo();
+
+                // Tells all the subscribers about the new status.
+                this.signinSubject.next(true);
 
             }
 
@@ -303,35 +296,39 @@ using angular2-jwt library, that builds for us the header with the authorization
 /**
  * Calls UserInfo endpoint to retrieve user's data.
  */
-public userInfo() {
+private userInfo(): void {
 
-    let token: string = Helpers.getToken('id_token');
-
-    if (token != null && tokenNotExpired()) {
+    if (this.tokenNotExpired()) {
         this.authHttp.get(Config.USERINFO_ENDPOINT)
             .subscribe(
             (res: any) => {
 
-                this.user = res.json();
+                let user: any = res.json();
+                let roles: string[] = user.role;
+
+                // Tells all the subscribers about the new data & roles.
+                this.userSubject.next(user);
+                this.rolesSubject.next(user.role);
 
             },
             (error: any) => {
 
+                // Need to handle this error.
                 console.log(error);
 
             });
     }
 
-};
+}
 ```
 In this example, we use a scheduler to request a new _access token_ before it expires through the _refresh token_:
 ```TypeScript
 /**
  * Optional strategy for refresh token through a scheduler.
  *
- * It will schedule a refresh at the appropriate time.
+ * Will schedule a refresh at the appropriate time.
  */
-public scheduleRefresh() {
+public scheduleRefresh(): void {
 
     let source = this.authHttp.tokenStream.flatMap(
         (token: string) => {
@@ -344,8 +341,13 @@ public scheduleRefresh() {
 
     this.refreshSubscription = source.subscribe(() => {
         this.getNewToken().subscribe(
-            () => { /*ok*/ },
-            (error: any) => { this.unscheduleRefresh(); }
+            () => {
+                // Scheduler works.
+            },
+            (error: any) => {
+                // Need to handle this error.
+                console.log(error);
+            }
         );
     });
 
@@ -354,11 +356,11 @@ public scheduleRefresh() {
 /**
  * Case when the user comes back to the app after closing it.
  */
-public startupTokenRefresh() {
-
+public startupTokenRefresh(): void {
+        
     // If the user is authenticated, uses the token stream
     // provided by angular2-jwt and flatMap the token.
-    if (tokenNotExpired()) {
+    if (this.signinSubject.getValue()) {
 
         let source = this.authHttp.tokenStream.flatMap(
             (token: string) => {
@@ -376,7 +378,10 @@ public startupTokenRefresh() {
                 () => {
                     this.scheduleRefresh();
                 },
-                (error: any) => { console.log(error); }
+                (error: any) => {
+                    // Need to handle this error.
+                    console.log(error);
+                }
             );
         });
 
@@ -387,7 +392,7 @@ public startupTokenRefresh() {
 /**
  * Unsubscribes from the scheduling of the refresh token.
  */
-public unscheduleRefresh() {
+public unscheduleRefresh(): void {
 
     if (this.refreshSubscription) {
         this.refreshSubscription.unsubscribe();

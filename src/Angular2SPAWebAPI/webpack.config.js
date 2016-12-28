@@ -25,7 +25,7 @@ if (!isProd) {
                     test: /\.ts$/,
                     loaders: [
                         'awesome-typescript-loader',
-                        'angular2-router-loader', // for lazy loading
+                        'angular-router-loader', // for lazy loading
                         'angular2-template-loader', // for templateUrl & styleUrls
                         'source-map-loader' // for source map files
                     ]
@@ -98,7 +98,7 @@ if (!isProd) {
                     test: /\.ts$/,
                     loaders: [
                         'awesome-typescript-loader',
-                        'angular2-router-loader?aot=true&genDir=aot/app'
+                        'angular-router-loader?aot=true&genDir=aot/app'
                     ]
                 },
                 // html

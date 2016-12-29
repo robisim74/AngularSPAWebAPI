@@ -67,7 +67,7 @@ services.AddDbContext<ApplicationDbContext>(options =>
 
 #### Changing the Angular 2 app
 Before running the following commands, make sure your configuration for external tools is correct:
-- [Customize external web tools in Visual Studio 2015](https://blogs.msdn.microsoft.com/webdev/2015/03/19/customize-external-web-tools-in-visual-studio-2015/), 
+- [Customize external web tools in Visual Studio 2015](https://blogs.msdn.microsoft.com/webdev/2015/03/19/customize-external-web-tools-in-visual-studio-2015/)
 
 and that you have the latest version of _npm_:
 ```Shell

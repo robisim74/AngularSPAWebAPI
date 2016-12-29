@@ -66,7 +66,15 @@ services.AddDbContext<ApplicationDbContext>(options =>
 ```
 
 #### Changing the Angular 2 app
-From the command line or Package Manager Console, go to the folder that contains _package.json_.
+Before running the following commands, make sure your configuration for external tools is correct:
+- [Customize external web tools in Visual Studio 2015](https://blogs.msdn.microsoft.com/webdev/2015/03/19/customize-external-web-tools-in-visual-studio-2015/), 
+
+and that you have the latest version of _npm_:
+```Shell
+npm install npm@latest -g
+```
+
+From the command line or _Package Manager Console_ or [NPM Task Runner](https://marketplace.visualstudio.com/items?itemName=MadsKristensen.NPMTaskRunner), go to the folder that contains _package.json_.
 - For development, we use _JiT compilation_ & source map files, with files watching:
 ```Shell
 npm start

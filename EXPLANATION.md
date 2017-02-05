@@ -292,7 +292,6 @@ In this example, we use a scheduler to request a new _access token_ before it ex
 ```TypeScript
 /**
  * Optional strategy for refresh token through a scheduler.
- *
  * Will schedule a refresh at the appropriate time.
  */
 public scheduleRefresh(): void {
@@ -413,10 +412,11 @@ module.exports = {
 ```
 and as output the _wwwroot_ folder (as set in _Startup.cs_):
 ```JavaScript
+// We use long term caching.
 output: {
     path: "./wwwroot/",
-    filename: "dist/[name].bundle.js",
-    chunkFilename: 'dist/[name].chunk.js'
+    filename: "dist/[name].[hash].bundle.js",
+    chunkFilename: 'dist/[id].[hash].chunk.js'
 },
 ```
 Finally, we ask webpack to insert the script of the bundle in our _index.html_:

@@ -1,0 +1,34 @@
+﻿<md-sidenav-container fullscreen>
+
+    <md-sidenav #start mode="over">
+        <md-nav-list>
+            <h3>Menu</h3>
+            <a routerLinkActive="active-link" md-list-item routerLink="/home">Home</a>
+            <a routerLinkActive="active-link" md-list-item routerLink="/resources">Resources</a>
+            <a routerLinkActive="active-link" md-list-item routerLink="/dashboard" *ngIf="(signedIn | async) && (isAdmin | async)">Dashboard</a>
+        </md-nav-list>
+    </md-sidenav>
+
+    <div>
+        <md-toolbar color="primary">
+            <button md-icon-button (click)="start.open()">
+                <md-icon class="md-24">menu</md-icon>
+            </button>
+            <div class="app-toolbar">
+                <h1>Angular SPA Web API</h1>
+            </div>
+            <md-toolbar-row>
+                <span class="fill-remaining-space"></span>
+                <button md-raised-button color="accent" routerLink="/signin" *ngIf="!(signedIn | async)">Sign in</button>
+                <button md-raised-button color="primary" routerLink="/signup" *ngIf="!(signedIn | async)">Sign up</button>
+                <span *ngIf="(signedIn | async) && (name | async)">Hi {{ name | async }}!&nbsp;&nbsp;</span>
+                <button md-raised-button color="primary" (click)="signout()" *ngIf="(signedIn | async)">Sign out</button>
+            </md-toolbar-row>
+        </md-toolbar>
+    </div>
+
+    <div class="app-content">
+        <router-outlet></router-outlet>
+    </div>
+
+</md-sidenav-container>

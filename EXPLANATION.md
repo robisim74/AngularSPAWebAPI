@@ -1,4 +1,4 @@
-# Angular 2 SPA Web API - Explanation
+# Angular SPA Web API - Explanation
 
 ### Configuring the ASP.NET Core Web API & IdentityServer4
 Let's see what the _Config.cs_ file contains for configuring IdentityServer4. The following is the identification of our client app:
@@ -12,7 +12,7 @@ public static IEnumerable<Client> GetClients()
         // http://docs.identityserver.io/en/dev/reference/client.html.
         new Client
         {
-            ClientId = "Angular2SPA",
+            ClientId = "AngularSPA",
             AllowedGrantTypes = GrantTypes.ResourceOwnerPassword, // Resource Owner Password Credential grant.
             AllowAccessTokensViaBrowser = true,
             RequireClientSecret = false, // This client does not need a secret to request tokens from the token endpoint.
@@ -26,13 +26,12 @@ public static IEnumerable<Client> GetClients()
                 "roles"
             },
             AllowOfflineAccess = true // For refresh token.
-
         }
     };
 }
 ```
 As you can see, you can add other clients with their own configuration.
-Our Angular 2 app, identified as _Angular2SPA_:
+Our Angular app, identified as _AngularSPA_:
 - uses _ROPC_;
 - doesn't use a _secret_ key: in a client application it would be useless because visible;
 - has an _access token_ for 15 minutes, then need to refresh the token;
@@ -90,7 +89,6 @@ services.AddIdentityServer()
 ```
 The extension method _AddAspNetIdentity_ to use the ASP.NET Identity requires another setting:
 ```C#
-// Adds IdentityServer.
 app.UseIdentityServer();
 ```
 Now we can add related services: Identity and for simplicity SQLite. 
@@ -105,7 +103,6 @@ services.AddIdentity<ApplicationUser, IdentityRole>()
 ```
 and
 ```C#
-// Adds Identity.
 app.UseIdentity();
 ```
 Also we define the policy of access to the Web Api controllers. 
@@ -171,7 +168,7 @@ POST /connect/token HTTP/1.1
 Host: localhost:5000
 Content-Type: application/x-www-form-urlencoded
 
-client_id=Angular2SPA&grant_type=password&username=admin%40gmail.com&password=Admin01*&scope=WebAPI+offline_access+openid+profile+roles
+client_id=AngularSPA&grant_type=password&username=admin%40gmail.com&password=Admin01*&scope=WebAPI+offline_access+openid+profile+roles
 ```
 Note the _Content-Type_ as _x-www-form-urlencoded_, and parameters provided in the _body_. This is the response:
 ```Json
@@ -190,7 +187,7 @@ You can use a tool like [JSON Web Token](https://www.jsonwebtoken.io/) to decode
  "exp": 1480713277,
  "iss": "http://localhost:5000",
  "aud": "http://localhost:5000/resources",
- "client_id": "Angular2SPA",
+ "client_id": "AngularSPA",
  "sub": "c0bb2220-8c99-46dc-ad39-b707f37f047f",
  "auth_time": 1480712377,
  "idp": "local",
@@ -228,25 +225,16 @@ POST /connect/token HTTP/1.1
 Host: localhost:5000
 Content-Type: application/x-www-form-urlencoded
 
-client_id=Angular2SPA&grant_type=refresh_token&refresh_token=5007bc4b...
+client_id=AngularSPA&grant_type=refresh_token&refresh_token=5007bc4b...
 ```
 
-### Implementing the Angular 2 SPA
-Ok, how do we transform the requests done via Postman in an Angular 2 app?
+### Implementing the Angular SPA
+Ok, how do we transform the requests done via Postman in an Angular app?
 
-In this sample, to send unauthenticated requests for signing in and signing up the user, we use the Angular 2 _http_ module, 
+In this sample, to send unauthenticated requests for signing in and signing up the user, we use the Angular _http_ module, 
 as in _AuthenticationService_ class:
 ```TypeScript
-/**
- * Tries to sign in the user.
- *
- * @param username
- * @param password
- * @return The user's data
- */
 public signin(username: string, password: string): Observable<any> {
-
-    // Token endpoint & params.
     let tokenEndpoint: string = Config.TOKEN_ENDPOINT;
 
     let params: any = {
@@ -257,37 +245,24 @@ public signin(username: string, password: string): Observable<any> {
         scope: Config.SCOPE
     };
 
-    // Encodes the parameters.
     let body: string = this.encodeParams(params);
 
     this.authTime = new Date().valueOf();
 
     return this.http.post(tokenEndpoint, body, this.options)
         .map((res: Response) => {
-
             let body: any = res.json();
-
-            // Sign in successful if there's an access token in the response.
             if (typeof body.access_token !== 'undefined') {
-
                 // Stores access token & refresh token.
                 this.store(body);
-
-                // Gets user info.
-                this.userInfo();
+                this.getUserInfo();
 
                 // Tells all the subscribers about the new status.
                 this.signinSubject.next(true);
-
             }
-
         }).catch((error: any) => {
-
-            // Error on post request.
             return Observable.throw(error);
-
         });
-
 }
 ```
 We send a request to _UserInfo_ endpoint to get the user's data 
@@ -296,29 +271,21 @@ using angular2-jwt library, that builds for us the header with the authorization
 /**
  * Calls UserInfo endpoint to retrieve user's data.
  */
-private userInfo(): void {
-
+private getUserInfo(): void {
     if (this.tokenNotExpired()) {
         this.authHttp.get(Config.USERINFO_ENDPOINT)
             .subscribe(
             (res: any) => {
-
                 let user: any = res.json();
                 let roles: string[] = user.role;
-
                 // Tells all the subscribers about the new data & roles.
                 this.userSubject.next(user);
                 this.rolesSubject.next(user.role);
-
             },
             (error: any) => {
-
-                // Need to handle this error.
                 console.log(error);
-
             });
     }
-
 }
 ```
 In this example, we use a scheduler to request a new _access token_ before it expires through the _refresh token_:
@@ -329,14 +296,10 @@ In this example, we use a scheduler to request a new _access token_ before it ex
  * Will schedule a refresh at the appropriate time.
  */
 public scheduleRefresh(): void {
-
     let source = this.authHttp.tokenStream.flatMap(
         (token: string) => {
-
             let delay: number = this.expiresIn - this.offsetSeconds * 1000;
-
             return Observable.interval(delay);
-
         });
 
     this.refreshSubscription = source.subscribe(() => {
@@ -350,18 +313,15 @@ public scheduleRefresh(): void {
             }
         );
     });
-
 }
 
 /**
  * Case when the user comes back to the app after closing it.
  */
 public startupTokenRefresh(): void {
-        
     // If the user is authenticated, uses the token stream
     // provided by angular2-jwt and flatMap the token.
     if (this.signinSubject.getValue()) {
-
         let source = this.authHttp.tokenStream.flatMap(
             (token: string) => {
                 let now: number = new Date().valueOf();
@@ -384,30 +344,24 @@ public startupTokenRefresh(): void {
                 }
             );
         });
-
     }
-
 }
 
 /**
  * Unsubscribes from the scheduling of the refresh token.
  */
 public unscheduleRefresh(): void {
-
     if (this.refreshSubscription) {
         this.refreshSubscription.unsubscribe();
     }
-
 }
 
 /**
  * Tries to get a new token using refresh token.
  */
 public getNewToken(): Observable<any> {
-
     let refreshToken: string = Helpers.getToken('refresh_token');
 
-    // Token endpoint & params.
     let tokenEndpoint: string = Config.TOKEN_ENDPOINT;
 
     let params: any = {
@@ -416,31 +370,20 @@ public getNewToken(): Observable<any> {
         refresh_token: refreshToken
     };
 
-    // Encodes the parameters.
     let body: string = this.encodeParams(params);
 
     this.authTime = new Date().valueOf();
 
     return this.http.post(tokenEndpoint, body, this.options)
         .map((res: Response) => {
-
             let body: any = res.json();
-
-            // Successful if there's an access token in the response.
             if (typeof body.access_token !== 'undefined') {
-
                 // Stores access token & refresh token.
                 this.store(body);
-
             }
-
         }).catch((error: any) => {
-
-            // Error on post request.
             return Observable.throw(error);
-
         });
-
 }
 ```
 
@@ -450,22 +393,18 @@ To send authenticated requests, as in _ResourcesComponent_ class, we still use a
 this.authHttp.get("/api/values")
     .subscribe(
     (res: any) => {
-
         this.values = res.json();
-
     },
     (error: any) => {
-
         console.log(error);
-
     });
 ```
 
-### Building the Angular 2 app with AoT compilation & webpack
-For production, we build the Angular 2 app through [ngc compiler](https://angular.io/docs/ts/latest/cookbook/aot-compiler.html) & webpack. 
+### Building the Angular app with AoT compilation & webpack
+For production, we build the Angular app through [ngc compiler](https://angular.io/docs/ts/latest/cookbook/aot-compiler.html) & webpack. 
 To do this, after the AoT compilation, in _webpack.config.js_ file we set as entry point _main-aot.ts_:
 ```JavaScript
-// In production mode, we use AoT compilation & minification.
+// In production mode, we use AoT compilation, tree shaking & minification.
 module.exports = {
     entry: {
         'app-aot': './app/main-aot.js'

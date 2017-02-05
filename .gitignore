@@ -302,7 +302,7 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# Angular 2
+# Angular
 # =========================
 
 # AoT compilation files
@@ -313,3 +313,5 @@ aot/
 **/app/**/*.map
 **/app/*.js
 **/app/*.map
+
+PublishProfiles

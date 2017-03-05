@@ -7,16 +7,17 @@ let isProd = process.env.NODE_ENV === 'production';
 
 if (!isProd) {
 
-    // In development mode, we use JiT compilation, with source maps & files watching.
+    // In development mode, we use JiT compilation, with source maps & Hot Module Replacement.
     module.exports = {
         entry: {
             'app': './app/main.ts'
         },
 
         output: {
-            path: "./wwwroot/",
-            filename: "dist/[name].bundle.js",
-            chunkFilename: 'dist/[id].chunk.js'
+            path: path.join(__dirname, 'wwwroot'),
+            filename: 'dist/[name].bundle.js',
+            chunkFilename: 'dist/[id].chunk.js',
+            publicPath: '/'
         },
 
         module: {
@@ -84,8 +85,8 @@ if (!isProd) {
         },
         // We use long term caching.
         output: {
-            path: "./wwwroot/",
-            filename: "dist/[name].[hash].bundle.js",
+            path: path.join(__dirname, 'wwwroot'),
+            filename: 'dist/[name].[hash].bundle.js',
             chunkFilename: 'dist/[id].[hash].chunk.js'
         },
 

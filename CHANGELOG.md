@@ -1,5 +1,9 @@
 ## Angular SPA Web API Changelog
 
+<a name="Mar 5, 2017"></a>
+### Mar 5, 2017
+* Add Hot Module Replacement in development mode
+
 <a name="Feb 5, 2017"></a>
 ### Feb 5, 2017
 * AngularSPAWebAPI code refactoring

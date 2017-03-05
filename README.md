@@ -78,12 +78,12 @@ npm install npm@latest -g
 ```
 
 From the command line or _Package Manager Console_ or [NPM Task Runner](https://marketplace.visualstudio.com/items?itemName=MadsKristensen.NPMTaskRunner), go to the folder that contains _package.json_.
-- For development, we use _JiT compilation_ & source map files, with files watching:
+- For development, we use JiT compilation, with source maps & Hot Module Replacement:
 ```Shell
 npm start
 ```
 And from Visual Studio, start debugging.
-Make the changes, and simply refresh the page on the browser.
+Make the changes: the browser will update without refreshing.
 
 - For production, we use [AoT compilation](https://angular.io/docs/ts/latest/cookbook/aot-compiler.html), tree shaking & minification:
 ```Shell

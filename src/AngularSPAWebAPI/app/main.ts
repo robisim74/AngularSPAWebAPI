@@ -15,4 +15,10 @@ import './styles/app.scss';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { AppModule } from './app.module';
 
+// Enables Hot Module Replacement.
+let module: any;
+if (module.hot) {
+    module.hot.accept();
+}
+
 platformBrowserDynamic().bootstrapModule(AppModule);

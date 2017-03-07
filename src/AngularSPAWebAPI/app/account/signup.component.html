@@ -8,7 +8,7 @@
                     <br />
                     <br />
                     <md-input-container class="full-width">
-                        <input md-input placeholder="first name" type="text" (keyup)="errorMessages = []; errorMessage = ''"
+                        <input mdInput placeholder="first name" type="text" (keyup)="errorMessages = []; errorMessage = ''"
                                name="givenName" [(ngModel)]="model.givenName" #givenName="ngModel" required>
                     </md-input-container>
                     <small [hidden]="givenName.valid || (givenName.pristine && !f.submitted)" class="has-error">
@@ -17,7 +17,7 @@
                     <br />
                     <br />
                     <md-input-container class="full-width">
-                        <input md-input placeholder="last name" type="text" (keyup)="errorMessages = []; errorMessage = ''"
+                        <input mdInput placeholder="last name" type="text" (keyup)="errorMessages = []; errorMessage = ''"
                                name="familyName" [(ngModel)]="model.familyName" #familyName="ngModel" required>
                     </md-input-container>
                     <small [hidden]="familyName.valid || (familyName.pristine && !f.submitted)" class="has-error">
@@ -26,7 +26,7 @@
                     <br />
                     <br />
                     <md-input-container class="full-width">
-                        <input md-input placeholder="email" type="text" (keyup)="errorMessages = []; errorMessage = ''"
+                        <input mdInput placeholder="email" type="text" (keyup)="errorMessages = []; errorMessage = ''"
                                name="username" [(ngModel)]="model.username" #username="ngModel"
                                pattern="^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$" required>
                     </md-input-container>
@@ -36,7 +36,7 @@
                     <br />
                     <br />
                     <md-input-container class="full-width">
-                        <input md-input placeholder="password" type="password" (keyup)="errorMessages = []; errorMessage = ''"
+                        <input mdInput placeholder="password" type="password" (keyup)="errorMessages = []; errorMessage = ''"
                                name="password" [(ngModel)]="model.password" #password="ngModel" required>
                     </md-input-container>
                     <small [hidden]="password.valid || (password && !f.submitted)" class="has-error">

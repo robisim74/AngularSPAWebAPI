@@ -14,8 +14,7 @@
       "dom"
     ],
     "types": [
-      "node",
-      "js-base64"
+      "node"
     ]
   },
   "exclude": [

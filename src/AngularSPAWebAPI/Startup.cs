@@ -150,7 +150,7 @@ namespace AngularSPAWebAPI
             app.UseSwagger();
 
             // Enables middleware to serve swagger-ui (HTML, JS, CSS etc.), specifying the Swagger JSON endpoint.
-            app.UseSwaggerUi(c =>
+            app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebAPI v1");
             });

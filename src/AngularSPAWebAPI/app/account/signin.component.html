@@ -8,7 +8,7 @@
                     <br />
                     <br />
                     <md-input-container class="full-width">
-                        <input md-input placeholder="email" type="text" (keyup)="errorMessage = ''"
+                        <input mdInput placeholder="email" type="text" (keyup)="errorMessage = ''"
                                name="username" [(ngModel)]="model.username" #username="ngModel" required>
                     </md-input-container>
                     <small [hidden]="username.valid || (username.pristine && !f.submitted)" class="has-error">
@@ -17,7 +17,7 @@
                     <br />
                     <br />
                     <md-input-container class="full-width">
-                        <input md-input placeholder="password" type="password" (keyup)="errorMessage = ''"
+                        <input mdInput placeholder="password" type="password" (keyup)="errorMessage = ''"
                                name="password" [(ngModel)]="model.password" #password="ngModel" required>
                     </md-input-container>
                     <small [hidden]="password.valid || (password.pristine && !f.submitted)" class="has-error">

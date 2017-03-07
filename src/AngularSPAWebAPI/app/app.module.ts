@@ -36,7 +36,7 @@ export function getAuthHttp(http: Http) {
         FormsModule,
         HttpModule,
         routing,
-        MaterialModule.forRoot()
+        MaterialModule
     ],
     declarations: [
         AppComponent,

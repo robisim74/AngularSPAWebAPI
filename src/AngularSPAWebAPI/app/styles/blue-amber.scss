@@ -1,14 +1,14 @@
 @import '~@angular/material/core/theming/all-theme';
 
 // Includes non-theme styles for core.
-@include md-core();
+@include mat-core();
 
 // Defines a theme.
-$primary: md-palette($md-blue, 700, 500, 800);
-$accent:  md-palette($md-amber, A200, A100, A400);
-$warn:    md-palette($md-red);
+$primary: mat-palette($mat-blue, 700, 500, 800);
+$accent:  mat-palette($mat-amber, A200, A100, A400);
+$warn:    mat-palette($mat-red);
 
-$theme: md-light-theme($primary, $accent, $warn);
+$theme: mat-light-theme($primary, $accent, $warn);
 
 // Includes all theme styles for the components.
 @include angular-material-theme($theme);

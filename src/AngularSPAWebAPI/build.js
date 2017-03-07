@@ -22,7 +22,7 @@ cd('..');
 // https://github.com/mgechev/codelyzer
 echo('Start TSLint');
 
-exec('tslint ./app/**/*.ts');
+exec('tslint --project ./tsconfig.json --type-check ./app/**/*.ts -e ./app/main-aot.ts');
 
 echo(chalk.green('TSLint completed'));
 

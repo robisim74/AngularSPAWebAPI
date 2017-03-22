@@ -47,7 +47,7 @@ The same scenarios are also supported by [AspNet.Security.OpenIdConnect.Server](
 - **webpack.config.js** _Webpack configuration file for development & production of Angular app_
 
 ## Installing
-- Use Visual Studio 2017 ([VS 2015 code](https://github.com/robisim74/AngularSPAWebAPI/tree/VS_2015))
+- Use Visual Studio 2017 ([VS 2015 code](https://github.com/robisim74/AngularSPAWebAPI/tree/VS_2015)) and the latest Visual Studio Tools: https://www.microsoft.com/net/download/core
 - Edit `ConnectionStrings` in _appsettings.json_
 - Wait for packages restoring and build the solution
 - Start debugging

@@ -47,8 +47,7 @@ The same scenarios are also supported by [AspNet.Security.OpenIdConnect.Server](
 - **webpack.config.js** _Webpack configuration file for development & production of Angular app_
 
 ## Installing
-- Check for .NET Core 1.1: **^1.0.0-preview2-1-003177** and the latest Visual Studio Tools: https://www.microsoft.com/net/download/core
-- Check for the latest TypeScript for Visual Studio: https://www.typescriptlang.org/#download-links
+- Use Visual Studio 2017 ([VS 2015 code](https://github.com/robisim74/AngularSPAWebAPI/tree/VS_2015))
 - Edit `ConnectionStrings` in _appsettings.json_
 - Wait for packages restoring and build the solution
 - Start debugging
@@ -57,21 +56,20 @@ The same scenarios are also supported by [AspNet.Security.OpenIdConnect.Server](
 #### Changing db
 To use another database simply:
 - Edit `ConnectionStrings` in _appsettings.json_
-- Edit `dependencies` in _project.json_:
-```
-"Microsoft.EntityFrameworkCore.Sqlite": "1.1.0",
-"Microsoft.EntityFrameworkCore.Sqlite.Design": "1.1.0"
-```
 - Edit in _Startup.cs_:
-```
+```C#
 services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
 ```
 
 #### Changing the Angular app
 Before running the following commands, make sure your configuration for external tools is correct:
-- [Customize external web tools in Visual Studio 2015](https://blogs.msdn.microsoft.com/webdev/2015/03/19/customize-external-web-tools-in-visual-studio-2015/)
-
+- _Tools_ > _Options_ > _Projects and Solutions_ > _Web Package Management_ > _External Web Tools_:
+```
+.\node_modules\.bin
+$(PATH)
+...
+```
 and that you have the latest version of _npm_:
 ```Shell
 npm install npm@latest -g

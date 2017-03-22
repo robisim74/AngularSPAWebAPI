@@ -1,18 +1,22 @@
 ## Angular SPA Web API Changelog
 
+<a name="Mar 22, 2017"></a>
+### Mar 22, 2017
+* Upgrade to Visual Studio 2017 (switch to _.csproj_)
+
 <a name="Mar 5, 2017"></a>
 ### Mar 5, 2017
 * Add Hot Module Replacement in development mode
 
 <a name="Feb 5, 2017"></a>
 ### Feb 5, 2017
-* AngularSPAWebAPI code refactoring
+* _AngularSPAWebAPI_ code refactoring
 * Add Role Claims to manage Identity roles
 * Add Swagger to test APIs
 
 <a name="Dec 18, 2016"></a>
 ### Dec 18, 2016
-* Persist login status with BehaviorSubject of the user's status, data & roles
+* Persist login status with `BehaviorSubject` of the user's status, data & roles
 
 <a name="Dec 2, 2016"></a>
 ### Dec 2, 2016
@@ -21,7 +25,7 @@
 
 <a name="Oct 29, 2016"></a>
 ### Oct 29, 2016
-* Switch to PathLocationStrategy
+* Switch to `PathLocationStrategy`
 
 <a name="Oct 27, 2016"></a>
 ### Oct 27, 2016

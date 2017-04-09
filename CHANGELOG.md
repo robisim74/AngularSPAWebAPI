@@ -1,9 +1,9 @@
 ## Angular SPA Web API Changelog
 
-<a name="Apr 09, 2017"></a>
-### Apr 09, 2017
+<a name="Apr 9, 2017"></a>
+### Apr 9, 2017
 * Upgrade to Angular v4
-* Create _Staging_ environment
+* Create _Staging_ environment for final testing before deployment to production
 
 <a name="Mar 22, 2017"></a>
 ### Mar 22, 2017

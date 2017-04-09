@@ -1,5 +1,10 @@
 ## Angular SPA Web API Changelog
 
+<a name="Apr 09, 2017"></a>
+### Apr 09, 2017
+* Upgrade to Angular v4
+* Create _Staging_ environment
+
 <a name="Mar 22, 2017"></a>
 ### Mar 22, 2017
 * Upgrade to Visual Studio 2017 (switch to _.csproj_)

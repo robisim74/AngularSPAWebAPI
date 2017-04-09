@@ -3,9 +3,9 @@ let path = require('path');
 let webpack = require('webpack');
 let HtmlWebpackPlugin = require('html-webpack-plugin');
 
-let isProd = process.env.NODE_ENV === 'production';
+let environment = (process.env.NODE_ENV || "development").trim();
 
-if (!isProd) {
+if (environment === "development") {
 
     // In development mode, we use JiT compilation, with source maps & Hot Module Replacement.
     module.exports = {

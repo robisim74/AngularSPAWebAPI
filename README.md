@@ -87,7 +87,8 @@ Make the changes: the browser will update without refreshing.
 ```Shell
 npm run build
 ```
-And from Visual Studio, start debugging.
+And from Visual Studio, start debugging using _AngularSPAWebAPI_ profile, that has _Staging_ as environment variable: 
+[Working with multiple environments](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments)
 
 #### EF Core commands
 - Package Manager Console

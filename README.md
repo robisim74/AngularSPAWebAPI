@@ -15,16 +15,15 @@ Get the [Changelog](https://github.com/robisim74/AngularSPAWebAPI/blob/master/CH
 - [ASP.NET Core - Security](https://docs.asp.net/en/latest/security/index.html) | [Claims-Based Authorization](https://docs.asp.net/en/latest/security/authorization/claims.html)
 
 For more complex scenarios, where web services are required by more than one application or third-party applications, 
-IdentityServer4 offers built-in support for OpenID Connent flows.
+you should consider to use an OpenID Connect flow:
 
 **Links**
-- [IDENTITYSERVER4, WEB API AND ANGULAR2 IN A SINGLE ASP.NET CORE PROJECT](https://damienbod.com/2016/10/01/identityserver4-webapi-and-angular2-in-a-single-asp-net-core-project/)
+- [IDENTITYSERVER4, WEB API AND ANGULAR IN A SINGLE ASP.NET CORE PROJECT](https://damienbod.com/2016/10/01/identityserver4-webapi-and-angular2-in-a-single-asp-net-core-project/)
 
-The same scenarios are also supported by [AspNet.Security.OpenIdConnect.Server](https://github.com/aspnet-contrib/AspNet.Security.OpenIdConnect.Server) and [openiddict-core](https://github.com/openiddict/openiddict-core).
+The same scenarios are also supported by [AspNet.Security.OpenIdConnect.Server](https://github.com/aspnet-contrib/AspNet.Security.OpenIdConnect.Server) and [openiddict-core](https://github.com/openiddict/openiddict-core):
 
 **Links**
 - [Creating your own OpenID Connect server with ASOS](http://kevinchalet.com/2016/07/13/creating-your-own-openid-connect-server-with-asos-introduction/)
-- [Bearer Token Authentication in ASP.NET Core](https://blogs.msdn.microsoft.com/webdev/2016/10/27/bearer-token-authentication-in-asp-net-core/)
 
 ## Project structure
 **AngularSPAWebAPI** _ASP.NET Core Web API project_
@@ -112,7 +111,6 @@ To test the APIs, remove the policy from controllers.
 - You can change the strategy for refresh token
 - You can enable account confirmation and the other Identity services
 - Use a SSL certificate: [Insecure passwords](https://developer.mozilla.org/en-US/docs/Web/Security/Insecure_passwords)
-- If more than one client app requires the Web API, use an interactive flow: IdentityServer4 or the other libraries allow you to scale your application 
 
 ## License
 MIT

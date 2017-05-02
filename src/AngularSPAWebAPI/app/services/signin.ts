@@ -22,7 +22,7 @@ export class Signin {
 
                 // Gets the redirect URL from authentication service.
                 // If no redirect has been set, uses the default.
-                let redirect: string = this.authenticationService.redirectUrl
+                const redirect: string = this.authenticationService.redirectUrl
                     ? this.authenticationService.redirectUrl
                     : '/home';
 
@@ -32,7 +32,7 @@ export class Signin {
             (error: any) => {
                 // Checks for error in response (error from the Token endpoint).
                 if (error.body != "") {
-                    let body: any = error.json();
+                    const body: any = error.json();
 
                     switch (body.error) {
                         case "invalid_grant":
@@ -42,7 +42,7 @@ export class Signin {
                             this.errorMessage = "Unexpected error. Try again";
                     }
                 } else {
-                    let errMsg = (error.message) ? error.message :
+                    const errMsg = (error.message) ? error.message :
                         error.status ? `${error.status} - ${error.statusText}` : 'Server error';
                     console.log(errMsg);
                     this.errorMessage = "Server error. Try later.";

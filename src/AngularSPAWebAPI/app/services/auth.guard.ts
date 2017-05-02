@@ -17,7 +17,7 @@ import { AuthenticationService } from './authentication.service';
         }
 
         // Stores the attempted URL for redirecting.
-        let url: string = state.url;
+        const url: string = state.url;
         this.authenticationService.redirectUrl = url;
 
         // Not signed in so redirects to signin page.

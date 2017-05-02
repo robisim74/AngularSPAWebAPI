@@ -20,7 +20,7 @@ export class DashboardComponent {
                 this.users = res;
             },
             (error: any) => {
-                let errMsg = (error.message) ? error.message :
+                const errMsg = (error.message) ? error.message :
                     error.status ? `${error.status} - ${error.statusText}` : 'Server error';
                 console.log(errMsg);
             });
@@ -40,7 +40,7 @@ export class DashboardComponent {
 
             },
             (error: any) => {
-                let errMsg = (error.message) ? error.message :
+                const errMsg = (error.message) ? error.message :
                     error.status ? `${error.status} - ${error.statusText}` : 'Server error';
                 console.log(errMsg);
             });

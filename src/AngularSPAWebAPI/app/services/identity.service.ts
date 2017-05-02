@@ -41,7 +41,7 @@ import { AuthHttp } from 'angular2-jwt';
      * @return An IdentityResult
      */
     public Create(model: any): Observable<any> {
-        let body: string = JSON.stringify(model);
+        const body: string = JSON.stringify(model);
 
         return this.http.post("/api/identity/Create", body, this.options)
             .map((res: Response) => {
@@ -58,7 +58,7 @@ import { AuthHttp } from 'angular2-jwt';
      * @return An IdentityResult
      */
     public Delete(username: string): Observable<any> {
-        let body: string = JSON.stringify(username);
+        const body: string = JSON.stringify(username);
 
         // Sends an authenticated request.
         return this.authHttp.post("/api/identity/Delete", body, this.options)

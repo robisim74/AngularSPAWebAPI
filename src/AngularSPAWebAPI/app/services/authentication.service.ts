@@ -59,9 +59,9 @@ import { Config } from '../config';
     }
 
     public signin(username: string, password: string): Observable<any> {
-        let tokenEndpoint: string = Config.TOKEN_ENDPOINT;
+        const tokenEndpoint: string = Config.TOKEN_ENDPOINT;
 
-        let params: any = {
+        const params: any = {
             client_id: Config.CLIENT_ID,
             grant_type: Config.GRANT_TYPE,
             username: username,
@@ -69,13 +69,13 @@ import { Config } from '../config';
             scope: Config.SCOPE
         };
 
-        let body: string = this.encodeParams(params);
+        const body: string = this.encodeParams(params);
 
         this.authTime = new Date().valueOf();
 
         return this.http.post(tokenEndpoint, body, this.options)
             .map((res: Response) => {
-                let body: any = res.json();
+                const body: any = res.json();
                 if (typeof body.access_token !== 'undefined') {
                     // Stores access token & refresh token.
                     this.store(body);
@@ -94,9 +94,9 @@ import { Config } from '../config';
      * Will schedule a refresh at the appropriate time.
      */
     public scheduleRefresh(): void {
-        let source = this.authHttp.tokenStream.flatMap(
+        const source = this.authHttp.tokenStream.flatMap(
             (token: string) => {
-                let delay: number = this.expiresIn - this.offsetSeconds * 1000;
+                const delay: number = this.expiresIn - this.offsetSeconds * 1000;
                 return Observable.interval(delay);
             });
 
@@ -120,11 +120,11 @@ import { Config } from '../config';
         // If the user is authenticated, uses the token stream
         // provided by angular2-jwt and flatMap the token.
         if (this.signinSubject.getValue()) {
-            let source = this.authHttp.tokenStream.flatMap(
+            const source = this.authHttp.tokenStream.flatMap(
                 (token: string) => {
-                    let now: number = new Date().valueOf();
-                    let exp: number = Helpers.getExp();
-                    let delay: number = exp - now - this.offsetSeconds * 1000;
+                    const now: number = new Date().valueOf();
+                    const exp: number = Helpers.getExp();
+                    const delay: number = exp - now - this.offsetSeconds * 1000;
 
                     // Uses the delay in a timer to run the refresh at the proper time.
                     return Observable.timer(delay);
@@ -158,23 +158,23 @@ import { Config } from '../config';
      * Tries to get a new token using refresh token.
      */
     public getNewToken(): Observable<any> {
-        let refreshToken: string = Helpers.getToken('refresh_token');
+        const refreshToken: string = Helpers.getToken('refresh_token');
 
-        let tokenEndpoint: string = Config.TOKEN_ENDPOINT;
+        const tokenEndpoint: string = Config.TOKEN_ENDPOINT;
 
-        let params: any = {
+        const params: any = {
             client_id: Config.CLIENT_ID,
             grant_type: "refresh_token",
             refresh_token: refreshToken
         };
 
-        let body: string = this.encodeParams(params);
+        const body: string = this.encodeParams(params);
 
         this.authTime = new Date().valueOf();
 
         return this.http.post(tokenEndpoint, body, this.options)
             .map((res: Response) => {
-                let body: any = res.json();
+                const body: any = res.json();
                 if (typeof body.access_token !== 'undefined') {
                     // Stores access token & refresh token.
                     this.store(body);
@@ -193,18 +193,18 @@ import { Config } from '../config';
     }
 
     public revokeRefreshToken(): void {
-        let refreshToken: string = Helpers.getToken('refresh_token');
+        const refreshToken: string = Helpers.getToken('refresh_token');
 
         if (refreshToken != null) {
-            let revocationEndpoint: string = Config.REVOCATION_ENDPOINT;
+            const revocationEndpoint: string = Config.REVOCATION_ENDPOINT;
 
-            let params: any = {
+            const params: any = {
                 client_id: Config.CLIENT_ID,
                 token_type_hint: "refresh_token",
                 token: refreshToken
             };
 
-            let body: string = this.encodeParams(params);
+            const body: string = this.encodeParams(params);
 
             this.http.post(revocationEndpoint, body, this.options)
                 .subscribe(
@@ -252,7 +252,7 @@ import { Config } from '../config';
      * Checks for presence of token and that token hasn't expired.
      */
     private tokenNotExpired(): boolean {
-        let token: string = Helpers.getToken('id_token');
+        const token: string = Helpers.getToken('id_token');
         return token != null && (Helpers.getExp() > new Date().valueOf());
     }
 
@@ -264,8 +264,8 @@ import { Config } from '../config';
             this.authHttp.get(Config.USERINFO_ENDPOINT)
                 .subscribe(
                 (res: any) => {
-                    let user: any = res.json();
-                    let roles: string[] = user.role;
+                    const user: any = res.json();
+                    const roles: string[] = user.role;
                     // Tells all the subscribers about the new data & roles.
                     this.userSubject.next(user);
                     this.rolesSubject.next(user.role);
@@ -278,7 +278,7 @@ import { Config } from '../config';
 
     private encodeParams(params: any): string {
         let body: string = "";
-        for (let key in params) {
+        for (const key in params) {
             if (body.length) {
                 body += "&";
             }
@@ -296,7 +296,7 @@ import { Config } from '../config';
         Helpers.setToken('refresh_token', body.refresh_token);
 
         // Calculates token expiration.
-        this.expiresIn = <number>body.expires_in * 1000; // To milliseconds.
+        this.expiresIn = body.expires_in as number * 1000; // To milliseconds.
         Helpers.setExp(this.authTime + this.expiresIn);
     }
 

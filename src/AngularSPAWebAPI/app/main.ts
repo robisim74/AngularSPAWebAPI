@@ -16,7 +16,7 @@ import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { AppModule } from './app.module';
 
 // Enables Hot Module Replacement.
-declare let module: any;
+declare const module: any;
 if (module.hot) {
     module.hot.accept();
 }

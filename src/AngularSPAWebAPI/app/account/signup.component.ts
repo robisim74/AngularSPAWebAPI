@@ -33,7 +33,7 @@ export class SignupComponent extends Signin {
                 }
             },
             (error: any) => {
-                let errMsg = (error.message) ? error.message :
+                const errMsg = (error.message) ? error.message :
                     error.status ? `${error.status} - ${error.statusText}` : 'Server error';
                 console.log(errMsg);
                 this.errorMessage = "Server error. Try later.";

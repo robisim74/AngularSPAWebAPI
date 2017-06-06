@@ -2,7 +2,7 @@
 import { Router } from '@angular/router';
 
 import { AuthenticationService } from '../services/authentication.service';
-import { Signin } from '../services/signin';
+import { Signin } from './signin';
 
 @Component({
     templateUrl: 'signin.component.html'

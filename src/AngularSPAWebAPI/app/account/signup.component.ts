@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 
 import { AuthenticationService } from '../services/authentication.service';
 import { IdentityService } from '../services/identity.service';
-import { Signin } from '../services/signin';
+import { Signin } from './signin';
 
 @Component({
     templateUrl: 'signup.component.html'

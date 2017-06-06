@@ -1,5 +1,10 @@
 ## Angular SPA Web API Changelog
 
+<a name="Jun 6, 2017"></a>
+### Jun 6, 2017
+* Use a Self-signed certificate for signing credential
+* Switch to Role based Authorization
+
 <a name="Apr 9, 2017"></a>
 ### Apr 9, 2017
 * Upgrade to Angular v4

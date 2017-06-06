@@ -35,8 +35,10 @@ Our Angular app, identified as _AngularSPA_:
 - uses _ROPC_;
 - doesn't use a _secret_ key: in a client application it would be useless because visible;
 - has an _access token_ for 15 minutes, then need to refresh the token;
-- can access to the _scopes_: in this case our Web API, called with a lot of imagination _WebAPI_, the _OfflineAccess_ for refresh token 
-and _OpenId_ to access to the user's info.
+- can access to the _scopes_: in this case our Web API, called _WebAPI_, and user roles;
+- has _OfflineAccess_ for refresh token.
+
+The following are the resources:
 ```C#
 // Identity resources (used by UserInfo endpoint).
 public static IEnumerable<IdentityResource> GetIdentityResources()
@@ -76,12 +78,14 @@ app.UseIdentityServerAuthentication(new IdentityServerAuthenticationOptions
 ```
 We complete the configuration by adding IdentityServer in _ConfigureServices_ method:
 ```C#
+// Gets the Self-signed certificate.
+var cert = new X509Certificate2("angularspawebapi.pfx", "angularspawebapi");
+
 // Adds IdentityServer.
-// The AddTemporarySigningCredential extension creates temporary key material for signing tokens on every start.
-// Again this might be useful to get started, but needs to be replaced by some persistent key material for production scenarios.
-// See the cryptography docs for more information: http://docs.identityserver.io/en/release/topics/crypto.html#refcrypto
 services.AddIdentityServer()
-    .AddTemporarySigningCredential()
+    .AddSigningCredential(cert)
+    // To configure IdentityServer to use EntityFramework (EF) as the storage mechanism for configuration data (rather than using the in-memory implementations),
+    // see https://identityserver4.readthedocs.io/en/release/quickstarts/8_entity_framework.html
     .AddInMemoryIdentityResources(Config.GetIdentityResources())
     .AddInMemoryApiResources(Config.GetApiResources())
     .AddInMemoryClients(Config.GetClients())
@@ -108,19 +112,15 @@ app.UseIdentity();
 Also we define the policy of access to the Web Api controllers. 
 In our sample, we create two policies:
 - _Manage Account_ only for _administrator_ role;
-- _Access Resources_ for _administrator_ role and for _user_ role.
+- _Access Resources_ for _administrator_ and _user_ roles.
 ```C#
-// Claims-Based Authorization: role claims.
+// Role based Authorization: policy based role checks.
 services.AddAuthorization(options =>
 {
     // Policy for dashboard: only administrator role.
-    options.AddPolicy("Manage Accounts", policy => policy.RequireClaim("role", "administrator"));
-    // Policy for resources: user or administrator role. 
-    options.AddPolicy("Access Resources", policyBuilder => policyBuilder.RequireAssertion(
-            context => context.User.HasClaim(claim => (claim.Type == "role" && claim.Value == "user")
-                || (claim.Type == "role" && claim.Value == "administrator"))
-        )
-    );
+    options.AddPolicy("Manage Accounts", policy => policy.RequireRole("administrator"));
+    // Policy for resources: user or administrator roles. 
+    options.AddPolicy("Access Resources", policy => policy.RequireRole("administrator", "user"));
 });
 ```
 We add the authorization to the _Identity_ controller, which is used by the dashboard:
@@ -137,7 +137,7 @@ and to _Values_ controller, that returns the resources for the authenticated use
 public class ValuesController : Controller
 ...
 ```
-Remember: when we have defined our _APIResource_, we have included the _roles_ with user claim _role_ to allow the user to access the resources.
+Recall: when we have defined our _APIResource_, we have included the user claim _role_ to allow the user to access the resources.
 
 Finally, we set the startup on the entry point of the client application:
 ```C#
@@ -176,32 +176,35 @@ Note the _Content-Type_ as _x-www-form-urlencoded_, and parameters provided in t
     "access_token": "eyJhbGci...",
     "expires_in": 900,
     "token_type": "Bearer",
-    "refresh_token": "5007bc4b..."
+    "refresh_token": "f78a2edc..."
 }
 ```
 The user has been authenticated, and he has an _access token_ that will expire in 900 seconds, but he has also a _refresh token_.
 You can use a tool like [JSON Web Token](https://www.jsonwebtoken.io/) to decode the JWT and see the payload (with our _scope claims_):
 ```Json
 {
- "nbf": 1480712377,
- "exp": 1480713277,
- "iss": "http://localhost:5000",
- "aud": "http://localhost:5000/resources",
- "client_id": "AngularSPA",
- "sub": "c0bb2220-8c99-46dc-ad39-b707f37f047f",
- "auth_time": 1480712377,
- "idp": "local",
- "role": "administrator",
- "scope": [
-  "offline_access",
-  "openid",
-  "profile",
-  "roles",
-  "WebAPI"
- ],
- "amr": [
-  "pwd"
- ]
+  "nbf": 1496739308,
+  "exp": 1496740208,
+  "iss": "http://localhost:5000",
+  "aud": [
+    "http://localhost:5000/resources",
+    "WebAPI"
+  ],
+  "client_id": "AngularSPA",
+  "sub": "c70b4a4c-4041-46cc-8a16-259f06543768",
+  "auth_time": 1496739308,
+  "idp": "local",
+  "role": "administrator",
+  "scope": [
+    "openid",
+    "profile",
+    "roles",
+    "WebAPI",
+    "offline_access"
+  ],
+  "amr": [
+    "pwd"
+  ]
 }
 ```
 Now we can send a GET request to our Web API in this way:
@@ -225,7 +228,7 @@ POST /connect/token HTTP/1.1
 Host: localhost:5000
 Content-Type: application/x-www-form-urlencoded
 
-client_id=AngularSPA&grant_type=refresh_token&refresh_token=5007bc4b...
+client_id=AngularSPA&grant_type=refresh_token&refresh_token=f78a2edc...
 ```
 
 ### Implementing the Angular SPA

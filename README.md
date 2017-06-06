@@ -1,8 +1,8 @@
 # Angular SPA Web API
 
 > **Angular 2+** Single Page Application with an ASP.NET Core Web API that uses token authentication. 
-> The _Resource Owner Password Credentials grant_ (ROPC) OAuth2 flow is implemented using IdentityServer4, 
-> Identity as membership system and claims based authorization with a SQLite database.
+> The OAuth 2.0 _Resource Owner Password Credentials grant_ (ROPC) is implemented using IdentityServer4 
+> and ASP.NET Core Identity as membership system with a SQLite database.
 
 Get the [Changelog](https://github.com/robisim74/AngularSPAWebAPI/blob/master/CHANGELOG.md).
 
@@ -10,9 +10,8 @@ Get the [Changelog](https://github.com/robisim74/AngularSPAWebAPI/blob/master/CH
 
 **Links**
 - [Talk to a remote server with an HTTP Client](https://angular.io/docs/ts/latest/guide/server-communication.html)
-- [angular2-jwt](https://github.com/auth0/angular2-jwt)
 - [IdentityServer4](https://identityserver4.readthedocs.io) | [Protecting an API using Passwords](http://docs.identityserver.io/en/dev/quickstarts/2_resource_owner_passwords.html)
-- [ASP.NET Core - Security](https://docs.asp.net/en/latest/security/index.html) | [Claims-Based Authorization](https://docs.asp.net/en/latest/security/authorization/claims.html)
+- [ASP.NET Core - Security](https://docs.asp.net/en/latest/security/index.html) | [Role based Authorization](https://docs.microsoft.com/en-us/aspnet/core/security/authorization/roles)
 
 For more complex scenarios, where web services are required by more than one application or third-party applications, 
 you should consider to use an OpenID Connect flow:
@@ -46,14 +45,15 @@ The same scenarios are also supported by [AspNet.Security.OpenIdConnect.Server](
 - **webpack.config.js** _Webpack configuration file for development & production of Angular app_
 
 ## Installing
-- Use Visual Studio 2017 ([VS 2015 code](https://github.com/robisim74/AngularSPAWebAPI/tree/VS_2015)) and the latest Visual Studio Tools: https://www.microsoft.com/net/download/core
+- Use Visual Studio 2017 and [.NET Core 1.1.2 runtime](https://www.microsoft.com/net/download/core#/runtime)
+	- VS 2015: [code](https://github.com/robisim74/AngularSPAWebAPI/tree/VS_2015)
 - Edit `ConnectionStrings` in _appsettings.json_
 - Wait for packages restoring and build the solution
 - Start debugging
 
 ## Editing
 #### Changing db
-To use another database simply:
+To use another database:
 - Edit `ConnectionStrings` in _appsettings.json_
 - Edit in _Startup.cs_:
 ```C#
@@ -106,11 +106,6 @@ dotnet ef database update
 - Swagger UI can be viewed by navigating to `http://localhost:5000/swagger`
 
 To test the APIs, remove the policy from controllers.
-
-## Advice
-- You can change the strategy for refresh token
-- You can enable account confirmation and the other Identity services
-- Use a SSL certificate: [Insecure passwords](https://developer.mozilla.org/en-US/docs/Web/Security/Insecure_passwords)
 
 ## License
 MIT

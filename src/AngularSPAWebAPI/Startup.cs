@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Swashbuckle.AspNetCore.Swagger;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 
 namespace AngularSPAWebAPI
 {
@@ -54,17 +55,13 @@ namespace AngularSPAWebAPI
 
             services.AddMvc();
 
-            // Claims-Based Authorization: role claims.
+            // Role based Authorization: policy based role checks.
             services.AddAuthorization(options =>
             {
                 // Policy for dashboard: only administrator role.
-                options.AddPolicy("Manage Accounts", policy => policy.RequireClaim("role", "administrator"));
-                // Policy for resources: user or administrator role. 
-                options.AddPolicy("Access Resources", policyBuilder => policyBuilder.RequireAssertion(
-                        context => context.User.HasClaim(claim => (claim.Type == "role" && claim.Value == "user")
-                           || (claim.Type == "role" && claim.Value == "administrator"))
-                    )
-                );
+                options.AddPolicy("Manage Accounts", policy => policy.RequireRole("administrator"));
+                // Policy for resources: user or administrator roles. 
+                options.AddPolicy("Access Resources", policy => policy.RequireRole("administrator", "user"));
             });
 
             // Adds application services.
@@ -72,12 +69,14 @@ namespace AngularSPAWebAPI
             services.AddTransient<ISmsSender, AuthMessageSender>();
             services.AddTransient<IDbService, DbService>();
 
+            // Gets the Self-signed certificate.
+            var cert = new X509Certificate2("angularspawebapi.pfx", "angularspawebapi");
+
             // Adds IdentityServer.
-            // The AddTemporarySigningCredential extension creates temporary key material for signing tokens on every start.
-            // Again this might be useful to get started, but needs to be replaced by some persistent key material for production scenarios.
-            // See the cryptography docs for more information: http://docs.identityserver.io/en/release/topics/crypto.html#refcrypto
             services.AddIdentityServer()
-                .AddTemporarySigningCredential()
+                .AddSigningCredential(cert)
+                // To configure IdentityServer to use EntityFramework (EF) as the storage mechanism for configuration data (rather than using the in-memory implementations),
+                // see https://identityserver4.readthedocs.io/en/release/quickstarts/8_entity_framework.html
                 .AddInMemoryIdentityResources(Config.GetIdentityResources())
                 .AddInMemoryApiResources(Config.GetApiResources())
                 .AddInMemoryClients(Config.GetClients())
@@ -104,7 +103,7 @@ namespace AngularSPAWebAPI
                 });
             }
 
-            // Router on the server must matches the router on the client (see app.routing.ts) to use PathLocationStrategy.
+            // Router on the server must match the router on the client (see app.routing.ts) to use PathLocationStrategy.
             var appRoutes = new[] {
                  "/home",
                  "/resources",
@@ -125,15 +124,27 @@ namespace AngularSPAWebAPI
             });
 
             // IdentityServer4.AccessTokenValidation: authentication middleware for the API.
-            app.UseIdentityServerAuthentication(new IdentityServerAuthenticationOptions
+            if (env.IsProduction())
             {
-                Authority = "http://localhost:5000/",
-                //Authority = "http://angularspawebapi.azurewebsites.net",
-                AllowedScopes = { "WebAPI" },
+                app.UseIdentityServerAuthentication(new IdentityServerAuthenticationOptions
+                {
+                    Authority = "http://angularspawebapi.azurewebsites.net",
+                    AllowedScopes = { "WebAPI" },
 
-                RequireHttpsMetadata = false
-            });
+                    RequireHttpsMetadata = false
+                });
+            }
+            else
+            {
+                app.UseIdentityServerAuthentication(new IdentityServerAuthenticationOptions
+                {
+                    Authority = "http://localhost:5000/",
+                    AllowedScopes = { "WebAPI" },
 
+                    RequireHttpsMetadata = false
+                });
+            }
+            
             app.UseMvc();
 
             // Microsoft.AspNetCore.StaticFiles: API for starting the application from wwwroot.

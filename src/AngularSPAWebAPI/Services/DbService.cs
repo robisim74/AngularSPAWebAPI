@@ -43,12 +43,6 @@ namespace AngularSPAWebAPI.Services
             await _roleManager.CreateAsync(new IdentityRole("administrator"));
             await _roleManager.CreateAsync(new IdentityRole("user"));
 
-            // Adds Roles to Role Claims.
-            var adminRole = await _roleManager.FindByNameAsync("administrator");
-            var userRole = await _roleManager.FindByNameAsync("user");
-            await _roleManager.AddClaimAsync(adminRole, new Claim(JwtClaimTypes.Role, "administrator"));
-            await _roleManager.AddClaimAsync(userRole, new Claim(JwtClaimTypes.Role, "user"));
-
             // Seeds an admin user.
             var user = new ApplicationUser
             {
@@ -69,7 +63,7 @@ namespace AngularSPAWebAPI.Services
             if (result.Succeeded)
             {
                 var adminUser = await _userManager.FindByNameAsync(user.UserName);
-                // Assigns the 'administrator' role.
+                // Assigns the administrator role.
                 await _userManager.AddToRoleAsync(adminUser, "administrator");
                 // Assigns claims.
                 var claims = new List<Claim> {

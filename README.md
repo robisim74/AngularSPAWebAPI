@@ -14,12 +14,12 @@ Get the [Changelog](https://github.com/robisim74/AngularSPAWebAPI/blob/master/CH
 - [ASP.NET Core - Security](https://docs.asp.net/en/latest/security/index.html) | [Role based Authorization](https://docs.microsoft.com/en-us/aspnet/core/security/authorization/roles)
 
 For more complex scenarios, where web services are required by more than one application or third-party applications, 
-you should consider to use an OpenID Connect flow:
+you should consider to use an OpenID Connect flow.
 
 **Links**
 - [IDENTITYSERVER4, WEB API AND ANGULAR IN A SINGLE ASP.NET CORE PROJECT](https://damienbod.com/2016/10/01/identityserver4-webapi-and-angular2-in-a-single-asp-net-core-project/)
 
-The same scenarios are also supported by [AspNet.Security.OpenIdConnect.Server](https://github.com/aspnet-contrib/AspNet.Security.OpenIdConnect.Server) and [openiddict-core](https://github.com/openiddict/openiddict-core):
+The same scenarios are also supported by [AspNet.Security.OpenIdConnect.Server](https://github.com/aspnet-contrib/AspNet.Security.OpenIdConnect.Server) and [openiddict-core](https://github.com/openiddict/openiddict-core).
 
 **Links**
 - [Creating your own OpenID Connect server with ASOS](http://kevinchalet.com/2016/07/13/creating-your-own-openid-connect-server-with-asos-introduction/)

@@ -78,7 +78,8 @@ app.UseIdentityServerAuthentication(new IdentityServerAuthenticationOptions
 ```
 We complete the configuration by adding IdentityServer in _ConfigureServices_ method:
 ```C#
-// Gets the Self-signed certificate.
+// Gets the Self-signed certificate for signing credential:
+// see http://docs.identityserver.io/en/release/topics/crypto.html
 var cert = new X509Certificate2("angularspawebapi.pfx", "angularspawebapi");
 
 // Adds IdentityServer.
@@ -95,9 +96,9 @@ The extension method _AddAspNetIdentity_ to use the ASP.NET Identity requires an
 ```C#
 app.UseIdentityServer();
 ```
-Now we can add related services: Identity and for simplicity SQLite. 
+Now we can add related services, SQLite & Identity: 
 ```C#
-// Identity & SQLite.
+// SQLite & Identity.
 services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
 
@@ -105,7 +106,7 @@ services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 ```
-and
+and add Identity to the pipeline:
 ```C#
 app.UseIdentity();
 ```

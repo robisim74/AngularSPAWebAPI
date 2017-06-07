@@ -34,7 +34,7 @@ namespace AngularSPAWebAPI
         public void ConfigureServices(IServiceCollection services)
         {
             // Adds framework services.
-            // Identity & SQLite.
+            // SQLite & Identity.
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
 
@@ -69,7 +69,8 @@ namespace AngularSPAWebAPI
             services.AddTransient<ISmsSender, AuthMessageSender>();
             services.AddTransient<IDbService, DbService>();
 
-            // Gets the Self-signed certificate.
+            // Gets the Self-signed certificate for signing credential:
+            // see http://docs.identityserver.io/en/release/topics/crypto.html
             var cert = new X509Certificate2("angularspawebapi.pfx", "angularspawebapi");
 
             // Adds IdentityServer.

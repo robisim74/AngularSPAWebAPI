@@ -72,6 +72,8 @@ $(PATH)
 and that you have the latest version of _npm_:
 ```Shell
 npm install npm@latest -g
+
+npm cache verify
 ```
 
 From the command line or _Package Manager Console_ or [NPM Task Runner](https://marketplace.visualstudio.com/items?itemName=MadsKristensen.NPMTaskRunner), go to the folder that contains _package.json_.

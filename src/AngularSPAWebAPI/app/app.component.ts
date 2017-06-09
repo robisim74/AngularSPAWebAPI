@@ -21,7 +21,7 @@ export class AppComponent {
         this.signedIn = this.authenticationService.isSignedIn();
 
         this.name = this.authenticationService.getUser()
-            .map((user: any) => (typeof user.given_name !== 'undefined') ? user.given_name : null);
+            .map((user: any) => (typeof user.given_name !== "undefined") ? user.given_name : null);
 
         this.isAdmin = this.authenticationService.getRoles()
             .map((roles: string[]) => roles.indexOf("administrator") != -1);

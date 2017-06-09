@@ -21,7 +21,7 @@ export class DashboardComponent {
             },
             (error: any) => {
                 const errMsg = (error.message) ? error.message :
-                    error.status ? `${error.status} - ${error.statusText}` : 'Server error';
+                    error.status ? `${error.status} - ${error.statusText}` : "Server error";
                 console.log(errMsg);
             });
     }
@@ -41,7 +41,7 @@ export class DashboardComponent {
             },
             (error: any) => {
                 const errMsg = (error.message) ? error.message :
-                    error.status ? `${error.status} - ${error.statusText}` : 'Server error';
+                    error.status ? `${error.status} - ${error.statusText}` : "Server error";
                 console.log(errMsg);
             });
     }

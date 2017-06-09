@@ -76,7 +76,7 @@ import { Config } from '../config';
         return this.http.post(tokenEndpoint, body, this.options)
             .map((res: Response) => {
                 const body: any = res.json();
-                if (typeof body.access_token !== 'undefined') {
+                if (typeof body.access_token !== "undefined") {
                     // Stores access token & refresh token.
                     this.store(body);
                     this.getUserInfo();
@@ -158,7 +158,7 @@ import { Config } from '../config';
      * Tries to get a new token using refresh token.
      */
     public getNewToken(): Observable<any> {
-        const refreshToken: string = Helpers.getToken('refresh_token');
+        const refreshToken: string = Helpers.getToken("refresh_token");
 
         const tokenEndpoint: string = Config.TOKEN_ENDPOINT;
 
@@ -175,7 +175,7 @@ import { Config } from '../config';
         return this.http.post(tokenEndpoint, body, this.options)
             .map((res: Response) => {
                 const body: any = res.json();
-                if (typeof body.access_token !== 'undefined') {
+                if (typeof body.access_token !== "undefined") {
                     // Stores access token & refresh token.
                     this.store(body);
                 }
@@ -188,12 +188,12 @@ import { Config } from '../config';
      * Revokes token.
      */
     public revokeToken(): void {
-        Helpers.removeToken('id_token');
+        Helpers.removeToken("id_token");
         Helpers.removeExp();
     }
 
     public revokeRefreshToken(): void {
-        const refreshToken: string = Helpers.getToken('refresh_token');
+        const refreshToken: string = Helpers.getToken("refresh_token");
 
         if (refreshToken != null) {
             const revocationEndpoint: string = Config.REVOCATION_ENDPOINT;
@@ -209,7 +209,7 @@ import { Config } from '../config';
             this.http.post(revocationEndpoint, body, this.options)
                 .subscribe(
                 () => {
-                    Helpers.removeToken('refresh_token');
+                    Helpers.removeToken("refresh_token");
                 });
         }
     }
@@ -252,7 +252,7 @@ import { Config } from '../config';
      * Checks for presence of token and that token hasn't expired.
      */
     private tokenNotExpired(): boolean {
-        const token: string = Helpers.getToken('id_token');
+        const token: string = Helpers.getToken("id_token");
         return token != null && (Helpers.getExp() > new Date().valueOf());
     }
 
@@ -292,8 +292,8 @@ import { Config } from '../config';
      * Stores access token & refresh token.
      */
     private store(body: any): void {
-        Helpers.setToken('id_token', body.access_token);
-        Helpers.setToken('refresh_token', body.refresh_token);
+        Helpers.setToken("id_token", body.access_token);
+        Helpers.setToken("refresh_token", body.refresh_token);
 
         // Calculates token expiration.
         this.expiresIn = body.expires_in as number * 1000; // To milliseconds.

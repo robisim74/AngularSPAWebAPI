@@ -9,7 +9,7 @@ export class Signin {
 
     model: any = {};
 
-    errorMessage: string = "";
+    errorMessages: any[] = [];
 
     constructor(public router: Router, public authenticationService: AuthenticationService) { }
 
@@ -36,18 +36,22 @@ export class Signin {
 
                     switch (body.error) {
                         case "invalid_grant":
-                            this.errorMessage = "Invalid email or password";
+                            this.errorMessages.push({ description: "Invalid email or password." });
                             break;
                         default:
-                            this.errorMessage = "Unexpected error. Try again";
+                            this.errorMessages.push({ description: "Unexpected error. Try again." });
                     }
                 } else {
                     const errMsg = (error.message) ? error.message :
-                        error.status ? `${error.status} - ${error.statusText}` : 'Server error';
+                        error.status ? `${error.status} - ${error.statusText}` : "Server error";
                     console.log(errMsg);
-                    this.errorMessage = "Server error. Try later.";
+                    this.errorMessages.push({ description: "Server error. Try later." });
                 }
             });
+    }
+
+    clearMessages(): void {
+        this.errorMessages = [];
     }
 
 }

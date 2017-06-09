@@ -10,8 +10,6 @@ import { Signin } from './signin';
 })
 export class SignupComponent extends Signin {
 
-    errorMessages: string[] = [];
-
     constructor(
         public router: Router,
         public authenticationService: AuthenticationService,
@@ -34,9 +32,9 @@ export class SignupComponent extends Signin {
             },
             (error: any) => {
                 const errMsg = (error.message) ? error.message :
-                    error.status ? `${error.status} - ${error.statusText}` : 'Server error';
+                    error.status ? `${error.status} - ${error.statusText}` : "Server error";
                 console.log(errMsg);
-                this.errorMessage = "Server error. Try later.";
+                this.errorMessages.push({ description: "Server error. Try later." });
             });
     }
 

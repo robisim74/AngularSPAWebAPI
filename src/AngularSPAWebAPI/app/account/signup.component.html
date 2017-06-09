@@ -3,52 +3,48 @@
     <md-card>
         <md-toolbar color="primary">Sign up</md-toolbar>
         <md-card-content>
-            <form name="form" (ngSubmit)="f.form.valid && signup()" #f="ngForm" novalidate>
+            <form name="form" #f="ngForm" (ngSubmit)="f.form.valid && signup()" novalidate>
                 <div>
                     <br />
                     <br />
                     <md-input-container class="full-width">
-                        <input mdInput placeholder="first name" type="text" (keyup)="errorMessages = []; errorMessage = ''"
-                               name="givenName" [(ngModel)]="model.givenName" #givenName="ngModel" required>
+                        <input type="text" mdInput [(ngModel)]="model.givenName" name="givenName" #givenName="ngModel" placeholder="first name" (keyup)="clearMessages()" required>
+                        <md-error>
+                            Required
+                        </md-error>
                     </md-input-container>
-                    <small [hidden]="givenName.valid || (givenName.pristine && !f.submitted)" class="has-error">
-                        Required
-                    </small>
                     <br />
                     <br />
                     <md-input-container class="full-width">
-                        <input mdInput placeholder="last name" type="text" (keyup)="errorMessages = []; errorMessage = ''"
-                               name="familyName" [(ngModel)]="model.familyName" #familyName="ngModel" required>
+                        <input type="text" mdInput [(ngModel)]="model.familyName" name="familyName" #familyName="ngModel" placeholder="last name" (keyup)="clearMessages()" required>
+                        <md-error>
+                            Required
+                        </md-error>
                     </md-input-container>
-                    <small [hidden]="familyName.valid || (familyName.pristine && !f.submitted)" class="has-error">
-                        Required
-                    </small>
                     <br />
                     <br />
                     <md-input-container class="full-width">
-                        <input mdInput placeholder="email" type="text" (keyup)="errorMessages = []; errorMessage = ''"
-                               name="username" [(ngModel)]="model.username" #username="ngModel"
+                        <input type="text" mdInput [(ngModel)]="model.username" name="username" #username="ngModel" placeholder="email" (keyup)="clearMessages()"
                                pattern="^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$" required>
+                        <md-error *ngIf="username.errors?.required">
+                            Required
+                        </md-error>
+                        <md-error *ngIf="username.errors?.pattern">
+                            Invalid format
+                        </md-error>
                     </md-input-container>
-                    <small [hidden]="username.valid || (username.pristine && !f.submitted)" class="has-error">
-                        Invalid format
-                    </small>
                     <br />
                     <br />
                     <md-input-container class="full-width">
-                        <input mdInput placeholder="password" type="password" (keyup)="errorMessages = []; errorMessage = ''"
-                               name="password" [(ngModel)]="model.password" #password="ngModel" required>
+                        <input type="password" mdInput [(ngModel)]="model.password" name="password" #password="ngModel" placeholder="password" (keyup)="clearMessages()" required>
+                        <md-error>
+                            Required
+                        </md-error>
                     </md-input-container>
-                    <small [hidden]="password.valid || (password && !f.submitted)" class="has-error">
-                        Required
-                    </small>
                     <br />
-                    <div *ngIf="errorMessage != ''" class="has-error">
-                        <small>{{ errorMessage }}</small>
-                    </div>
                     <div *ngIf="errorMessages.length > 0" class="has-error">
-                        <div *ngFor="let errorMsg of errorMessages">
-                            <small>{{ errorMsg.description }}</small>
+                        <div *ngFor="let errorMessage of errorMessages">
+                            <small>{{ errorMessage.description }}</small>
                         </div>
                     </div>
                     <br />

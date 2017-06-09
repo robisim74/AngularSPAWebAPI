@@ -8,7 +8,6 @@
     "experimentalDecorators": true,
     "removeComments": true,
     "noImplicitAny": true,
-    "suppressImplicitAnyIndexErrors": true,
     "skipLibCheck": true,
     "lib": [
       "es2015",

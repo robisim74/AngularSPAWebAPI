@@ -26,7 +26,7 @@ import { AuthHttp, AuthConfig } from 'angular2-jwt';
 export function getAuthHttp(http: Http) {
     return new AuthHttp(new AuthConfig({
         noJwtError: true,
-        tokenGetter: (() => localStorage.getItem('id_token'))
+        tokenGetter: (() => localStorage.getItem("id_token"))
     }), http);
 }
 

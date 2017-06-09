@@ -3,29 +3,29 @@
     <md-card>
         <md-toolbar color="primary">Sign in</md-toolbar>
         <md-card-content>
-            <form name="form" (ngSubmit)="f.form.valid && signin()" #f="ngForm" novalidate>
+            <form name="form" #f="ngForm" (ngSubmit)="f.form.valid && signin()" novalidate>
                 <div>
                     <br />
                     <br />
                     <md-input-container class="full-width">
-                        <input mdInput placeholder="email" type="text" (keyup)="errorMessage = ''"
-                               name="username" [(ngModel)]="model.username" #username="ngModel" required>
+                        <input type="text" mdInput [(ngModel)]="model.username" name="username" #username="ngModel" placeholder="email" (keyup)="clearMessages()" required>
+                        <md-error>
+                            Required
+                        </md-error>
                     </md-input-container>
-                    <small [hidden]="username.valid || (username.pristine && !f.submitted)" class="has-error">
-                        Required
-                    </small>
                     <br />
                     <br />
                     <md-input-container class="full-width">
-                        <input mdInput placeholder="password" type="password" (keyup)="errorMessage = ''"
-                               name="password" [(ngModel)]="model.password" #password="ngModel" required>
+                        <input type="password" mdInput [(ngModel)]="model.password" name="password" #password="ngModel" placeholder="password" (keyup)="clearMessages()" required>
+                        <md-error>
+                            Required
+                        </md-error>
                     </md-input-container>
-                    <small [hidden]="password.valid || (password.pristine && !f.submitted)" class="has-error">
-                        Required
-                    </small>
                     <br />
-                    <div *ngIf="errorMessage != ''" class="has-error">
-                        <small>{{ errorMessage }}</small>
+                    <div *ngIf="errorMessages.length > 0" class="has-error">
+                        <div *ngFor="let errorMessage of errorMessages">
+                            <small>{{ errorMessage.description }}</small>
+                        </div>
                     </div>
                     <br />
                 </div>

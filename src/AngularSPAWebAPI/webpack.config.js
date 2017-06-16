@@ -96,7 +96,7 @@ if (environment === "development") {
                     test: /\.ts$/,
                     loaders: [
                         'awesome-typescript-loader',
-                        'angular-router-loader?aot=true&genDir=aot/app'
+                        'angular-router-loader?aot=true&genDir=aot/'
                     ]
                 },
                 {

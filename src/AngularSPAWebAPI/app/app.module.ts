@@ -1,21 +1,26 @@
 ﻿import { NgModule } from '@angular/core';
+
 import { BrowserModule } from '@angular/platform-browser';
+
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { FormsModule } from '@angular/forms';
+
 import { HttpModule, Http } from '@angular/http';
+
+import { RouterModule } from '@angular/router';
 
 import { AppRoutingModule } from './app-routing.module';
 
+import { CommonModule } from '@angular/common';
+
 import { AuthGuard } from './services/auth.guard';
+
 import { AuthenticationService } from './services/authentication.service';
+
 import { IdentityService } from './services/identity.service';
 
 import { AppComponent } from './app.component';
-import { HomeComponent } from './home/home.component';
-import { ResourcesComponent } from './resources/resources.component';
-import { DashboardComponent } from './dashboard/dashboard.component';
-import { SigninComponent } from './account/signin.component';
-import { SignupComponent } from './account/signup.component';
+
+import { SharedModule } from './shared/shared.module';
 
 import { MaterialModule } from './shared/material.module';
 
@@ -31,21 +36,24 @@ export function getAuthHttp(http: Http) {
 }
 
 @NgModule({
+    // Core Modules here
+    // -- Lazy-Loaded Modules must be declared within root app.routing module with 'loadChildren:' notation and not here
     imports: [
         BrowserModule,
-        BrowserAnimationsModule,
-        FormsModule,
-        HttpModule,
+        CommonModule,
+        RouterModule,
         AppRoutingModule,
+        BrowserAnimationsModule,
+        SharedModule,
+        // MaterialModule could also be included within SharedModule (remove then from the rest of modules)
+        // -- I prefer to manage them individually
         MaterialModule
     ],
     declarations: [
-        AppComponent,
-        HomeComponent,
-        ResourcesComponent,
-        DashboardComponent,
-        SigninComponent,
-        SignupComponent
+        AppComponent
+    ],
+    exports: [
+        MaterialModule
     ],
     providers: [
         AuthGuard,

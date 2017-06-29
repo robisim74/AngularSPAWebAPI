@@ -107,11 +107,9 @@ namespace AngularSPAWebAPI
             // Router on the server must match the router on the client (see app.routing.ts) to use PathLocationStrategy.
             var appRoutes = new[] {
                  "/home",
+                 "/account",
                  "/resources",
-                 "/dashboard",
-                 "/resources",
-                 "/signin",
-                 "/signup"
+                 "/dashboard"
              };
 
             app.Use(async (context, next) =>

@@ -19,8 +19,8 @@
             </div>
             <md-toolbar-row>
                 <span class="fill-remaining-space"></span>
-                <button md-raised-button color="accent" routerLink="/signin" *ngIf="!(signedIn | async)">Sign in</button>
-                <button md-raised-button color="primary" routerLink="/signup" *ngIf="!(signedIn | async)">Sign up</button>
+                <button md-raised-button color="accent" routerLink="/account/signin" *ngIf="!(signedIn | async)">Sign in</button>
+                <button md-raised-button color="primary" routerLink="/account/signup" *ngIf="!(signedIn | async)">Sign up</button>
                 <span *ngIf="(signedIn | async) && (name | async)">Hi {{ name | async }}!&nbsp;&nbsp;</span>
                 <button md-raised-button color="primary" (click)="signout()" *ngIf="(signedIn | async)">Sign out</button>
             </md-toolbar-row>

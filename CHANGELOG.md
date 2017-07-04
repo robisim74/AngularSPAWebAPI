@@ -1,5 +1,9 @@
 ## Angular SPA Web API Changelog
 
+<a name="Jul 4, 2017"></a>
+### Jul 4, 2017
+* Architecture redesign: child modules and lazy loading (by @aalmajanob)
+
 <a name="Jun 6, 2017"></a>
 ### Jun 6, 2017
 * Use a Self-signed certificate for signing credential

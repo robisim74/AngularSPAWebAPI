@@ -16,6 +16,10 @@
   },
   "files": [
     "app/app.module.ts",
+    "app/home/home.module.ts",
+    "app/account/account.module.ts",
+    "app/resources/resources.module.ts",
+    "app/dashboard/dashboard.module.ts",
     "app/main-aot.ts"
   ],
   "angularCompilerOptions": {

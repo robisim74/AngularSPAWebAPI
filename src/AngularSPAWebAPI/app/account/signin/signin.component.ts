@@ -1,15 +1,17 @@
 ﻿import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { AuthenticationService } from '../services/authentication.service';
-import { Signin } from './signin';
+import { AuthenticationService } from '../../services/authentication.service';
+import { SigninService } from '../signin.service';
 
 @Component({
     templateUrl: 'signin.component.html'
 })
-export class SigninComponent extends Signin {
+export class SigninComponent extends SigninService {
 
-    constructor(public router: Router, public authenticationService: AuthenticationService) {
+    constructor(
+        protected router: Router,
+        protected authenticationService: AuthenticationService) {
         super(router, authenticationService);
 
         // Preloads data for live example.

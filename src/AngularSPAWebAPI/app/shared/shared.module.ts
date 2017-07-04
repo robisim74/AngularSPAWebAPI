@@ -1,25 +1,19 @@
 import { NgModule } from '@angular/core';
-
-import { FormsModule } from '@angular/forms';
-
 import { HttpModule } from '@angular/http';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MaterialModule } from './material.module';
 
-/**
- * Globally Shared Modules, Services, Directives, Pipes ... within all the app
- */
+const sharedModules: any[] = [
+    HttpModule,
+    CommonModule,
+    FormsModule,
+    MaterialModule
+];
+
 @NgModule({
-    // Include also within the 'exports' section
-    imports: [
-        FormsModule,
-        HttpModule
-    ],
-    // Include also within the 'exports' section
-    declarations: [
-
-    ],
-    exports: [
-        FormsModule,
-        HttpModule
-    ]
+    imports: sharedModules,
+    exports: sharedModules
 })
+
 export class SharedModule { }

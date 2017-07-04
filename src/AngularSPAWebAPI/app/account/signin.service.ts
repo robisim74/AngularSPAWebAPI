@@ -1,5 +1,4 @@
 ﻿import { Injectable } from '@angular/core';
-
 import { Router } from '@angular/router';
 
 import { AuthenticationService } from '../services/authentication.service';
@@ -16,9 +15,7 @@ export class SigninService {
 
     constructor(
         protected router: Router,
-        protected authenticationService: AuthenticationService) {
-
-        }
+        protected authenticationService: AuthenticationService) { }
 
     signin(): void {
         this.authenticationService.signin(this.model.username, this.model.password)

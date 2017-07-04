@@ -14,7 +14,6 @@
       "dom"
     ]
   },
-  // We must include lazy-loaded modules here in order to force them to be lodaded
   "files": [
     "app/app.module.ts",
     "app/home/home.module.ts",

@@ -21,7 +21,7 @@ import { AuthenticationService } from './authentication.service';
         this.authenticationService.redirectUrl = url;
 
         // Not signed in so redirects to signin page.
-        this.router.navigate(['/signin']);
+        this.router.navigate(['/account/signin']);
 
         return false;
     }

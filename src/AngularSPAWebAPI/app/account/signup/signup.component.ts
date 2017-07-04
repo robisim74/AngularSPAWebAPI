@@ -1,13 +1,9 @@
 ﻿import { Component } from '@angular/core';
-
 import { Router } from '@angular/router';
 
 import { AuthenticationService } from '../../services/authentication.service';
-
 import { IdentityService } from '../../services/identity.service';
-
 import { SigninService } from '../signin.service';
-
 
 @Component({
     templateUrl: 'signup.component.html'
@@ -18,8 +14,7 @@ export class SignupComponent extends SigninService {
         protected router: Router,
         protected authenticationService: AuthenticationService,
         private identityService: IdentityService) {
-            super(router, authenticationService);
-            
+        super(router, authenticationService);
     }
 
     signup(): void {

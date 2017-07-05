@@ -3,12 +3,12 @@ import { Router } from '@angular/router';
 
 import { AuthenticationService } from '../../services/authentication.service';
 import { IdentityService } from '../../services/identity.service';
-import { SigninService } from '../signin.service';
+import { Signin } from '../signin';
 
 @Component({
     templateUrl: 'signup.component.html'
 })
-export class SignupComponent extends SigninService {
+export class SignupComponent extends Signin {
 
     constructor(
         protected router: Router,

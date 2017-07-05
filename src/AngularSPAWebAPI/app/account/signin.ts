@@ -11,7 +11,9 @@ export class Signin {
 
     errorMessages: any[] = [];
 
-    constructor(public router: Router, public authenticationService: AuthenticationService) { }
+    constructor(
+        protected router: Router,
+        protected authenticationService: AuthenticationService) { }
 
     signin(): void {
         this.authenticationService.signin(this.model.username, this.model.password)

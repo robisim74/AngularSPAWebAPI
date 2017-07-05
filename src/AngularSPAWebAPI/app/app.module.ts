@@ -24,8 +24,6 @@ export function getAuthHttp(http: Http) {
 }
 
 @NgModule({
-    // Core Modules here.
-    // - Lazy-Loaded Modules must be declared within root app.routing module with 'loadChildren:' notation and not here.
     imports: [
         BrowserModule,
         AppRoutingModule,

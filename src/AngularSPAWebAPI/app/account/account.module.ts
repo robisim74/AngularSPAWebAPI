@@ -6,8 +6,6 @@ import { SharedModule } from '../shared/shared.module';
 import { SigninComponent } from './signin/signin.component';
 import { SignupComponent } from './signup/signup.component';
 
-import { SigninService } from './signin.service';
-
 @NgModule({
     imports: [
         AccountRoutingModule,
@@ -20,7 +18,6 @@ import { SigninService } from './signin.service';
     exports: [
     ],
     providers: [
-        SigninService,
     ]
 })
 export class AccountModule { }

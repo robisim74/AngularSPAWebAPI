@@ -4,11 +4,28 @@
     "node_modules/codelyzer"
   ],
   "rules": {
+    "angular-whitespace": [
+      true,
+      "check-interpolation",
+      "check-pipe"
+    ],
+    "banana-in-box": true,
+    "templates-no-negated-async": true,
     "directive-selector": [
-      false
+      true,
+      "attribute",
+      [
+        ""
+      ],
+      "camelCase"
     ],
     "component-selector": [
-      false
+      true,
+      "element",
+      [
+        ""
+      ],
+      "kebab-case"
     ],
     "use-input-property-decorator": true,
     "use-output-property-decorator": true,
@@ -17,17 +34,26 @@
     "no-input-rename": true,
     "no-output-rename": true,
     "no-forward-ref": true,
+    "use-view-encapsulation": false,
     "use-life-cycle-interface": true,
     "use-pipe-transform-interface": true,
     "pipe-naming": [
       true,
-      "camelCase"
+      "camelCase",
+      "Pipe"
     ],
-    "component-class-suffix": true,
-    "directive-class-suffix": true,
-    "templates-use-public": false,
+    "component-class-suffix": [
+      true,
+      "Component"
+    ],
+    "directive-class-suffix": [
+      true,
+      "Directive"
+    ],
+    "templates-use-public": true,
     "no-access-missing-member": false,
     "invoke-injectable": true,
+    "template-to-ng-template": true,
     "forin": false,
     "max-classes-per-file": [ false ],
     "member-access": false,

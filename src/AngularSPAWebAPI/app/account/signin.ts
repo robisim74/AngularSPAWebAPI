@@ -22,14 +22,19 @@ export class Signin {
                 // Optional strategy for refresh token through a scheduler.
                 this.authenticationService.scheduleRefresh();
 
-                // Gets the redirect URL from authentication service.
-                // If no redirect has been set, uses the default.
-                const redirect: string = this.authenticationService.redirectUrl
-                    ? this.authenticationService.redirectUrl
-                    : '/home';
+                // Gets user's data.
+                this.authenticationService.getUserInfo().subscribe(
+                    (userInfo: any) => {
+                        this.authenticationService.changeUser(userInfo);
 
-                // Redirects the user.
-                this.router.navigate([redirect]);
+                        // Gets the redirect URL from authentication service.
+                        // If no redirect has been set, uses the default.
+                        const redirect: string = this.authenticationService.redirectUrl
+                            ? this.authenticationService.redirectUrl
+                            : '/home';
+                        // Redirects the user.
+                        this.router.navigate([redirect]);
+                    });
             },
             (error: any) => {
                 // Checks for error in response (error from the Token endpoint).

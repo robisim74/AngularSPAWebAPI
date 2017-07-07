@@ -11,6 +11,7 @@ import 'rxjs/add/observable/timer';
 import { AuthHttp } from 'angular2-jwt';
 
 import { Config } from '../config';
+import { User } from '../models/user';
 
 /**
  * ROPC Authentication service.
@@ -23,14 +24,11 @@ import { Config } from '../config';
     public redirectUrl: string;
 
     /**
-     * Behavior subjects of the user's status, data & roles.
+     * Behavior subjects of the user's status & data.
      * https://netbasal.com/angular-2-persist-your-login-status-with-behaviorsubject-45da9ec43243#.14rltx9dh
      */
-    public signinSubject = new BehaviorSubject<boolean>(this.tokenNotExpired());
-
-    public userSubject = new BehaviorSubject<any>({});
-
-    public rolesSubject = new BehaviorSubject<string[]>([]);
+    private signinStatus = new BehaviorSubject<boolean>(this.tokenNotExpired());
+    private user = new BehaviorSubject<User>(new User());
 
     /**
      * Token info.
@@ -42,6 +40,7 @@ import { Config } from '../config';
      * Scheduling of the refresh token.
      */
     private refreshSubscription: any;
+
     /**
      * Offset for the scheduling to avoid the inconsistency of data on the client.
      */
@@ -51,8 +50,14 @@ import { Config } from '../config';
     private options: RequestOptions;
 
     constructor(private http: Http, private authHttp: AuthHttp) {
-        // On bootstrap or refresh, tries to get users'data.
-        this.getUserInfo();
+        // On bootstrap or refresh, tries to get user's data.
+        if (this.tokenNotExpired()) {
+            this.getUserInfo().subscribe(
+                (userInfo: any) => {
+                    this.changeUser(userInfo);
+                });
+        }
+
         // Creates header for post requests.
         this.headers = new Headers({ 'Content-Type': 'application/x-www-form-urlencoded' });
         this.options = new RequestOptions({ headers: this.headers });
@@ -79,10 +84,8 @@ import { Config } from '../config';
                 if (typeof body.access_token !== "undefined") {
                     // Stores access token & refresh token.
                     this.store(body);
-                    this.getUserInfo();
-
                     // Tells all the subscribers about the new status.
-                    this.signinSubject.next(true);
+                    this.signinStatus.next(true);
                 }
             }).catch((error: any) => {
                 return Observable.throw(error);
@@ -119,7 +122,7 @@ import { Config } from '../config';
     public startupTokenRefresh(): void {
         // If the user is authenticated, uses the token stream
         // provided by angular2-jwt and flatMap the token.
-        if (this.signinSubject.getValue()) {
+        if (this.signinStatus.getValue()) {
             const source = this.authHttp.tokenStream.flatMap(
                 (token: string) => {
                     const now: number = new Date().valueOf();
@@ -220,10 +223,9 @@ import { Config } from '../config';
     public signout(): void {
         this.redirectUrl = null;
 
-        // Tells all the subscribers about the new status, data & roles.
-        this.signinSubject.next(false);
-        this.userSubject.next({});
-        this.rolesSubject.next([]);
+        // Tells all the subscribers about the new status & data.
+        this.signinStatus.next(false);
+        this.user.next(new User());
 
         // Unschedules the refresh token.
         this.unscheduleRefresh();
@@ -234,18 +236,43 @@ import { Config } from '../config';
     }
 
     /**
+     * Calls UserInfo endpoint to retrieve user's data.
+     */
+    public getUserInfo(): Observable<any> {
+        return this.authHttp.get(Config.USERINFO_ENDPOINT)
+            .map((res: any) => res.json());
+    }
+
+    public changeUser(userInfo: any): void {
+        const user: User = new User();
+
+        user.givenName = userInfo.given_name;
+        user.familyName = userInfo.family_name;
+        user.userName = userInfo.name;
+        user.roles = userInfo.role;
+
+        // Tells all the subscribers about the new data.
+        this.user.next(user);
+    }
+
+    /**
      * Checks if user is signed in.
      */
     public isSignedIn(): Observable<boolean> {
-        return this.signinSubject.asObservable();
+        return this.signinStatus.asObservable();
     }
 
-    public getUser(): Observable<any> {
-        return this.userSubject.asObservable();
+    public userChanged(): Observable<User> {
+        return this.user.asObservable();
     }
 
-    public getRoles(): Observable<any> {
-        return this.rolesSubject.asObservable();
+    /**
+     * Checks if user is in the given role.
+     */
+    public isInRole(role: string): boolean {
+        const user: User = this.user.getValue();
+        const roles: string[] = typeof user.roles !== "undefined" ? user.roles : [];
+        return roles.indexOf(role) != -1;
     }
 
     /**
@@ -254,26 +281,6 @@ import { Config } from '../config';
     private tokenNotExpired(): boolean {
         const token: string = Helpers.getToken("id_token");
         return token != null && (Helpers.getExp() > new Date().valueOf());
-    }
-
-    /**
-     * Calls UserInfo endpoint to retrieve user's data.
-     */
-    private getUserInfo(): void {
-        if (this.tokenNotExpired()) {
-            this.authHttp.get(Config.USERINFO_ENDPOINT)
-                .subscribe(
-                (res: any) => {
-                    const user: any = res.json();
-                    const roles: string[] = user.role;
-                    // Tells all the subscribers about the new data & roles.
-                    this.userSubject.next(user);
-                    this.rolesSubject.next(user.role);
-                },
-                (error: any) => {
-                    console.log(error);
-                });
-        }
     }
 
     private encodeParams(params: any): string {

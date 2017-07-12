@@ -6,8 +6,10 @@ import {
     MdListModule,
     MdInputModule,
     MdButtonModule,
-    MdIconModule
+    MdIconModule,
+    MdTableModule
 } from '@angular/material';
+import { CdkTableModule } from '@angular/cdk';
 
 const materialModules: any[] = [
     MdSidenavModule,
@@ -16,7 +18,9 @@ const materialModules: any[] = [
     MdListModule,
     MdInputModule,
     MdButtonModule,
-    MdIconModule
+    MdIconModule,
+    MdTableModule,
+    CdkTableModule
 ];
 
 @NgModule({

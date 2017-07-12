@@ -5,7 +5,7 @@ import { AuthenticationService } from '../../services/authentication.service';
 import { Signin } from '../signin';
 
 @Component({
-    templateUrl: 'signin.component.html'
+    templateUrl: './signin.component.html'
 })
 export class SigninComponent extends Signin {
 

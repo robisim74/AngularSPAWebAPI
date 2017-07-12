@@ -12,10 +12,6 @@ import { ResourcesComponent } from './resources.component';
     ],
     declarations: [
         ResourcesComponent
-    ],
-    exports: [
-    ],
-    providers: [
     ]
 })
 export class ResourcesModule { }

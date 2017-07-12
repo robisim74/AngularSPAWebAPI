@@ -5,12 +5,12 @@ import 'core-js/client/shim';
 import 'reflect-metadata';
 import 'zone.js/dist/zone';
 
+import 'web-animations-js';
+
 import 'hammerjs';
 
-// Angular Material theme.
-import './styles/blue-amber.scss';
-// App styles.
-import './styles/app.scss';
+// Styles.
+import './styles/styles.scss';
 
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { AppModule } from './app.module';

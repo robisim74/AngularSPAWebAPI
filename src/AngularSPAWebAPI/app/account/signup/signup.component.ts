@@ -6,7 +6,7 @@ import { IdentityService } from '../../services/identity.service';
 import { Signin } from '../signin';
 
 @Component({
-    templateUrl: 'signup.component.html'
+    templateUrl: './signup.component.html'
 })
 export class SignupComponent extends Signin {
 
@@ -18,7 +18,7 @@ export class SignupComponent extends Signin {
     }
 
     signup(): void {
-        this.identityService.Create(this.model)
+        this.identityService.create(this.model)
             .subscribe(
             (res: any) => {
                 // IdentityResult.

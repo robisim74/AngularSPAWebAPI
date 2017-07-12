@@ -28,8 +28,8 @@ shell.echo(chalk.green('AoT compilation completed'));
 
 /* Tree shaking & minification with webpack */
 shell.echo('Start Tree shaking & minification');
-shell.echo('set NODE_ENV=production && webpack');
-shell.exec('set NODE_ENV=production && webpack');
+shell.echo('cross-env NODE_ENV=production webpack');
+shell.exec('cross-env NODE_ENV=production webpack');
 shell.echo(chalk.green('Tree shaking completed'));
 
 shell.echo(chalk.green('End building'));

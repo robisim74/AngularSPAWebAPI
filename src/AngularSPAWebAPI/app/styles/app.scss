@@ -1,16 +1,15 @@
-﻿body {
-    font-family: Roboto, 'Helvetica Neue', sans-serif;
+body {
+    font-family: $font-family;
 
     * {
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
     }
 
-    md-sidenav {
-        width: 250px;
-        padding: 10px;
+    .mat-sidenav {
+        min-width: 20vw;
 
-        [md-button] {
+        .mat-button {
             width: 100%;
             position: relative;
             bottom: 0;
@@ -20,17 +19,43 @@
 
     .app-content {
         padding: 32px;
+        box-sizing: border-box;
+
+        h1 {
+            display: inline-block;
+            font-size: 24px;
+            font-weight: 500;
+            margin: 8px 0px;
+        }
+
+        h1:after {
+            content: "";
+            display: block;
+            height: 1px;
+            width: 40%;
+            margin: 24px 0px 10px;
+            background: $lightgray;
+            clear: both;
+        }
     }
 
-    md-toolbar {
-        md-icon {
+    .mat-toolbar {
+        .mat-icon {
             cursor: pointer;
         }
 
         .app-toolbar {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             width: 100%;
+            margin-left: 24px;
+            margin-right: 8px;
+
+            @media ($xsmall) {
+                margin-left: 16px;
+                margin-right: 0px;
+            }
         }
     }
 
@@ -38,33 +63,22 @@
         font-size: 20px;
     }
 
-    md-list {
-        border-bottom: 1px solid rgba(0, 0, 0, 0.12);
-    }
-
     .fill-remaining-space {
         flex: 1 1 auto;
     }
 }
 
-.active-link {
-	.mat-list-item-content {
-		color: #1976D2;
-	}
+// Stretch to screen size in fullscreen mode.
+.app-content {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
 }
 
-.app-card-container {
-    display: flex;
-    justify-content: center;
-
-    md-card {
-        margin: 8px;
-        width: 500px;
-    }
-
-    img {
-        background-color: gray;
-    }
+.active-link {
+	.mat-list-item-content {
+		color: $blue;
+	}
 }
 
 .account-card-container {
@@ -72,25 +86,55 @@
     justify-content: center;
 
     md-card {
-        margin: 8px;
         width: 400px;
     }
 }
 
-.resources-card-container, .dashboard-card-container {
+.home-card-container {
+    display: flex;
+    justify-content: center;
+
+    md-card {
+        width: 500px;
+
+        md-card-title {
+            text-align: center;
+            color: $blue;
+        }
+        
+        md-card-subtitle, md-card-content {
+            text-align: center;
+        }
+    }
+
+    img {
+        background-color: $lightgray;
+    }
+}
+
+.resources-card-container {
     display: flex;
     flex-direction: column;
 
     md-card {
-        margin: 8px;
+        margin: 8px 0 8px 0;
         max-width: 400px;
     }
 }
 
-.full-width {
-    width: 100%;
+.dashboard-container {
+    display: flex;
+    flex-direction: column;
+
+    .mat-table {
+        overflow: hidden;
+    }
 }
 
 .has-error {
     color: #D32F2F;
+}
+
+.full-width {
+    width: 100%;
 }

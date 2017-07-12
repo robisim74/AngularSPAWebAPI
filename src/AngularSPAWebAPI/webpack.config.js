@@ -1,9 +1,9 @@
 'use strict';
-let path = require('path');
-let webpack = require('webpack');
-let HtmlWebpackPlugin = require('html-webpack-plugin');
+const path = require('path');
+const webpack = require('webpack');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-let environment = (process.env.NODE_ENV || "development").trim();
+const environment = (process.env.NODE_ENV || "development").trim();
 
 if (environment === "development") {
 
@@ -24,7 +24,7 @@ if (environment === "development") {
             rules: [
                 {
                     test: /\.ts$/,
-                    loaders: [
+                    use: [
                         'awesome-typescript-loader',
                         'angular-router-loader',
                         'angular2-template-loader',
@@ -33,22 +33,14 @@ if (environment === "development") {
                 },
                 {
                     test: /\.html$/,
-                    loader: 'raw-loader'
-                },
-                {
-                    test: /\.css$/,
-                    loaders: [
-                       'style-loader',
-                       'css-loader',
-                       'raw-loader'
-                    ]
+                    use: 'raw-loader'
                 },
                 {
                     test: /\.scss$/,
-                    loaders: [
-                       'style-loader',
-                       'css-loader',
-                       'sass-loader'
+                    use: [
+                        'style-loader',
+                        'css-loader',
+                        'sass-loader'
                     ]
                 }
             ],
@@ -65,7 +57,7 @@ if (environment === "development") {
         ],
 
         resolve: {
-            extensions: ['.ts', '.js', '.html', '.css', '.scss']
+            extensions: ['.ts', '.js', '.html', '.scss']
         },
 
         devtool: 'source-map',
@@ -94,29 +86,21 @@ if (environment === "development") {
             rules: [
                 {
                     test: /\.ts$/,
-                    loaders: [
+                    use: [
                         'awesome-typescript-loader',
                         'angular-router-loader?aot=true&genDir=aot/'
                     ]
                 },
                 {
                     test: /\.html$/,
-                    loader: 'raw-loader'
-                },
-                {
-                    test: /\.css$/,
-                    loaders: [
-                       'style-loader',
-                       'css-loader',
-                       'raw-loader'
-                    ]
+                    use: 'raw-loader'
                 },
                 {
                     test: /\.scss$/,
-                    loaders: [
-                       'style-loader',
-                       'css-loader',
-                       'sass-loader'
+                    use: [
+                        'style-loader',
+                        'css-loader',
+                        'sass-loader'
                     ]
                 }
             ],
@@ -147,7 +131,7 @@ if (environment === "development") {
                 'node_modules',
                 path.resolve(__dirname, 'app')
             ],
-            extensions: ['.ts', '.js', '.html', '.css', '.scss']
+            extensions: ['.ts', '.js', '.html', '.scss']
         },
 
         devtool: false,

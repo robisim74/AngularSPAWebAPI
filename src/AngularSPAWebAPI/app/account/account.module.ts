@@ -14,10 +14,6 @@ import { SignupComponent } from './signup/signup.component';
     declarations: [
         SigninComponent,
         SignupComponent
-    ],
-    exports: [
-    ],
-    providers: [
     ]
 })
 export class AccountModule { }

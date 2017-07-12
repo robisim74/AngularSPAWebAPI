@@ -1,5 +1,9 @@
 ## Angular SPA Web API Changelog
 
+<a name="Jul 12, 2017"></a>
+### Jul 12, 2017
+* Styles: add md-table to dashboard
+
 <a name="Jul 4, 2017"></a>
 ### Jul 4, 2017
 * Architecture redesign: child modules and lazy loading (by @aalmajanob)

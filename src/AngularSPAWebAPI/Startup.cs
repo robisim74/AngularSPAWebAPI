@@ -71,6 +71,7 @@ namespace AngularSPAWebAPI
 
             // Gets the Self-signed certificate for signing credential:
             // see http://docs.identityserver.io/en/release/topics/crypto.html
+            // IMPORTANT: the following Self-signed certificate is only for testing this sample app.
             var cert = new X509Certificate2("angularspawebapi.pfx", "angularspawebapi");
 
             // Adds IdentityServer.
@@ -83,7 +84,7 @@ namespace AngularSPAWebAPI
                 .AddInMemoryClients(Config.GetClients())
                 .AddAspNetIdentity<ApplicationUser>(); // IdentityServer4.AspNetIdentity.
 
-            // Registers the Swagger generator, defining one or more Swagger documents
+            // Registers the Swagger generator, defining one or more Swagger documents.
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Info { Title = "WebAPI", Version = "v1" });

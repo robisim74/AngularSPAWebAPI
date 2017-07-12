@@ -1,4 +1,5 @@
-﻿import { Component } from '@angular/core';
+﻿import { Component, OnInit } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 
@@ -9,14 +10,27 @@ import { User } from './models/user';
     selector: 'app-component',
     templateUrl: 'app.component.html'
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
+
+    navItems = [
+        { name: 'Home', route: 'home' },
+        { name: 'Resources', route: 'resources' }
+    ];
 
     signedIn: Observable<boolean>;
 
     name: string;
     isAdmin: boolean;
 
-    constructor(private authenticationService: AuthenticationService, private router: Router) {
+    constructor(
+        public title: Title,
+        private authenticationService: AuthenticationService,
+        private router: Router
+    ) { }
+
+    ngOnInit() {
+        this.title.setTitle('Angular SPA WebAPI');
+
         this.signedIn = this.authenticationService.isSignedIn();
 
         this.authenticationService.userChanged().subscribe(

@@ -1,8 +1,12 @@
 ## Angular SPA Web API Changelog
 
+<a name="Jul 13, 2017"></a>
+### Jul 13, 2017
+* Building: switch to _@ngtools/webpack_
+
 <a name="Jul 12, 2017"></a>
 ### Jul 12, 2017
-* Styles: add md-table to dashboard
+* Styles: add `md-table` to dashboard
 
 <a name="Jul 4, 2017"></a>
 ### Jul 4, 2017

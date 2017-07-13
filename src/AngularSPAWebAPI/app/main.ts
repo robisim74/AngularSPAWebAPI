@@ -2,7 +2,6 @@
 
 // Polyfills.
 import 'core-js/client/shim';
-import 'reflect-metadata';
 import 'zone.js/dist/zone';
 
 import 'web-animations-js';
@@ -10,7 +9,7 @@ import 'web-animations-js';
 import 'hammerjs';
 
 // Styles.
-import './styles/styles.scss';
+import './styles.scss';
 
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { AppModule } from './app.module';

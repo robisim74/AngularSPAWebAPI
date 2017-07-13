@@ -390,13 +390,13 @@ this.authHttp.get("/api/values")
 ```
 
 ### Building the Angular app with AoT compilation & webpack
-For production, we build the Angular app through [ngc compiler](https://angular.io/docs/ts/latest/cookbook/aot-compiler.html) & webpack. 
-To do this, after the AoT compilation, in _webpack.config.js_ file we set as entry point _main-aot.ts_:
+For production, we build the Angular app with webpack & `@ngtools/webpack`. 
+To do this, in _webpack.config.js_ file we set as entry point _main-aot.ts_:
 ```JavaScript
 // In production mode, we use AoT compilation, tree shaking & minification.
 module.exports = {
     entry: {
-        'app-aot': './app/main-aot.js'
+        'app-aot': './app/main-aot.ts'
     },
 	...
 ```

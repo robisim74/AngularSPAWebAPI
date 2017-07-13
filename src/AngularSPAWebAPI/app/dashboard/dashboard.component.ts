@@ -5,7 +5,8 @@ import { Observable } from 'rxjs/Observable';
 import { IdentityService } from '../services/identity.service';
 
 @Component({
-    templateUrl: './dashboard.component.html'
+    templateUrl: './dashboard.component.html',
+    styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
 

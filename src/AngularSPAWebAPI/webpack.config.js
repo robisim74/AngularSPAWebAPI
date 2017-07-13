@@ -2,6 +2,7 @@
 const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ngToolsWebpack = require('@ngtools/webpack');
 
 const environment = (process.env.NODE_ENV || "development").trim();
 
@@ -37,9 +38,18 @@ if (environment === "development") {
                 },
                 {
                     test: /\.scss$/,
+                    include: path.join(__dirname, 'app/styles'),
                     use: [
                         'style-loader',
                         'css-loader',
+                        'sass-loader'
+                    ]
+                },
+                {
+                    test: /\.scss$/,
+                    exclude: path.join(__dirname, 'app/styles'),
+                    use: [
+                        'raw-loader',
                         'sass-loader'
                     ]
                 }
@@ -57,7 +67,7 @@ if (environment === "development") {
         ],
 
         resolve: {
-            extensions: ['.ts', '.js', '.html', '.scss']
+            extensions: ['.ts', '.js']
         },
 
         devtool: 'source-map',
@@ -73,7 +83,7 @@ if (environment === "development") {
     // In production mode, we use AoT compilation, tree shaking & minification.
     module.exports = {
         entry: {
-            'app-aot': './app/main-aot.js'
+            'app-aot': './app/main-aot.ts'
         },
         // We use long term caching.
         output: {
@@ -86,10 +96,7 @@ if (environment === "development") {
             rules: [
                 {
                     test: /\.ts$/,
-                    use: [
-                        'awesome-typescript-loader',
-                        'angular-router-loader?aot=true&genDir=aot/'
-                    ]
+                    use: '@ngtools/webpack'
                 },
                 {
                     test: /\.html$/,
@@ -97,9 +104,18 @@ if (environment === "development") {
                 },
                 {
                     test: /\.scss$/,
+                    include: path.join(__dirname, './app/styles'),
                     use: [
                         'style-loader',
                         'css-loader',
+                        'sass-loader'
+                    ]
+                },
+                {
+                    test: /\.scss$/,
+                    exclude: path.join(__dirname, 'app/styles'),
+                    use: [
+                        'raw-loader',
                         'sass-loader'
                     ]
                 }
@@ -108,6 +124,10 @@ if (environment === "development") {
         },
 
         plugins: [
+            // AoT plugin.
+            new ngToolsWebpack.AotPlugin({
+                tsConfigPath: './tsconfig-aot.json'
+            }),
             // Minimizes the bundle.
             new webpack.optimize.UglifyJsPlugin({
                 compress: {
@@ -127,11 +147,7 @@ if (environment === "development") {
         ],
 
         resolve: {
-            modules: [
-                'node_modules',
-                path.resolve(__dirname, 'app')
-            ],
-            extensions: ['.ts', '.js', '.html', '.scss']
+            extensions: ['.ts', '.js']
         },
 
         devtool: false,

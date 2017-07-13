@@ -8,7 +8,6 @@ import { HomeComponent } from './home/home.component';
 // - Router on the server (see Startup.cs) must match the router on the client to use PathLocationStrategy
 // and Lazy Loading Modules:
 // - https://angular.io/guide/ngmodule#lazy-loading-modules-with-the-router
-// - Note for AOT compilation: include lazy-loaded modules files within the tsconfig-aot.json
 const routes: Routes = [
     { path: '', redirectTo: 'home', pathMatch: 'full' },
     { path: 'home', component: HomeComponent },

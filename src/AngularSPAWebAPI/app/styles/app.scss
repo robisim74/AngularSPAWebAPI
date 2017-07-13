@@ -90,47 +90,6 @@ body {
     }
 }
 
-.home-card-container {
-    display: flex;
-    justify-content: center;
-
-    md-card {
-        width: 500px;
-
-        md-card-title {
-            text-align: center;
-            color: $blue;
-        }
-        
-        md-card-subtitle, md-card-content {
-            text-align: center;
-        }
-    }
-
-    img {
-        background-color: $lightgray;
-    }
-}
-
-.resources-card-container {
-    display: flex;
-    flex-direction: column;
-
-    md-card {
-        margin: 8px 0 8px 0;
-        max-width: 400px;
-    }
-}
-
-.dashboard-container {
-    display: flex;
-    flex-direction: column;
-
-    .mat-table {
-        overflow: hidden;
-    }
-}
-
 .has-error {
     color: #D32F2F;
 }

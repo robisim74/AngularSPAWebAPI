@@ -1,0 +1,9 @@
+.resources-card-container {
+    display: flex;
+    flex-direction: column;
+
+    md-card {
+        margin: 8px 0 8px 0;
+        max-width: 400px;
+    }
+}

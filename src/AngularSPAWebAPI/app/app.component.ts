@@ -12,7 +12,7 @@ import { User } from './models/user';
 })
 export class AppComponent implements OnInit {
 
-    navItems = [
+    navItems: any[] = [
         { name: 'Home', route: 'home' },
         { name: 'Resources', route: 'resources' }
     ];

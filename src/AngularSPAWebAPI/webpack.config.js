@@ -104,7 +104,7 @@ if (environment === "development") {
                 },
                 {
                     test: /\.scss$/,
-                    include: path.join(__dirname, './app/styles'),
+                    include: path.join(__dirname, 'app/styles'),
                     use: [
                         'style-loader',
                         'css-loader',

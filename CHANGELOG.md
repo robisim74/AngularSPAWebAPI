@@ -1,5 +1,9 @@
 ## Angular SPA Web API Changelog
 
+<a name="Aug 21, 2017"></a>
+### Aug 21, 2017
+* Create `BrowserStorage` class & store user's info.
+
 <a name="Jul 13, 2017"></a>
 ### Jul 13, 2017
 * Building: switch to _@ngtools/webpack_

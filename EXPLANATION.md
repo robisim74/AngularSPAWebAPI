@@ -285,9 +285,9 @@ In this example, we use a scheduler to request a new _access token_ before it ex
  * Will schedule a refresh at the appropriate time.
  */
 public scheduleRefresh(): void {
-    let source = this.authHttp.tokenStream.flatMap(
+    const source = this.authHttp.tokenStream.flatMap(
         (token: string) => {
-            let delay: number = this.expiresIn - this.offsetSeconds * 1000;
+            const delay: number = this.expiresIn - this.offsetSeconds * 1000;
             return Observable.interval(delay);
         });
 
@@ -310,14 +310,14 @@ public scheduleRefresh(): void {
 public startupTokenRefresh(): void {
     // If the user is authenticated, uses the token stream
     // provided by angular2-jwt and flatMap the token.
-    if (this.signinSubject.getValue()) {
-        let source = this.authHttp.tokenStream.flatMap(
+    if (this.signinStatus.getValue()) {
+        const source = this.authHttp.tokenStream.flatMap(
             (token: string) => {
-                let now: number = new Date().valueOf();
-                let exp: number = Helpers.getExp();
-                let delay: number = exp - now - this.offsetSeconds * 1000;
+                const now: number = new Date().valueOf();
+                const exp: number = this.getExpiry();
+                const delay: number = exp - now - this.offsetSeconds * 1000;
 
-                // Uses the delay in a timer to run the refresh at the proper time. 
+                // Uses the delay in a timer to run the refresh at the proper time.
                 return Observable.timer(delay);
             });
 
@@ -349,24 +349,24 @@ public unscheduleRefresh(): void {
  * Tries to get a new token using refresh token.
  */
 public getNewToken(): Observable<any> {
-    let refreshToken: string = Helpers.getToken('refresh_token');
+    const refreshToken: string = this.browserStorage.get("refresh_token");
 
-    let tokenEndpoint: string = Config.TOKEN_ENDPOINT;
+    const tokenEndpoint: string = Config.TOKEN_ENDPOINT;
 
-    let params: any = {
+    const params: any = {
         client_id: Config.CLIENT_ID,
         grant_type: "refresh_token",
         refresh_token: refreshToken
     };
 
-    let body: string = this.encodeParams(params);
+    const body: string = this.encodeParams(params);
 
     this.authTime = new Date().valueOf();
 
     return this.http.post(tokenEndpoint, body, this.options)
         .map((res: Response) => {
-            let body: any = res.json();
-            if (typeof body.access_token !== 'undefined') {
+            const body: any = res.json();
+            if (typeof body.access_token !== "undefined") {
                 // Stores access token & refresh token.
                 this.store(body);
             }

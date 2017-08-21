@@ -9,6 +9,7 @@ import { SharedModule } from './shared/shared.module';
 import { AuthGuard } from './services/auth.guard';
 import { AuthenticationService } from './services/authentication.service';
 import { IdentityService } from './services/identity.service';
+import { BrowserStorage } from './services/browser-storage.service';
 
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
@@ -42,6 +43,7 @@ export function getAuthHttp(http: Http) {
         AuthGuard,
         AuthenticationService,
         IdentityService,
+        BrowserStorage,
         {
             provide: AuthHttp,
             useFactory: getAuthHttp,

@@ -12,6 +12,7 @@ import { AuthHttp } from 'angular2-jwt';
 
 import { Config } from '../config';
 import { User } from '../models/user';
+import { BrowserStorage } from './browser-storage.service';
 
 /**
  * ROPC Authentication service.
@@ -28,7 +29,7 @@ import { User } from '../models/user';
      * https://netbasal.com/angular-2-persist-your-login-status-with-behaviorsubject-45da9ec43243#.14rltx9dh
      */
     private signinStatus = new BehaviorSubject<boolean>(this.tokenNotExpired());
-    private user = new BehaviorSubject<User>(new User());
+    private user = new BehaviorSubject<User>(this.getUser());
 
     /**
      * Token info.
@@ -49,15 +50,7 @@ import { User } from '../models/user';
     private headers: Headers;
     private options: RequestOptions;
 
-    constructor(private http: Http, private authHttp: AuthHttp) {
-        // On bootstrap or refresh, tries to get user's data.
-        if (this.tokenNotExpired()) {
-            this.getUserInfo().subscribe(
-                (userInfo: any) => {
-                    this.changeUser(userInfo);
-                });
-        }
-
+    constructor(private http: Http, private authHttp: AuthHttp, private browserStorage: BrowserStorage) {
         // Creates header for post requests.
         this.headers = new Headers({ 'Content-Type': 'application/x-www-form-urlencoded' });
         this.options = new RequestOptions({ headers: this.headers });
@@ -126,7 +119,7 @@ import { User } from '../models/user';
             const source = this.authHttp.tokenStream.flatMap(
                 (token: string) => {
                     const now: number = new Date().valueOf();
-                    const exp: number = Helpers.getExp();
+                    const exp: number = this.getExpiry();
                     const delay: number = exp - now - this.offsetSeconds * 1000;
 
                     // Uses the delay in a timer to run the refresh at the proper time.
@@ -161,7 +154,7 @@ import { User } from '../models/user';
      * Tries to get a new token using refresh token.
      */
     public getNewToken(): Observable<any> {
-        const refreshToken: string = Helpers.getToken("refresh_token");
+        const refreshToken: string = this.browserStorage.get("refresh_token");
 
         const tokenEndpoint: string = Config.TOKEN_ENDPOINT;
 
@@ -191,12 +184,12 @@ import { User } from '../models/user';
      * Revokes token.
      */
     public revokeToken(): void {
-        Helpers.removeToken("id_token");
-        Helpers.removeExp();
+        this.browserStorage.remove("id_token");
+        this.browserStorage.remove("expires");
     }
 
     public revokeRefreshToken(): void {
-        const refreshToken: string = Helpers.getToken("refresh_token");
+        const refreshToken: string = this.browserStorage.get("refresh_token");
 
         if (refreshToken != null) {
             const revocationEndpoint: string = Config.REVOCATION_ENDPOINT;
@@ -212,7 +205,7 @@ import { User } from '../models/user';
             this.http.post(revocationEndpoint, body, this.options)
                 .subscribe(
                 () => {
-                    Helpers.removeToken("refresh_token");
+                    this.browserStorage.remove("refresh_token");
                 });
         }
     }
@@ -222,6 +215,9 @@ import { User } from '../models/user';
      */
     public signout(): void {
         this.redirectUrl = null;
+
+        // Removes user's info.
+        this.browserStorage.remove("user_info");
 
         // Tells all the subscribers about the new status & data.
         this.signinStatus.next(false);
@@ -251,6 +247,8 @@ import { User } from '../models/user';
         user.userName = userInfo.name;
         user.roles = userInfo.role;
 
+        // Stores user info.
+        this.storeUser(user);
         // Tells all the subscribers about the new data.
         this.user.next(user);
     }
@@ -270,8 +268,8 @@ import { User } from '../models/user';
      * Checks if user is in the given role.
      */
     public isInRole(role: string): boolean {
-        const user: User = this.user.getValue();
-        const roles: string[] = typeof user.roles !== "undefined" ? user.roles : [];
+        const user: User = this.getUser();
+        const roles: string[] = user && typeof user.roles !== "undefined" ? user.roles : [];
         return roles.indexOf(role) != -1;
     }
 
@@ -279,8 +277,8 @@ import { User } from '../models/user';
      * Checks for presence of token and that token hasn't expired.
      */
     private tokenNotExpired(): boolean {
-        const token: string = Helpers.getToken("id_token");
-        return token != null && (Helpers.getExp() > new Date().valueOf());
+        const token: string = this.browserStorage.get("id_token");
+        return token != null && (this.getExpiry() > new Date().valueOf());
     }
 
     private encodeParams(params: any): string {
@@ -299,44 +297,31 @@ import { User } from '../models/user';
      * Stores access token & refresh token.
      */
     private store(body: any): void {
-        Helpers.setToken("id_token", body.access_token);
-        Helpers.setToken("refresh_token", body.refresh_token);
+        this.browserStorage.set("id_token", body.access_token);
+        this.browserStorage.set("refresh_token", body.refresh_token);
 
         // Calculates token expiration.
         this.expiresIn = body.expires_in as number * 1000; // To milliseconds.
-        Helpers.setExp(this.authTime + this.expiresIn);
-    }
-
-}
-
-// Set Helpers to use the same storage in AppModule.
-class Helpers {
-
-    public static getToken(name: string): string {
-        return localStorage.getItem(name);
-    }
-
-    public static setToken(name: string, value: string) {
-        localStorage.setItem(name, value);
-    }
-
-    public static removeToken(name: string): void {
-        localStorage.removeItem(name);
-    }
-
-    public static setExp(exp: number) {
-        localStorage.setItem("exp", exp.toString());
+        this.storeExpiry(this.authTime + this.expiresIn);
     }
 
     /**
      * Returns token expiration in milliseconds.
      */
-    public static getExp(): number {
-        return parseInt(localStorage.getItem("exp"));
+    private getExpiry(): number {
+        return parseInt(this.browserStorage.get("expires"));
     }
 
-    public static removeExp(): void {
-        localStorage.removeItem("exp");
+    private storeExpiry(exp: number): void {
+        this.browserStorage.set("expires", exp.toString());
+    }
+
+    private getUser(): User {
+        return this.browserStorage.get("user_info") ? JSON.parse(this.browserStorage.get("user_info")) : new User();
+    }
+
+    private storeUser(user: User): void {
+        this.browserStorage.set("user_info", JSON.stringify(user));
     }
 
 }

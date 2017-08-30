@@ -34,7 +34,7 @@ namespace AngularSPAWebAPI
             // Clients credentials.
             return new List<Client>
             {
-                // http://docs.identityserver.io/en/dev/reference/client.html.
+                // http://docs.identityserver.io/en/release/reference/client.html.
                 new Client
                 {
                     ClientId = "AngularSPA",

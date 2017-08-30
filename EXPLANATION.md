@@ -9,7 +9,7 @@ public static IEnumerable<Client> GetClients()
     // Clients credentials.
     return new List<Client>
     {
-        // http://docs.identityserver.io/en/dev/reference/client.html.
+        // http://docs.identityserver.io/en/release/reference/client.html.
         new Client
         {
             ClientId = "AngularSPA",
@@ -105,6 +105,21 @@ services.AddDbContext<ApplicationDbContext>(options =>
 services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
+
+// Identity options.
+services.Configure<IdentityOptions>(options =>
+{
+    // Password settings.
+    options.Password.RequireDigit = true;
+    options.Password.RequiredLength = 8;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireLowercase = false;
+    // Lockout settings.
+    options.Lockout.AllowedForNewUsers = true;
+    options.Lockout.MaxFailedAccessAttempts = 3;
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromDays(1);
+});
 ```
 and add Identity to the pipeline:
 ```C#
@@ -333,6 +348,10 @@ public startupTokenRefresh(): void {
                 }
             );
         });
+    } else {
+        // Revokes tokens.
+        this.revokeToken();
+        this.revokeRefreshToken();
     }
 }
 

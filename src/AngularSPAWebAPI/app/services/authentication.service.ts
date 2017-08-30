@@ -138,6 +138,10 @@ import { BrowserStorage } from './browser-storage.service';
                     }
                 );
             });
+        } else {
+            // Revokes tokens.
+            this.revokeToken();
+            this.revokeRefreshToken();
         }
     }
 
@@ -317,7 +321,12 @@ import { BrowserStorage } from './browser-storage.service';
     }
 
     private getUser(): User {
-        return this.browserStorage.get("user_info") ? JSON.parse(this.browserStorage.get("user_info")) : new User();
+        if (this.tokenNotExpired() && this.browserStorage.get("user_info")) {
+            return JSON.parse(this.browserStorage.get("user_info"));;
+        }
+        // Removes user's info if the token is expired.
+        this.browserStorage.remove("user_info");
+        return new User();
     }
 
     private storeUser(user: User): void {

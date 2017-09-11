@@ -1,5 +1,9 @@
 ## Angular SPA Web API Changelog
 
+<a name="Sep 11, 2017"></a>
+### Sep 11, 2017
+* Handle refresh token expiration.
+
 <a name="Aug 21, 2017"></a>
 ### Aug 21, 2017
 * Create `BrowserStorage` class & store user's info.

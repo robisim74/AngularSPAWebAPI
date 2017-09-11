@@ -1,5 +1,6 @@
 ﻿import { Injectable } from '@angular/core';
 import { Http, Headers, RequestOptions, Response } from '@angular/http';
+import { Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import 'rxjs/add/operator/map';
@@ -26,7 +27,6 @@ import { BrowserStorage } from './browser-storage.service';
 
     /**
      * Behavior subjects of the user's status & data.
-     * https://netbasal.com/angular-2-persist-your-login-status-with-behaviorsubject-45da9ec43243#.14rltx9dh
      */
     private signinStatus = new BehaviorSubject<boolean>(this.tokenNotExpired());
     private user = new BehaviorSubject<User>(this.getUser());
@@ -50,10 +50,23 @@ import { BrowserStorage } from './browser-storage.service';
     private headers: Headers;
     private options: RequestOptions;
 
-    constructor(private http: Http, private authHttp: AuthHttp, private browserStorage: BrowserStorage) {
+    constructor(
+        private router: Router,
+        private http: Http,
+        private authHttp: AuthHttp,
+        private browserStorage: BrowserStorage
+    ) {
         // Creates header for post requests.
         this.headers = new Headers({ 'Content-Type': 'application/x-www-form-urlencoded' });
         this.options = new RequestOptions({ headers: this.headers });
+
+        if (!this.tokenNotExpired()) {
+            // Removes user's info.
+            this.browserStorage.remove("user_info");
+            // Revokes tokens.
+            this.revokeToken();
+            this.revokeRefreshToken();
+        }
     }
 
     public signin(username: string, password: string): Observable<any> {
@@ -86,7 +99,7 @@ import { BrowserStorage } from './browser-storage.service';
     }
 
     /**
-     * Optional strategy for refresh token through a scheduler.
+     * Strategy for refresh token through a scheduler.
      * Will schedule a refresh at the appropriate time.
      */
     public scheduleRefresh(): void {
@@ -102,8 +115,7 @@ import { BrowserStorage } from './browser-storage.service';
                     // Scheduler works.
                 },
                 (error: any) => {
-                    // Need to handle this error.
-                    console.log(error);
+                    this.handleRefreshTokenError();
                 }
             );
         });
@@ -115,7 +127,7 @@ import { BrowserStorage } from './browser-storage.service';
     public startupTokenRefresh(): void {
         // If the user is authenticated, uses the token stream
         // provided by angular2-jwt and flatMap the token.
-        if (this.signinStatus.getValue()) {
+        if (this.tokenNotExpired()) {
             const source = this.authHttp.tokenStream.flatMap(
                 (token: string) => {
                     const now: number = new Date().valueOf();
@@ -133,15 +145,10 @@ import { BrowserStorage } from './browser-storage.service';
                         this.scheduleRefresh();
                     },
                     (error: any) => {
-                        // Need to handle this error.
-                        console.log(error);
+                        this.handleRefreshTokenError();
                     }
                 );
             });
-        } else {
-            // Revokes tokens.
-            this.revokeToken();
-            this.revokeRefreshToken();
         }
     }
 
@@ -152,6 +159,15 @@ import { BrowserStorage } from './browser-storage.service';
         if (this.refreshSubscription) {
             this.refreshSubscription.unsubscribe();
         }
+    }
+
+    /**
+     * Handles errors on refresh token, like expiration.
+     */
+    public handleRefreshTokenError(): void {
+        // In this sample, the user is forced to sign out.
+        this.signout();
+        this.router.navigate(['/home']);
     }
 
     /**
@@ -321,11 +337,9 @@ import { BrowserStorage } from './browser-storage.service';
     }
 
     private getUser(): User {
-        if (this.tokenNotExpired() && this.browserStorage.get("user_info")) {
-            return JSON.parse(this.browserStorage.get("user_info"));;
+        if (this.tokenNotExpired()) {
+            return JSON.parse(this.browserStorage.get("user_info"));
         }
-        // Removes user's info if the token is expired.
-        this.browserStorage.remove("user_info");
         return new User();
     }
 

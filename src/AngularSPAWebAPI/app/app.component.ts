@@ -39,7 +39,7 @@ export class AppComponent implements OnInit {
                 this.isAdmin = this.authenticationService.isInRole("administrator");
             });
 
-        // Optional strategy for refresh token through a scheduler.
+        // Strategy for refresh token through a scheduler.
         this.authenticationService.startupTokenRefresh();
     }
 

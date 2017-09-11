@@ -25,7 +25,11 @@ public static IEnumerable<Client> GetClients()
                 "WebAPI",
                 "roles"
             },
-            AllowOfflineAccess = true // For refresh token.
+            AllowOfflineAccess = true, // For refresh token.
+            RefreshTokenUsage = TokenUsage.OneTimeOnly,
+            AbsoluteRefreshTokenLifetime = 86400,
+            SlidingRefreshTokenLifetime = 1800,
+            RefreshTokenExpiration = TokenExpiration.Sliding
         }
     };
 }
@@ -36,7 +40,8 @@ Our Angular app, identified as _AngularSPA_:
 - doesn't use a _secret_ key: in a client application it would be useless because visible;
 - has an _access token_ for 15 minutes, then need to refresh the token;
 - can access to the _scopes_: in this case our Web API, called _WebAPI_, and user roles;
-- has _OfflineAccess_ for refresh token.
+- has _OfflineAccess_ for _refresh token_;
+- _refresh token_ has a sliding lifetime of 30 minutes and a maximum lifetime of 1 day: the _refresh token_ has a longer lifetime than the _access token_ to allow the user to remain authenticated, but for a maximum of one day.
 
 The following are the resources:
 ```C#
@@ -296,7 +301,7 @@ public getUserInfo(): Observable<any> {
 In this example, we use a scheduler to request a new _access token_ before it expires through the _refresh token_:
 ```TypeScript
 /**
- * Optional strategy for refresh token through a scheduler.
+ * Strategy for refresh token through a scheduler.
  * Will schedule a refresh at the appropriate time.
  */
 public scheduleRefresh(): void {
@@ -312,8 +317,7 @@ public scheduleRefresh(): void {
                 // Scheduler works.
             },
             (error: any) => {
-                // Need to handle this error.
-                console.log(error);
+                this.handleRefreshTokenError();
             }
         );
     });
@@ -325,7 +329,7 @@ public scheduleRefresh(): void {
 public startupTokenRefresh(): void {
     // If the user is authenticated, uses the token stream
     // provided by angular2-jwt and flatMap the token.
-    if (this.signinStatus.getValue()) {
+    if (this.tokenNotExpired()) {
         const source = this.authHttp.tokenStream.flatMap(
             (token: string) => {
                 const now: number = new Date().valueOf();
@@ -343,24 +347,10 @@ public startupTokenRefresh(): void {
                     this.scheduleRefresh();
                 },
                 (error: any) => {
-                    // Need to handle this error.
-                    console.log(error);
+                    this.handleRefreshTokenError();
                 }
             );
         });
-    } else {
-        // Revokes tokens.
-        this.revokeToken();
-        this.revokeRefreshToken();
-    }
-}
-
-/**
- * Unsubscribes from the scheduling of the refresh token.
- */
-public unscheduleRefresh(): void {
-    if (this.refreshSubscription) {
-        this.refreshSubscription.unsubscribe();
     }
 }
 

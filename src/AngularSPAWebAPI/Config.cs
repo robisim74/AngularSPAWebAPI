@@ -50,7 +50,11 @@ namespace AngularSPAWebAPI
                         "roles",
                         "WebAPI"
                     },
-                    AllowOfflineAccess = true // For refresh token.
+                    AllowOfflineAccess = true, // For refresh token.
+                    RefreshTokenUsage = TokenUsage.OneTimeOnly,
+                    AbsoluteRefreshTokenLifetime = 86400,
+                    SlidingRefreshTokenLifetime = 1800,
+                    RefreshTokenExpiration = TokenExpiration.Sliding
                 }
             };
         }

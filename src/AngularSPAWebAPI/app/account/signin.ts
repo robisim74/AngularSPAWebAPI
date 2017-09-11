@@ -19,7 +19,7 @@ export class Signin {
         this.authenticationService.signin(this.model.username, this.model.password)
             .subscribe(
             () => {
-                // Optional strategy for refresh token through a scheduler.
+                // Strategy for refresh token through a scheduler.
                 this.authenticationService.scheduleRefresh();
 
                 // Gets user's data.

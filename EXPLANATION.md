@@ -28,7 +28,7 @@ public static IEnumerable<Client> GetClients()
             AllowOfflineAccess = true, // For refresh token.
             RefreshTokenUsage = TokenUsage.OneTimeOnly,
             AbsoluteRefreshTokenLifetime = 86400,
-            SlidingRefreshTokenLifetime = 1800,
+            SlidingRefreshTokenLifetime = 900,
             RefreshTokenExpiration = TokenExpiration.Sliding
         }
     };
@@ -41,7 +41,7 @@ Our Angular app, identified as _AngularSPA_:
 - has an _access token_ for 15 minutes, then need to refresh the token;
 - can access to the _scopes_: in this case our Web API, called _WebAPI_, and user roles;
 - has _OfflineAccess_ for _refresh token_;
-- _refresh token_ has a sliding lifetime of 30 minutes and a maximum lifetime of 1 day: the _refresh token_ has a longer lifetime than the _access token_ to allow the user to remain authenticated, but for a maximum of one day.
+- _refresh token_ has a sliding lifetime of 15 minutes and a maximum lifetime of 1 day: the _refresh token_ has a lifetime equal to or greater than the _access token_ to allow the user to remain authenticated, but for a maximum of one day.
 
 The following are the resources:
 ```C#

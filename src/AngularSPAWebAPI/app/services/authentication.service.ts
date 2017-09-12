@@ -165,9 +165,24 @@ import { BrowserStorage } from './browser-storage.service';
      * Handles errors on refresh token, like expiration.
      */
     public handleRefreshTokenError(): void {
-        // In this sample, the user is forced to sign out.
-        this.signout();
-        this.router.navigate(['/home']);
+        this.redirectUrl = this.router.url;
+
+        // Removes user's info.
+        this.browserStorage.remove("user_info");
+
+        // Tells all the subscribers about the new status & data.
+        this.signinStatus.next(false);
+        this.user.next(new User());
+
+        // Unschedules the refresh token.
+        this.unscheduleRefresh();
+
+        // Revokes tokens.
+        this.revokeToken();
+        this.revokeRefreshToken();
+
+        // The user is forced to sign in again.
+        this.router.navigate(['/account/signin']);
     }
 
     /**

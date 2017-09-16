@@ -34,7 +34,7 @@ namespace AngularSPAWebAPI
             // Clients credentials.
             return new List<Client>
             {
-                // http://docs.identityserver.io/en/dev/reference/client.html.
+                // http://docs.identityserver.io/en/release/reference/client.html.
                 new Client
                 {
                     ClientId = "AngularSPA",
@@ -50,7 +50,11 @@ namespace AngularSPAWebAPI
                         "roles",
                         "WebAPI"
                     },
-                    AllowOfflineAccess = true // For refresh token.
+                    AllowOfflineAccess = true, // For refresh token.
+                    RefreshTokenUsage = TokenUsage.OneTimeOnly,
+                    AbsoluteRefreshTokenLifetime = 86400,
+                    SlidingRefreshTokenLifetime = 900,
+                    RefreshTokenExpiration = TokenExpiration.Sliding
                 }
             };
         }

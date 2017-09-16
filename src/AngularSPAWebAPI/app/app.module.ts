@@ -1,23 +1,18 @@
 ﻿import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
+import { BrowserModule, Title } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { FormsModule } from '@angular/forms';
-import { HttpModule, Http } from '@angular/http';
+import { Http } from '@angular/http';
 
 import { AppRoutingModule } from './app-routing.module';
+import { SharedModule } from './shared/shared.module';
 
 import { AuthGuard } from './services/auth.guard';
 import { AuthenticationService } from './services/authentication.service';
 import { IdentityService } from './services/identity.service';
+import { BrowserStorage } from './services/browser-storage.service';
 
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
-import { ResourcesComponent } from './resources/resources.component';
-import { DashboardComponent } from './dashboard/dashboard.component';
-import { SigninComponent } from './account/signin.component';
-import { SignupComponent } from './account/signup.component';
-
-import { MaterialModule } from './shared/material.module';
 
 // angular2-jwt config for JiT and AoT compilation.
 import { AuthHttp, AuthConfig } from 'angular2-jwt';
@@ -33,24 +28,22 @@ export function getAuthHttp(http: Http) {
 @NgModule({
     imports: [
         BrowserModule,
-        BrowserAnimationsModule,
-        FormsModule,
-        HttpModule,
         AppRoutingModule,
-        MaterialModule
+        BrowserAnimationsModule,
+        SharedModule
     ],
     declarations: [
         AppComponent,
-        HomeComponent,
-        ResourcesComponent,
-        DashboardComponent,
-        SigninComponent,
-        SignupComponent
+        HomeComponent
+    ],
+    exports: [
     ],
     providers: [
+        Title,
         AuthGuard,
         AuthenticationService,
         IdentityService,
+        BrowserStorage,
         {
             provide: AuthHttp,
             useFactory: getAuthHttp,

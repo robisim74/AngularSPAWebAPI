@@ -9,7 +9,7 @@ public static IEnumerable<Client> GetClients()
     // Clients credentials.
     return new List<Client>
     {
-        // http://docs.identityserver.io/en/dev/reference/client.html.
+        // http://docs.identityserver.io/en/release/reference/client.html.
         new Client
         {
             ClientId = "AngularSPA",
@@ -25,7 +25,11 @@ public static IEnumerable<Client> GetClients()
                 "WebAPI",
                 "roles"
             },
-            AllowOfflineAccess = true // For refresh token.
+            AllowOfflineAccess = true, // For refresh token.
+            RefreshTokenUsage = TokenUsage.OneTimeOnly,
+            AbsoluteRefreshTokenLifetime = 86400,
+            SlidingRefreshTokenLifetime = 900,
+            RefreshTokenExpiration = TokenExpiration.Sliding
         }
     };
 }
@@ -36,7 +40,8 @@ Our Angular app, identified as _AngularSPA_:
 - doesn't use a _secret_ key: in a client application it would be useless because visible;
 - has an _access token_ for 15 minutes, then need to refresh the token;
 - can access to the _scopes_: in this case our Web API, called _WebAPI_, and user roles;
-- has _OfflineAccess_ for refresh token.
+- has _OfflineAccess_ for _refresh token_;
+- _refresh token_ has a sliding lifetime of 15 minutes and a maximum lifetime of 1 day: the _refresh token_ has a lifetime equal to or greater than the _access token_ to allow the user to remain authenticated, but for a maximum of one day.
 
 The following are the resources:
 ```C#
@@ -105,6 +110,21 @@ services.AddDbContext<ApplicationDbContext>(options =>
 services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
+
+// Identity options.
+services.Configure<IdentityOptions>(options =>
+{
+    // Password settings.
+    options.Password.RequireDigit = true;
+    options.Password.RequiredLength = 8;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireLowercase = false;
+    // Lockout settings.
+    options.Lockout.AllowedForNewUsers = true;
+    options.Lockout.MaxFailedAccessAttempts = 3;
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromDays(1);
+});
 ```
 and add Identity to the pipeline:
 ```C#
@@ -239,9 +259,9 @@ In this sample, to send unauthenticated requests for signing in and signing up t
 as in _AuthenticationService_ class:
 ```TypeScript
 public signin(username: string, password: string): Observable<any> {
-    let tokenEndpoint: string = Config.TOKEN_ENDPOINT;
+    const tokenEndpoint: string = Config.TOKEN_ENDPOINT;
 
-    let params: any = {
+    const params: any = {
         client_id: Config.CLIENT_ID,
         grant_type: Config.GRANT_TYPE,
         username: username,
@@ -249,20 +269,18 @@ public signin(username: string, password: string): Observable<any> {
         scope: Config.SCOPE
     };
 
-    let body: string = this.encodeParams(params);
+    const body: string = this.encodeParams(params);
 
     this.authTime = new Date().valueOf();
 
     return this.http.post(tokenEndpoint, body, this.options)
         .map((res: Response) => {
-            let body: any = res.json();
-            if (typeof body.access_token !== 'undefined') {
+            const body: any = res.json();
+            if (typeof body.access_token !== "undefined") {
                 // Stores access token & refresh token.
                 this.store(body);
-                this.getUserInfo();
-
                 // Tells all the subscribers about the new status.
-                this.signinSubject.next(true);
+                this.signinStatus.next(true);
             }
         }).catch((error: any) => {
             return Observable.throw(error);
@@ -275,33 +293,21 @@ using angular2-jwt library, that builds for us the header with the authorization
 /**
  * Calls UserInfo endpoint to retrieve user's data.
  */
-private getUserInfo(): void {
-    if (this.tokenNotExpired()) {
-        this.authHttp.get(Config.USERINFO_ENDPOINT)
-            .subscribe(
-            (res: any) => {
-                let user: any = res.json();
-                let roles: string[] = user.role;
-                // Tells all the subscribers about the new data & roles.
-                this.userSubject.next(user);
-                this.rolesSubject.next(user.role);
-            },
-            (error: any) => {
-                console.log(error);
-            });
-    }
+public getUserInfo(): Observable<any> {
+    return this.authHttp.get(Config.USERINFO_ENDPOINT)
+        .map((res: any) => res.json());
 }
 ```
 In this example, we use a scheduler to request a new _access token_ before it expires through the _refresh token_:
 ```TypeScript
 /**
- * Optional strategy for refresh token through a scheduler.
+ * Strategy for refresh token through a scheduler.
  * Will schedule a refresh at the appropriate time.
  */
 public scheduleRefresh(): void {
-    let source = this.authHttp.tokenStream.flatMap(
+    const source = this.authHttp.tokenStream.flatMap(
         (token: string) => {
-            let delay: number = this.expiresIn - this.offsetSeconds * 1000;
+            const delay: number = this.expiresIn - this.offsetSeconds * 1000;
             return Observable.interval(delay);
         });
 
@@ -311,8 +317,7 @@ public scheduleRefresh(): void {
                 // Scheduler works.
             },
             (error: any) => {
-                // Need to handle this error.
-                console.log(error);
+                this.handleRefreshTokenError();
             }
         );
     });
@@ -324,14 +329,14 @@ public scheduleRefresh(): void {
 public startupTokenRefresh(): void {
     // If the user is authenticated, uses the token stream
     // provided by angular2-jwt and flatMap the token.
-    if (this.signinSubject.getValue()) {
-        let source = this.authHttp.tokenStream.flatMap(
+    if (this.tokenNotExpired()) {
+        const source = this.authHttp.tokenStream.flatMap(
             (token: string) => {
-                let now: number = new Date().valueOf();
-                let exp: number = Helpers.getExp();
-                let delay: number = exp - now - this.offsetSeconds * 1000;
+                const now: number = new Date().valueOf();
+                const exp: number = this.getExpiry();
+                const delay: number = exp - now - this.offsetSeconds * 1000;
 
-                // Uses the delay in a timer to run the refresh at the proper time. 
+                // Uses the delay in a timer to run the refresh at the proper time.
                 return Observable.timer(delay);
             });
 
@@ -342,8 +347,7 @@ public startupTokenRefresh(): void {
                     this.scheduleRefresh();
                 },
                 (error: any) => {
-                    // Need to handle this error.
-                    console.log(error);
+                    this.handleRefreshTokenError();
                 }
             );
         });
@@ -351,36 +355,27 @@ public startupTokenRefresh(): void {
 }
 
 /**
- * Unsubscribes from the scheduling of the refresh token.
- */
-public unscheduleRefresh(): void {
-    if (this.refreshSubscription) {
-        this.refreshSubscription.unsubscribe();
-    }
-}
-
-/**
  * Tries to get a new token using refresh token.
  */
 public getNewToken(): Observable<any> {
-    let refreshToken: string = Helpers.getToken('refresh_token');
+    const refreshToken: string = this.browserStorage.get("refresh_token");
 
-    let tokenEndpoint: string = Config.TOKEN_ENDPOINT;
+    const tokenEndpoint: string = Config.TOKEN_ENDPOINT;
 
-    let params: any = {
+    const params: any = {
         client_id: Config.CLIENT_ID,
         grant_type: "refresh_token",
         refresh_token: refreshToken
     };
 
-    let body: string = this.encodeParams(params);
+    const body: string = this.encodeParams(params);
 
     this.authTime = new Date().valueOf();
 
     return this.http.post(tokenEndpoint, body, this.options)
         .map((res: Response) => {
-            let body: any = res.json();
-            if (typeof body.access_token !== 'undefined') {
+            const body: any = res.json();
+            if (typeof body.access_token !== "undefined") {
                 // Stores access token & refresh token.
                 this.store(body);
             }
@@ -404,13 +399,13 @@ this.authHttp.get("/api/values")
 ```
 
 ### Building the Angular app with AoT compilation & webpack
-For production, we build the Angular app through [ngc compiler](https://angular.io/docs/ts/latest/cookbook/aot-compiler.html) & webpack. 
-To do this, after the AoT compilation, in _webpack.config.js_ file we set as entry point _main-aot.ts_:
+For production, we build the Angular app with webpack & `@ngtools/webpack`. 
+To do this, in _webpack.config.js_ file we set as entry point _main-aot.ts_:
 ```JavaScript
 // In production mode, we use AoT compilation, tree shaking & minification.
 module.exports = {
     entry: {
-        'app-aot': './app/main-aot.js'
+        'app-aot': './app/main-aot.ts'
     },
 	...
 ```

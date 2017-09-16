@@ -1,19 +1,30 @@
-﻿<div class="dashboard-card-container">
+﻿<h1>Dashboard</h1>
 
-    <md-card>
-        <md-card-title color="primary">Dashboard</md-card-title>
-    </md-card>
+<div class="dashboard-container">
 
-    <md-card>
-        <md-card-content *ngFor="let user of users">
-            <md-list>
-                <md-list-item>
-                    <p md-line><strong>{{ user.email }}</strong></p>
-                    <button md-icon-button (click)="delete(user.userName)"><md-icon>delete</md-icon></button>
-                    <p md-line>{{ user.givenName }} {{ user.familyName }}</p>
-                </md-list-item>
-            </md-list>            
-        </md-card-content>
-    </md-card>
+    <md-table #table [dataSource]="dataSource" class="mat-elevation-z2">
+        <ng-container cdkColumnDef="email">
+            <md-header-cell *cdkHeaderCellDef> Email </md-header-cell>
+            <md-cell *cdkCellDef="let row"> {{ row.email }} </md-cell>
+        </ng-container>
+
+        <ng-container cdkColumnDef="givenName">
+            <md-header-cell *cdkHeaderCellDef> Given name </md-header-cell>
+            <md-cell *cdkCellDef="let row"> {{ row.givenName }} </md-cell>
+        </ng-container>
+
+        <ng-container cdkColumnDef="familyName">
+            <md-header-cell *cdkHeaderCellDef> Family name </md-header-cell>
+            <md-cell *cdkCellDef="let row"> {{ row.familyName }} </md-cell>
+        </ng-container>
+
+        <ng-container cdkColumnDef="actions">
+            <md-header-cell *cdkHeaderCellDef> </md-header-cell>
+            <md-cell *cdkCellDef="let row"> <button md-icon-button color="warn" (click)="delete(row.userName)"><md-icon>delete</md-icon></button> </md-cell>
+        </ng-container>
+
+        <md-header-row *cdkHeaderRowDef="displayedColumns"></md-header-row>
+        <md-row *cdkRowDef="let row; columns: displayedColumns;"></md-row>
+    </md-table>
 
 </div>

@@ -26,10 +26,10 @@
                     <md-input-container class="full-width">
                         <input type="text" mdInput [(ngModel)]="model.username" name="username" #username="ngModel" placeholder="email" (keyup)="clearMessages()"
                                pattern="^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$" required>
-                        <md-error *ngIf="username.errors?.required">
+                        <md-error *ngIf="username.hasError('required')">
                             Required
                         </md-error>
-                        <md-error *ngIf="username.errors?.pattern">
+                        <md-error *ngIf="username.hasError('pattern')">
                             Invalid format
                         </md-error>
                     </md-input-container>

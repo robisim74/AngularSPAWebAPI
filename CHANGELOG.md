@@ -1,5 +1,25 @@
 ## Angular SPA Web API Changelog
 
+<a name="Sep 11, 2017"></a>
+### Sep 11, 2017
+* Handle refresh token expiration.
+
+<a name="Aug 21, 2017"></a>
+### Aug 21, 2017
+* Create `BrowserStorage` class & store user's info.
+
+<a name="Jul 13, 2017"></a>
+### Jul 13, 2017
+* Building: switch to _@ngtools/webpack_
+
+<a name="Jul 12, 2017"></a>
+### Jul 12, 2017
+* Styles: add `md-table` to dashboard
+
+<a name="Jul 4, 2017"></a>
+### Jul 4, 2017
+* Architecture redesign: child modules and lazy loading (by @aalmajanob)
+
 <a name="Jun 6, 2017"></a>
 ### Jun 6, 2017
 * Use a Self-signed certificate for signing credential

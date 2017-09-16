@@ -1,0 +1,23 @@
+@import '../styles/variables.scss';
+
+.home-card-container {
+    display: flex;
+    justify-content: center;
+
+    md-card {
+        width: 500px;
+
+        md-card-title {
+            text-align: center;
+            color: $blue;
+        }
+        
+        md-card-subtitle, md-card-content {
+            text-align: center;
+        }
+    }
+
+    img {
+        background-color: $lightgray;
+    }
+}

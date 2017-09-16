@@ -1,9 +1,10 @@
 'use strict';
-let path = require('path');
-let webpack = require('webpack');
-let HtmlWebpackPlugin = require('html-webpack-plugin');
+const path = require('path');
+const webpack = require('webpack');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ngToolsWebpack = require('@ngtools/webpack');
 
-let environment = (process.env.NODE_ENV || "development").trim();
+const environment = (process.env.NODE_ENV || "development").trim();
 
 if (environment === "development") {
 
@@ -24,7 +25,7 @@ if (environment === "development") {
             rules: [
                 {
                     test: /\.ts$/,
-                    loaders: [
+                    use: [
                         'awesome-typescript-loader',
                         'angular-router-loader',
                         'angular2-template-loader',
@@ -33,22 +34,23 @@ if (environment === "development") {
                 },
                 {
                     test: /\.html$/,
-                    loader: 'raw-loader'
+                    use: 'raw-loader'
                 },
                 {
-                    test: /\.css$/,
-                    loaders: [
-                       'style-loader',
-                       'css-loader',
-                       'raw-loader'
+                    test: /\.scss$/,
+                    include: path.join(__dirname, 'app/styles'),
+                    use: [
+                        'style-loader',
+                        'css-loader',
+                        'sass-loader'
                     ]
                 },
                 {
                     test: /\.scss$/,
-                    loaders: [
-                       'style-loader',
-                       'css-loader',
-                       'sass-loader'
+                    exclude: path.join(__dirname, 'app/styles'),
+                    use: [
+                        'raw-loader',
+                        'sass-loader'
                     ]
                 }
             ],
@@ -65,7 +67,7 @@ if (environment === "development") {
         ],
 
         resolve: {
-            extensions: ['.ts', '.js', '.html', '.css', '.scss']
+            extensions: ['.ts', '.js']
         },
 
         devtool: 'source-map',
@@ -81,7 +83,7 @@ if (environment === "development") {
     // In production mode, we use AoT compilation, tree shaking & minification.
     module.exports = {
         entry: {
-            'app-aot': './app/main-aot.js'
+            'app-aot': './app/main-aot.ts'
         },
         // We use long term caching.
         output: {
@@ -94,29 +96,27 @@ if (environment === "development") {
             rules: [
                 {
                     test: /\.ts$/,
-                    loaders: [
-                        'awesome-typescript-loader',
-                        'angular-router-loader?aot=true&genDir=aot/'
-                    ]
+                    use: '@ngtools/webpack'
                 },
                 {
                     test: /\.html$/,
-                    loader: 'raw-loader'
+                    use: 'raw-loader'
                 },
                 {
-                    test: /\.css$/,
-                    loaders: [
-                       'style-loader',
-                       'css-loader',
-                       'raw-loader'
+                    test: /\.scss$/,
+                    include: path.join(__dirname, 'app/styles'),
+                    use: [
+                        'style-loader',
+                        'css-loader',
+                        'sass-loader'
                     ]
                 },
                 {
                     test: /\.scss$/,
-                    loaders: [
-                       'style-loader',
-                       'css-loader',
-                       'sass-loader'
+                    exclude: path.join(__dirname, 'app/styles'),
+                    use: [
+                        'raw-loader',
+                        'sass-loader'
                     ]
                 }
             ],
@@ -124,6 +124,10 @@ if (environment === "development") {
         },
 
         plugins: [
+            // AoT plugin.
+            new ngToolsWebpack.AotPlugin({
+                tsConfigPath: './tsconfig-aot.json'
+            }),
             // Minimizes the bundle.
             new webpack.optimize.UglifyJsPlugin({
                 compress: {
@@ -143,11 +147,7 @@ if (environment === "development") {
         ],
 
         resolve: {
-            modules: [
-                'node_modules',
-                path.resolve(__dirname, 'app')
-            ],
-            extensions: ['.ts', '.js', '.html', '.css', '.scss']
+            extensions: ['.ts', '.js']
         },
 
         devtool: false,

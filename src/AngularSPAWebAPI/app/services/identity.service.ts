@@ -1,5 +1,6 @@
 ﻿import { Injectable } from '@angular/core';
 import { Http, Headers, RequestOptions, Response } from '@angular/http';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
@@ -12,8 +13,10 @@ import { AuthHttp } from 'angular2-jwt';
  */
 @Injectable() export class IdentityService {
 
-    headers: Headers;
-    options: RequestOptions;
+    public users: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
+
+    private headers: Headers;
+    private options: RequestOptions;
 
     constructor(private authHttp: AuthHttp, private http: Http) {
         // Creates header for post requests.
@@ -24,14 +27,14 @@ import { AuthHttp } from 'angular2-jwt';
     /**
      * Gets all users through AuthHttp.
      */
-    public GetAll(): Observable<any> {
+    public getAll(): void {
         // Sends an authenticated request.
-        return this.authHttp.get("/api/identity/GetAll")
-            .map((res: Response) => {
-                return res.json();
-            })
-            .catch((error: any) => {
-                return Observable.throw(error);
+        this.authHttp.get("/api/identity/GetAll")
+            .subscribe((value: any) => {
+                this.users.next(value.json());
+            },
+            (error: any) => {
+                console.log(error);
             });
     }
 
@@ -40,7 +43,7 @@ import { AuthHttp } from 'angular2-jwt';
      * @param model User's data
      * @return An IdentityResult
      */
-    public Create(model: any): Observable<any> {
+    public create(model: any): Observable<any> {
         const body: string = JSON.stringify(model);
 
         return this.http.post("/api/identity/Create", body, this.options)
@@ -57,16 +60,17 @@ import { AuthHttp } from 'angular2-jwt';
      * @param username Username of the user
      * @return An IdentityResult
      */
-    public Delete(username: string): Observable<any> {
+    public delete(username: string): void {
         const body: string = JSON.stringify(username);
 
         // Sends an authenticated request.
-        return this.authHttp.post("/api/identity/Delete", body, this.options)
-            .map((res: Response) => {
-                return res.json();
-            })
-            .catch((error: any) => {
-                return Observable.throw(error);
+        this.authHttp.post("/api/identity/Delete", body, this.options)
+            .subscribe(() => {
+                // Refreshes the users.
+                this.getAll();
+            },
+            (error: any) => {
+                console.log(error);
             });
     }
 

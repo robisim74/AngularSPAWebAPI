@@ -1,15 +1,18 @@
-﻿import { Component } from '@angular/core';
+﻿import { Component, OnInit } from '@angular/core';
 
 import { AuthHttp } from 'angular2-jwt';
 
 @Component({
-    templateUrl: 'resources.component.html'
+    templateUrl: './resources.component.html',
+    styleUrls: ['./resources.component.scss']
 })
-export class ResourcesComponent {
+export class ResourcesComponent implements OnInit {
 
     values: any;
 
-    constructor(private authHttp: AuthHttp) {
+    constructor(private authHttp: AuthHttp) { }
+
+    ngOnInit() {
         // Sends an authenticated request.
         this.authHttp.get("/api/values")
             .subscribe(

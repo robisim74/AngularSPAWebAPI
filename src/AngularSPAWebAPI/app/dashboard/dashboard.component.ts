@@ -1,49 +1,47 @@
-﻿import { Component } from '@angular/core';
+﻿import { Component, OnInit } from '@angular/core';
+import { DataSource } from '@angular/cdk';
+import { Observable } from 'rxjs/Observable';
 
 import { IdentityService } from '../services/identity.service';
 
 @Component({
-    templateUrl: 'dashboard.component.html'
+    templateUrl: './dashboard.component.html',
+    styleUrls: ['./dashboard.component.scss']
 })
-export class DashboardComponent {
+export class DashboardComponent implements OnInit {
 
-    users: any;
+    displayedColumns = ['email', 'givenName', 'familyName', 'actions'];
+    dataSource: UsersDataSource;
 
-    constructor(private identityService: IdentityService) {
-        this.getAll();
-    }
+    constructor(private identityService: IdentityService) { }
 
-    getAll() {
-        this.identityService.GetAll()
-            .subscribe(
-            (res: any) => {
-                this.users = res;
-            },
-            (error: any) => {
-                const errMsg = (error.message) ? error.message :
-                    error.status ? `${error.status} - ${error.statusText}` : "Server error";
-                console.log(errMsg);
-            });
+    ngOnInit() {
+        this.identityService.getAll();
+        this.dataSource = new UsersDataSource(this.identityService);
     }
 
     delete(username: string) {
-        this.identityService.Delete(username)
-            .subscribe(
-            (res: any) => {
-                // IdentityResult.
-                if (res.succeeded) {
-                    // Refreshes the users.
-                    this.getAll();
-                } else {
-                    console.log(res.errors);
-                }
-
-            },
-            (error: any) => {
-                const errMsg = (error.message) ? error.message :
-                    error.status ? `${error.status} - ${error.statusText}` : "Server error";
-                console.log(errMsg);
-            });
+        this.identityService.delete(username);
     }
 
+}
+
+/**
+ * Data source to provide data rendered in the table.
+ */
+export class UsersDataSource extends DataSource<any> {
+    constructor(private identityService: IdentityService) {
+        super();
+    }
+
+    /**
+     * Connect function called by the table to retrieve one stream containing the data to render.
+     */
+    connect(): Observable<any[]> {
+        return this.identityService.users;
+    }
+
+    disconnect() {
+        //
+    }
 }

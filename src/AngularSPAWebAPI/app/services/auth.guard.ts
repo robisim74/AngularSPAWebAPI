@@ -1,5 +1,7 @@
 ﻿import { Injectable } from '@angular/core';
 import { Router, CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
+import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/operator/map';
 
 import { AuthenticationService } from './authentication.service';
 
@@ -8,22 +10,38 @@ import { AuthenticationService } from './authentication.service';
  */
 @Injectable() export class AuthGuard implements CanActivate {
 
-    constructor(public authenticationService: AuthenticationService, private router: Router) { }
+    private signedIn: boolean;
 
-    public canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
-        if (this.authenticationService.signinSubject.getValue()) {
-            // Signed in.
-            return true;
-        }
+    constructor(private authenticationService: AuthenticationService, private router: Router) { }
 
-        // Stores the attempted URL for redirecting.
-        const url: string = state.url;
-        this.authenticationService.redirectUrl = url;
+    public canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> | boolean {
+        return this.authenticationService.isSignedIn()
+            .map((signedIn: boolean) => { this.signedIn = signedIn; })
+            .flatMap(() => this.authenticationService.userChanged()
+                .map(() => {
+                    const url: string = state.url;
 
-        // Not signed in so redirects to signin page.
-        this.router.navigate(['/signin']);
+                    if (this.signedIn) {
+                        if (url !== "/dashboard") {
+                            return true;
+                        } else {
+                            if (this.authenticationService.isInRole("administrator")) {
+                                return true;
+                            } else {
+                                this.router.navigate(['/home']);
+                                return false;
+                            }
+                        }
+                    }
 
-        return false;
+                    // Stores the attempted URL for redirecting.
+                    this.authenticationService.redirectUrl = url;
+
+                    // Not signed in so redirects to signin page.
+                    this.router.navigate(['/account/signin']);
+                    return false;
+                })
+            );
     }
 
 }

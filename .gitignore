@@ -305,9 +305,6 @@ $RECYCLE.BIN/
 # Angular
 # =========================
 
-# AoT compilation files
-aot/
-
 # TypeScript compilation files
 **/app/**/*.js
 **/app/**/*.map

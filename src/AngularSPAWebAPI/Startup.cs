@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Swashbuckle.AspNetCore.Swagger;
+using System;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 
@@ -51,6 +52,10 @@ namespace AngularSPAWebAPI
                 options.Password.RequireNonAlphanumeric = false;
                 options.Password.RequireUppercase = true;
                 options.Password.RequireLowercase = false;
+                // Lockout settings.
+                options.Lockout.AllowedForNewUsers = true;
+                options.Lockout.MaxFailedAccessAttempts = 3;
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromDays(1);
             });
 
             services.AddMvc();
@@ -71,6 +76,7 @@ namespace AngularSPAWebAPI
 
             // Gets the Self-signed certificate for signing credential:
             // see http://docs.identityserver.io/en/release/topics/crypto.html
+            // IMPORTANT: the following Self-signed certificate is only for testing this sample app.
             var cert = new X509Certificate2("angularspawebapi.pfx", "angularspawebapi");
 
             // Adds IdentityServer.
@@ -83,7 +89,7 @@ namespace AngularSPAWebAPI
                 .AddInMemoryClients(Config.GetClients())
                 .AddAspNetIdentity<ApplicationUser>(); // IdentityServer4.AspNetIdentity.
 
-            // Registers the Swagger generator, defining one or more Swagger documents
+            // Registers the Swagger generator, defining one or more Swagger documents.
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Info { Title = "WebAPI", Version = "v1" });
@@ -104,14 +110,13 @@ namespace AngularSPAWebAPI
                 });
             }
 
-            // Router on the server must match the router on the client (see app.routing.ts) to use PathLocationStrategy.
+            // Router on the server must match the router on the client (see app.routing.module.ts) to use PathLocationStrategy.
             var appRoutes = new[] {
                  "/home",
+                 "/account/signin",
+                 "/account/signup",
                  "/resources",
-                 "/dashboard",
-                 "/resources",
-                 "/signin",
-                 "/signup"
+                 "/dashboard"
              };
 
             app.Use(async (context, next) =>

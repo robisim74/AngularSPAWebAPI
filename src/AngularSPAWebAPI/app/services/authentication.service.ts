@@ -1,5 +1,6 @@
 ﻿import { Injectable } from '@angular/core';
 import { Http, Headers, RequestOptions, Response } from '@angular/http';
+import { Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import 'rxjs/add/operator/map';
@@ -11,6 +12,8 @@ import 'rxjs/add/observable/timer';
 import { AuthHttp } from 'angular2-jwt';
 
 import { Config } from '../config';
+import { User } from '../models/user';
+import { BrowserStorage } from './browser-storage.service';
 
 /**
  * ROPC Authentication service.
@@ -23,14 +26,10 @@ import { Config } from '../config';
     public redirectUrl: string;
 
     /**
-     * Behavior subjects of the user's status, data & roles.
-     * https://netbasal.com/angular-2-persist-your-login-status-with-behaviorsubject-45da9ec43243#.14rltx9dh
+     * Behavior subjects of the user's status & data.
      */
-    public signinSubject = new BehaviorSubject<boolean>(this.tokenNotExpired());
-
-    public userSubject = new BehaviorSubject<any>({});
-
-    public rolesSubject = new BehaviorSubject<string[]>([]);
+    private signinStatus = new BehaviorSubject<boolean>(this.tokenNotExpired());
+    private user = new BehaviorSubject<User>(this.getUser());
 
     /**
      * Token info.
@@ -42,6 +41,7 @@ import { Config } from '../config';
      * Scheduling of the refresh token.
      */
     private refreshSubscription: any;
+
     /**
      * Offset for the scheduling to avoid the inconsistency of data on the client.
      */
@@ -50,12 +50,23 @@ import { Config } from '../config';
     private headers: Headers;
     private options: RequestOptions;
 
-    constructor(private http: Http, private authHttp: AuthHttp) {
-        // On bootstrap or refresh, tries to get users'data.
-        this.getUserInfo();
+    constructor(
+        private router: Router,
+        private http: Http,
+        private authHttp: AuthHttp,
+        private browserStorage: BrowserStorage
+    ) {
         // Creates header for post requests.
         this.headers = new Headers({ 'Content-Type': 'application/x-www-form-urlencoded' });
         this.options = new RequestOptions({ headers: this.headers });
+
+        if (!this.tokenNotExpired()) {
+            // Removes user's info.
+            this.browserStorage.remove("user_info");
+            // Revokes tokens.
+            this.revokeToken();
+            this.revokeRefreshToken();
+        }
     }
 
     public signin(username: string, password: string): Observable<any> {
@@ -79,10 +90,8 @@ import { Config } from '../config';
                 if (typeof body.access_token !== "undefined") {
                     // Stores access token & refresh token.
                     this.store(body);
-                    this.getUserInfo();
-
                     // Tells all the subscribers about the new status.
-                    this.signinSubject.next(true);
+                    this.signinStatus.next(true);
                 }
             }).catch((error: any) => {
                 return Observable.throw(error);
@@ -90,7 +99,7 @@ import { Config } from '../config';
     }
 
     /**
-     * Optional strategy for refresh token through a scheduler.
+     * Strategy for refresh token through a scheduler.
      * Will schedule a refresh at the appropriate time.
      */
     public scheduleRefresh(): void {
@@ -106,8 +115,7 @@ import { Config } from '../config';
                     // Scheduler works.
                 },
                 (error: any) => {
-                    // Need to handle this error.
-                    console.log(error);
+                    this.handleRefreshTokenError();
                 }
             );
         });
@@ -119,11 +127,11 @@ import { Config } from '../config';
     public startupTokenRefresh(): void {
         // If the user is authenticated, uses the token stream
         // provided by angular2-jwt and flatMap the token.
-        if (this.signinSubject.getValue()) {
+        if (this.tokenNotExpired()) {
             const source = this.authHttp.tokenStream.flatMap(
                 (token: string) => {
                     const now: number = new Date().valueOf();
-                    const exp: number = Helpers.getExp();
+                    const exp: number = this.getExpiry();
                     const delay: number = exp - now - this.offsetSeconds * 1000;
 
                     // Uses the delay in a timer to run the refresh at the proper time.
@@ -137,8 +145,7 @@ import { Config } from '../config';
                         this.scheduleRefresh();
                     },
                     (error: any) => {
-                        // Need to handle this error.
-                        console.log(error);
+                        this.handleRefreshTokenError();
                     }
                 );
             });
@@ -155,10 +162,34 @@ import { Config } from '../config';
     }
 
     /**
+     * Handles errors on refresh token, like expiration.
+     */
+    public handleRefreshTokenError(): void {
+        this.redirectUrl = this.router.url;
+
+        // Removes user's info.
+        this.browserStorage.remove("user_info");
+
+        // Tells all the subscribers about the new status & data.
+        this.signinStatus.next(false);
+        this.user.next(new User());
+
+        // Unschedules the refresh token.
+        this.unscheduleRefresh();
+
+        // Revokes tokens.
+        this.revokeToken();
+        this.revokeRefreshToken();
+
+        // The user is forced to sign in again.
+        this.router.navigate(['/account/signin']);
+    }
+
+    /**
      * Tries to get a new token using refresh token.
      */
     public getNewToken(): Observable<any> {
-        const refreshToken: string = Helpers.getToken("refresh_token");
+        const refreshToken: string = this.browserStorage.get("refresh_token");
 
         const tokenEndpoint: string = Config.TOKEN_ENDPOINT;
 
@@ -188,12 +219,12 @@ import { Config } from '../config';
      * Revokes token.
      */
     public revokeToken(): void {
-        Helpers.removeToken("id_token");
-        Helpers.removeExp();
+        this.browserStorage.remove("id_token");
+        this.browserStorage.remove("expires");
     }
 
     public revokeRefreshToken(): void {
-        const refreshToken: string = Helpers.getToken("refresh_token");
+        const refreshToken: string = this.browserStorage.get("refresh_token");
 
         if (refreshToken != null) {
             const revocationEndpoint: string = Config.REVOCATION_ENDPOINT;
@@ -209,7 +240,7 @@ import { Config } from '../config';
             this.http.post(revocationEndpoint, body, this.options)
                 .subscribe(
                 () => {
-                    Helpers.removeToken("refresh_token");
+                    this.browserStorage.remove("refresh_token");
                 });
         }
     }
@@ -220,10 +251,12 @@ import { Config } from '../config';
     public signout(): void {
         this.redirectUrl = null;
 
-        // Tells all the subscribers about the new status, data & roles.
-        this.signinSubject.next(false);
-        this.userSubject.next({});
-        this.rolesSubject.next([]);
+        // Removes user's info.
+        this.browserStorage.remove("user_info");
+
+        // Tells all the subscribers about the new status & data.
+        this.signinStatus.next(false);
+        this.user.next(new User());
 
         // Unschedules the refresh token.
         this.unscheduleRefresh();
@@ -234,46 +267,53 @@ import { Config } from '../config';
     }
 
     /**
+     * Calls UserInfo endpoint to retrieve user's data.
+     */
+    public getUserInfo(): Observable<any> {
+        return this.authHttp.get(Config.USERINFO_ENDPOINT)
+            .map((res: any) => res.json());
+    }
+
+    public changeUser(userInfo: any): void {
+        const user: User = new User();
+
+        user.givenName = userInfo.given_name;
+        user.familyName = userInfo.family_name;
+        user.userName = userInfo.name;
+        user.roles = userInfo.role;
+
+        // Stores user info.
+        this.storeUser(user);
+        // Tells all the subscribers about the new data.
+        this.user.next(user);
+    }
+
+    /**
      * Checks if user is signed in.
      */
     public isSignedIn(): Observable<boolean> {
-        return this.signinSubject.asObservable();
+        return this.signinStatus.asObservable();
     }
 
-    public getUser(): Observable<any> {
-        return this.userSubject.asObservable();
+    public userChanged(): Observable<User> {
+        return this.user.asObservable();
     }
 
-    public getRoles(): Observable<any> {
-        return this.rolesSubject.asObservable();
+    /**
+     * Checks if user is in the given role.
+     */
+    public isInRole(role: string): boolean {
+        const user: User = this.getUser();
+        const roles: string[] = user && typeof user.roles !== "undefined" ? user.roles : [];
+        return roles.indexOf(role) != -1;
     }
 
     /**
      * Checks for presence of token and that token hasn't expired.
      */
     private tokenNotExpired(): boolean {
-        const token: string = Helpers.getToken("id_token");
-        return token != null && (Helpers.getExp() > new Date().valueOf());
-    }
-
-    /**
-     * Calls UserInfo endpoint to retrieve user's data.
-     */
-    private getUserInfo(): void {
-        if (this.tokenNotExpired()) {
-            this.authHttp.get(Config.USERINFO_ENDPOINT)
-                .subscribe(
-                (res: any) => {
-                    const user: any = res.json();
-                    const roles: string[] = user.role;
-                    // Tells all the subscribers about the new data & roles.
-                    this.userSubject.next(user);
-                    this.rolesSubject.next(user.role);
-                },
-                (error: any) => {
-                    console.log(error);
-                });
-        }
+        const token: string = this.browserStorage.get("id_token");
+        return token != null && (this.getExpiry() > new Date().valueOf());
     }
 
     private encodeParams(params: any): string {
@@ -292,44 +332,34 @@ import { Config } from '../config';
      * Stores access token & refresh token.
      */
     private store(body: any): void {
-        Helpers.setToken("id_token", body.access_token);
-        Helpers.setToken("refresh_token", body.refresh_token);
+        this.browserStorage.set("id_token", body.access_token);
+        this.browserStorage.set("refresh_token", body.refresh_token);
 
         // Calculates token expiration.
         this.expiresIn = body.expires_in as number * 1000; // To milliseconds.
-        Helpers.setExp(this.authTime + this.expiresIn);
-    }
-
-}
-
-// Set Helpers to use the same storage in AppModule.
-class Helpers {
-
-    public static getToken(name: string): string {
-        return localStorage.getItem(name);
-    }
-
-    public static setToken(name: string, value: string) {
-        localStorage.setItem(name, value);
-    }
-
-    public static removeToken(name: string): void {
-        localStorage.removeItem(name);
-    }
-
-    public static setExp(exp: number) {
-        localStorage.setItem("exp", exp.toString());
+        this.storeExpiry(this.authTime + this.expiresIn);
     }
 
     /**
      * Returns token expiration in milliseconds.
      */
-    public static getExp(): number {
-        return parseInt(localStorage.getItem("exp"));
+    private getExpiry(): number {
+        return parseInt(this.browserStorage.get("expires"));
     }
 
-    public static removeExp(): void {
-        localStorage.removeItem("exp");
+    private storeExpiry(exp: number): void {
+        this.browserStorage.set("expires", exp.toString());
+    }
+
+    private getUser(): User {
+        if (this.tokenNotExpired()) {
+            return JSON.parse(this.browserStorage.get("user_info"));
+        }
+        return new User();
+    }
+
+    private storeUser(user: User): void {
+        this.browserStorage.set("user_info", JSON.stringify(user));
     }
 
 }

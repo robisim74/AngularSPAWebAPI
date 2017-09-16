@@ -3,6 +3,7 @@ import { HttpModule } from '@angular/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MaterialModule } from './material.module';
+import { TranslatePipe } from '../services/translate/translate.pipe';
 
 const sharedModules: any[] = [
     HttpModule,
@@ -11,9 +12,17 @@ const sharedModules: any[] = [
     MaterialModule
 ];
 
+const sharedDirectives: any[] = [
+    TranslatePipe // Requires TranslationProviders and TranslateService from root app.module providers section
+];
+
 @NgModule({
     imports: sharedModules,
-    exports: sharedModules
+    declarations: sharedDirectives,
+    exports: [
+        sharedModules,
+        sharedDirectives
+    ]
 })
 
 export class SharedModule { }

@@ -1,15 +1,15 @@
 webpackJsonp([2],{
 
-/***/ 150:
+/***/ 157:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DashboardModule", function() { return DashboardModule; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__dashboard_routing_module__ = __webpack_require__(162);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__shared_shared_module__ = __webpack_require__(60);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__dashboard_component__ = __webpack_require__(155);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__dashboard_routing_module__ = __webpack_require__(169);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__shared_shared_module__ = __webpack_require__(62);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__dashboard_component__ = __webpack_require__(162);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -41,15 +41,16 @@ var DashboardModule = (function () {
 
 /***/ }),
 
-/***/ 155:
+/***/ 162:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return DashboardComponent; });
 /* unused harmony export UsersDataSource */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_cdk__ = __webpack_require__(38);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__services_identity_service__ = __webpack_require__(61);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_cdk__ = __webpack_require__(40);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__services_translate_translate_service__ = __webpack_require__(21);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__services_identity_service__ = __webpack_require__(63);
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -72,12 +73,15 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 
 
 
+
 var DashboardComponent = (function () {
-    function DashboardComponent(identityService) {
+    function DashboardComponent(identityService, translationService) {
         this.identityService = identityService;
+        this.translationService = translationService;
         this.displayedColumns = ['email', 'givenName', 'familyName', 'actions'];
     }
     DashboardComponent.prototype.ngOnInit = function () {
+        this.refreshTranslate = this.translationService.getRefreshTranslateObservable();
         this.identityService.getAll();
         this.dataSource = new UsersDataSource(this.identityService);
     };
@@ -86,10 +90,11 @@ var DashboardComponent = (function () {
     };
     DashboardComponent = __decorate([
         __WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"]({
-            template: __webpack_require__(163),
-            styles: [__webpack_require__(164)]
+            template: __webpack_require__(170),
+            styles: [__webpack_require__(171)]
         }),
-        __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_2__services_identity_service__["a" /* IdentityService */]])
+        __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_3__services_identity_service__["a" /* IdentityService */],
+            __WEBPACK_IMPORTED_MODULE_2__services_translate_translate_service__["a" /* TranslateService */]])
     ], DashboardComponent);
     return DashboardComponent;
 }());
@@ -113,15 +118,15 @@ var UsersDataSource = (function (_super) {
 
 /***/ }),
 
-/***/ 162:
+/***/ 169:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return DashboardRoutingModule; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_router__ = __webpack_require__(14);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__dashboard_component__ = __webpack_require__(155);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__services_auth_guard__ = __webpack_require__(62);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_router__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__dashboard_component__ = __webpack_require__(162);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__services_auth_guard__ = __webpack_require__(64);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -151,14 +156,14 @@ var DashboardRoutingModule = (function () {
 
 /***/ }),
 
-/***/ 163:
+/***/ 170:
 /***/ (function(module, exports) {
 
-module.exports = "<h1>Dashboard</h1>\r\n\r\n<div class=\"dashboard-container\">\r\n\r\n    <md-table #table [dataSource]=\"dataSource\" class=\"mat-elevation-z2\">\r\n        <ng-container cdkColumnDef=\"email\">\r\n            <md-header-cell *cdkHeaderCellDef> Email </md-header-cell>\r\n            <md-cell *cdkCellDef=\"let row\"> {{ row.email }} </md-cell>\r\n        </ng-container>\r\n\r\n        <ng-container cdkColumnDef=\"givenName\">\r\n            <md-header-cell *cdkHeaderCellDef> Given name </md-header-cell>\r\n            <md-cell *cdkCellDef=\"let row\"> {{ row.givenName }} </md-cell>\r\n        </ng-container>\r\n\r\n        <ng-container cdkColumnDef=\"familyName\">\r\n            <md-header-cell *cdkHeaderCellDef> Family name </md-header-cell>\r\n            <md-cell *cdkCellDef=\"let row\"> {{ row.familyName }} </md-cell>\r\n        </ng-container>\r\n\r\n        <ng-container cdkColumnDef=\"actions\">\r\n            <md-header-cell *cdkHeaderCellDef> </md-header-cell>\r\n            <md-cell *cdkCellDef=\"let row\"> <button md-icon-button color=\"warn\" (click)=\"delete(row.userName)\"><md-icon>delete</md-icon></button> </md-cell>\r\n        </ng-container>\r\n\r\n        <md-header-row *cdkHeaderRowDef=\"displayedColumns\"></md-header-row>\r\n        <md-row *cdkRowDef=\"let row; columns: displayedColumns;\"></md-row>\r\n    </md-table>\r\n\r\n</div>"
+module.exports = "<h1>{{ 'titleDashboard' | translate: [refreshTranslate | async] }}</h1>\r\n\r\n<div class=\"dashboard-container\">\r\n\r\n    <md-table #table [dataSource]=\"dataSource\" class=\"mat-elevation-z2\">\r\n        <ng-container cdkColumnDef=\"email\">\r\n            <md-header-cell *cdkHeaderCellDef> {{ 'headerEmail' | translate: [refreshTranslate | async] }} </md-header-cell>\r\n            <md-cell *cdkCellDef=\"let row\"> {{ row.email }} </md-cell>\r\n        </ng-container>\r\n\r\n        <ng-container cdkColumnDef=\"givenName\">\r\n            <md-header-cell *cdkHeaderCellDef> {{ 'headerGivenName' | translate: [refreshTranslate | async] }} </md-header-cell>\r\n            <md-cell *cdkCellDef=\"let row\"> {{ row.givenName }} </md-cell>\r\n        </ng-container>\r\n\r\n        <ng-container cdkColumnDef=\"familyName\">\r\n            <md-header-cell *cdkHeaderCellDef> {{ 'headerFamilyName' | translate: [refreshTranslate | async] }} </md-header-cell>\r\n            <md-cell *cdkCellDef=\"let row\"> {{ row.familyName }} </md-cell>\r\n        </ng-container>\r\n\r\n        <ng-container cdkColumnDef=\"actions\">\r\n            <md-header-cell *cdkHeaderCellDef> </md-header-cell>\r\n            <md-cell *cdkCellDef=\"let row\">\r\n                <button md-icon-button color=\"warn\" (click)=\"delete(row.userName)\"\r\n                    md-tooltip=\"{{ 'tooltipDelete' | translate: [refreshTranslate | async] }}\" tooltip-position=\"above\">\r\n                    <md-icon>delete</md-icon>\r\n                </button>\r\n            </md-cell>\r\n        </ng-container>\r\n\r\n        <md-header-row *cdkHeaderRowDef=\"displayedColumns\"></md-header-row>\r\n        <md-row *cdkRowDef=\"let row; columns: displayedColumns;\"></md-row>\r\n    </md-table>\r\n\r\n</div>"
 
 /***/ }),
 
-/***/ 164:
+/***/ 171:
 /***/ (function(module, exports) {
 
 module.exports = ".dashboard-container {\n  display: flex;\n  flex-direction: column; }\n  .dashboard-container .mat-table {\n    overflow: hidden; }\n"

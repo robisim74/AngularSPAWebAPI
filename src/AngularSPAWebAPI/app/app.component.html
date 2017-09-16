@@ -3,26 +3,46 @@
     <md-sidenav #start mode="over">
         <md-nav-list>
             <a *ngFor="let navItem of navItems" md-list-item routerLinkActive="active-link" (click)="start.close()" [routerLink]="[navItem.route]">
-                {{ navItem.name }}
+                {{ navItem.name | translate: [refreshTranslate | async] }}
             </a>
-            <a routerLinkActive="active-link" md-list-item (click)="start.close()" routerLink="/dashboard" *ngIf="isAdmin">Dashboard</a>
+            <a routerLinkActive="active-link" md-list-item (click)="start.close()" routerLink="/dashboard" *ngIf="isAdmin">
+                {{ 'menuDashboard' | translate: [refreshTranslate | async] }}
+            </a>
         </md-nav-list>
     </md-sidenav>
 
     <div>
         <md-toolbar color="primary" class="mat-elevation-z6">
-            <button md-icon-button (click)="start.open()">
+            <button md-icon-button (click)="start.open()"
+                md-tooltip="{{ 'tooltipMenu' | translate: [refreshTranslate | async] }}" tooltip-position="below">
                 <md-icon>menu</md-icon>
             </button>
             <div class="app-toolbar">
                 <h1>{{ title.getTitle() }}</h1>
             </div>
+            <span class="fill-remaining-space"></span>
+            <button md-icon-button [mdMenuTriggerFor]="menuLanguage"
+                md-tooltip="{{ 'tooltipLanguage' | translate: [refreshTranslate | async] }}" tooltip-position="below">
+                <md-icon>language</md-icon>
+            </button>
+            <md-menu #menuLanguage="mdMenu">
+                <button *ngFor="let lang of supportedLanguages" md-menu-item (click)="selectLang(lang.value)">
+                    <md-icon>g_translate</md-icon>
+                    {{ lang.display }}
+                </button>
+            </md-menu>
             <md-toolbar-row>
                 <span class="fill-remaining-space"></span>
-                <button md-raised-button color="accent" routerLink="/account/signin" *ngIf="(signedIn | async) === false">Sign in</button>
-                <button md-raised-button color="primary" routerLink="/account/signup" *ngIf="(signedIn | async) === false">Sign up</button>
-                <span *ngIf="!!name">Hi {{ name }}!&nbsp;&nbsp;</span>
-                <button md-raised-button color="primary" (click)="signout()" *ngIf="signedIn | async">Sign out</button>
+                <button md-raised-button color="accent" routerLink="/account/signin" *ngIf="(signedIn | async) === false">
+                    {{ 'signin' | translate: [refreshTranslate | async] }}
+                </button>
+                <button md-raised-button color="primary" routerLink="/account/signup" *ngIf="(signedIn | async) === false">
+                    {{ 'signup' | translate: [refreshTranslate | async] }}
+                </button>
+                <span *ngIf="!!name">{{ 'mainHeaderHi' | translate: [refreshTranslate | async, name] }}&nbsp;&nbsp;</span>
+                <button md-raised-button color="primary" (click)="signout()" *ngIf="signedIn | async">
+                    {{ 'signout' | translate: [refreshTranslate | async] }}
+                </button>
             </md-toolbar-row>
         </md-toolbar>
 

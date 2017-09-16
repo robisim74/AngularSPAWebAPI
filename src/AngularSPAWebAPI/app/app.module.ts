@@ -10,6 +10,8 @@ import { AuthGuard } from './services/auth.guard';
 import { AuthenticationService } from './services/authentication.service';
 import { IdentityService } from './services/identity.service';
 import { BrowserStorage } from './services/browser-storage.service';
+import { TRANSLATION_PROVIDERS } from './services/translate/translations';
+import { TranslateService } from './services/translate/translate.service';
 
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
@@ -40,6 +42,7 @@ export function getAuthHttp(http: Http) {
     ],
     providers: [
         Title,
+        TRANSLATION_PROVIDERS, TranslateService,  // Supports TranslatePipe within shared.module
         AuthGuard,
         AuthenticationService,
         IdentityService,

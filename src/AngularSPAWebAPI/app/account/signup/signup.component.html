@@ -1,44 +1,48 @@
 ﻿<div class="account-card-container">
 
     <md-card>
-        <md-toolbar color="primary">Sign up</md-toolbar>
+        <md-toolbar color="primary">{{ 'titleSignup' | translate: [refreshTranslate | async] }}</md-toolbar>
         <md-card-content>
             <form name="form" #f="ngForm" (ngSubmit)="f.form.valid && signup()" novalidate>
                 <div>
                     <br />
                     <br />
                     <md-input-container class="full-width">
-                        <input type="text" mdInput [(ngModel)]="model.givenName" name="givenName" #givenName="ngModel" placeholder="first name" (keyup)="clearMessages()" required>
+                        <input type="text" mdInput [(ngModel)]="model.givenName" name="givenName" #givenName="ngModel"
+                            placeholder="{{ 'formFirstName' | translate: [refreshTranslate | async] }}" (keyup)="clearMessages()" required>
                         <md-error>
-                            Required
+                            {{ 'errorMsgRequired' | translate: [refreshTranslate | async] }}
                         </md-error>
                     </md-input-container>
                     <br />
                     <br />
                     <md-input-container class="full-width">
-                        <input type="text" mdInput [(ngModel)]="model.familyName" name="familyName" #familyName="ngModel" placeholder="last name" (keyup)="clearMessages()" required>
+                        <input type="text" mdInput [(ngModel)]="model.familyName" name="familyName" #familyName="ngModel"
+                            placeholder="{{ 'formLastName' | translate: [refreshTranslate | async] }}" (keyup)="clearMessages()" required>
                         <md-error>
-                            Required
+                            {{ 'errorMsgRequired' | translate: [refreshTranslate | async] }}
                         </md-error>
                     </md-input-container>
                     <br />
                     <br />
                     <md-input-container class="full-width">
-                        <input type="text" mdInput [(ngModel)]="model.username" name="username" #username="ngModel" placeholder="email" (keyup)="clearMessages()"
+                        <input type="text" mdInput [(ngModel)]="model.username" name="username" #username="ngModel"
+                            placeholder="{{ 'formEmail' | translate: [refreshTranslate | async] }}" (keyup)="clearMessages()"
                                pattern="^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$" required>
                         <md-error *ngIf="username.hasError('required')">
-                            Required
+                            {{ 'errorMsgRequired' | translate: [refreshTranslate | async] }}
                         </md-error>
                         <md-error *ngIf="username.hasError('pattern')">
-                            Invalid format
+                            {{ 'errorMsgInvalidFormat' | translate: [refreshTranslate | async] }}
                         </md-error>
                     </md-input-container>
                     <br />
                     <br />
                     <md-input-container class="full-width">
-                        <input type="password" mdInput [(ngModel)]="model.password" name="password" #password="ngModel" placeholder="password" (keyup)="clearMessages()" required>
+                        <input type="password" mdInput [(ngModel)]="model.password" name="password" #password="ngModel"
+                            placeholder="{{ 'formPassword' | translate: [refreshTranslate | async] }}" (keyup)="clearMessages()" required>
                         <md-error>
-                            Required
+                            {{ 'errorMsgRequired' | translate: [refreshTranslate | async] }}
                         </md-error>
                     </md-input-container>
                     <br />
@@ -50,7 +54,7 @@
                     <br />
                 </div>
                 <div>
-                    <button md-raised-button color="accent" type="submit" class="full-width">Sign up</button>
+                    <button md-raised-button color="accent" type="submit" class="full-width">{{ 'signup' | translate: [refreshTranslate | async] }}</button>
                 </div>
             </form>
         </md-card-content>

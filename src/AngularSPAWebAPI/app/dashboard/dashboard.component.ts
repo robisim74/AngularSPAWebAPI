@@ -2,6 +2,8 @@
 import { DataSource } from '@angular/cdk';
 import { Observable } from 'rxjs/Observable';
 
+import { TranslateService } from '../services/translate/translate.service';
+
 import { IdentityService } from '../services/identity.service';
 
 @Component({
@@ -10,12 +12,19 @@ import { IdentityService } from '../services/identity.service';
 })
 export class DashboardComponent implements OnInit {
 
+    refreshTranslate: Observable<boolean>;
+
     displayedColumns = ['email', 'givenName', 'familyName', 'actions'];
     dataSource: UsersDataSource;
 
-    constructor(private identityService: IdentityService) { }
+    constructor(
+        private identityService: IdentityService,
+        private translationService: TranslateService) { }
 
     ngOnInit() {
+        // translation service observable
+        this.refreshTranslate = this.translationService.getRefreshTranslateObservable();
+
         this.identityService.getAll();
         this.dataSource = new UsersDataSource(this.identityService);
     }

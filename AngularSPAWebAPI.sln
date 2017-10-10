@@ -1,18 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.4
+VisualStudioVersion = 15.0.26906.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{1AAE22A8-81F4-4805-8AA1-591704996ECB}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{75D98147-A7DA-4CB8-A100-8AAEC0B06E04}"
-	ProjectSection(SolutionItems) = preProject
-		CHANGELOG.md = CHANGELOG.md
-		EXPLANATION.md = EXPLANATION.md
-		README.md = README.md
-	EndProjectSection
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AngularSPAWebAPI", "src\AngularSPAWebAPI\AngularSPAWebAPI.csproj", "{117CB083-608A-405C-A629-C9F530577A9C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AngularSPAWebAPI", "AngularSPAWebAPI\AngularSPAWebAPI.csproj", "{FF1334F3-7303-4D38-9FCC-B8CE41E7C0E2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{117CB083-608A-405C-A629-C9F530577A9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{117CB083-608A-405C-A629-C9F530577A9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{117CB083-608A-405C-A629-C9F530577A9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{117CB083-608A-405C-A629-C9F530577A9C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF1334F3-7303-4D38-9FCC-B8CE41E7C0E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF1334F3-7303-4D38-9FCC-B8CE41E7C0E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF1334F3-7303-4D38-9FCC-B8CE41E7C0E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF1334F3-7303-4D38-9FCC-B8CE41E7C0E2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{117CB083-608A-405C-A629-C9F530577A9C} = {1AAE22A8-81F4-4805-8AA1-591704996ECB}
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AD44C95F-5B00-4750-9F5F-2EAB3C46240A}
 	EndGlobalSection
 EndGlobal

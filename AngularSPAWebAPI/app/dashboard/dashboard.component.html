@@ -1,0 +1,30 @@
+﻿<h1>Dashboard</h1>
+
+<div class="dashboard-container">
+
+    <mat-table #table [dataSource]="dataSource" class="mat-elevation-z2">
+        <ng-container cdkColumnDef="email">
+            <mat-header-cell *cdkHeaderCellDef> Email </mat-header-cell>
+            <mat-cell *cdkCellDef="let row"> {{ row.email }} </mat-cell>
+        </ng-container>
+
+        <ng-container cdkColumnDef="givenName">
+            <mat-header-cell *cdkHeaderCellDef> Given name </mat-header-cell>
+            <mat-cell *cdkCellDef="let row"> {{ row.givenName }} </mat-cell>
+        </ng-container>
+
+        <ng-container cdkColumnDef="familyName">
+            <mat-header-cell *cdkHeaderCellDef> Family name </mat-header-cell>
+            <mat-cell *cdkCellDef="let row"> {{ row.familyName }} </mat-cell>
+        </ng-container>
+
+        <ng-container cdkColumnDef="actions">
+            <mat-header-cell *cdkHeaderCellDef> </mat-header-cell>
+            <mat-cell *cdkCellDef="let row"> <button mat-icon-button color="warn" (click)="delete(row.userName)"><mat-icon>delete</mat-icon></button> </mat-cell>
+        </ng-container>
+
+        <mat-header-row *cdkHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *cdkRowDef="let row; columns: displayedColumns;"></mat-row>
+    </mat-table>
+
+</div>

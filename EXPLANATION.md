@@ -27,7 +27,7 @@ public static IEnumerable<Client> GetClients()
             },
             AllowOfflineAccess = true, // For refresh token.
             RefreshTokenUsage = TokenUsage.OneTimeOnly,
-            AbsoluteRefreshTokenLifetime = 86400,
+            AbsoluteRefreshTokenLifetime = 7200,
             SlidingRefreshTokenLifetime = 900,
             RefreshTokenExpiration = TokenExpiration.Sliding
         }
@@ -41,7 +41,7 @@ Our Angular app, identified as _AngularSPA_:
 - has an _access token_ for 15 minutes, then need to refresh the token;
 - can access to the _scopes_: in this case our Web API, called _WebAPI_, and user roles;
 - has _OfflineAccess_ for _refresh token_;
-- _refresh token_ has a sliding lifetime of 15 minutes and a maximum lifetime of 1 day: the _refresh token_ has a lifetime equal to or greater than the _access token_ to allow the user to remain authenticated, but for a maximum of one day.
+- _refresh token_ has a sliding lifetime of 15 minutes and a maximum lifetime of 2 hours: the _refresh token_ has a lifetime equal to or greater than the _access token_ to allow the user to remain authenticated, but for a maximum of 2 hours.
 
 The following are the resources:
 ```C#
@@ -69,27 +69,15 @@ public static IEnumerable<ApiResource> GetApiResources()
 ```
 Note that we can define which user claims will be included in the access token.
 
-Because our Web API is in the same project, in _Configure_ method of _Startup.cs_ file, 
-we add the authentication middleware:
+We add IdentityServer in _ConfigureServices_ method of _Startup.cs_ file:
 ```C#
-// IdentityServer4.AccessTokenValidation: authentication middleware for the API.
-app.UseIdentityServerAuthentication(new IdentityServerAuthenticationOptions
-{
-    Authority = "http://localhost:5000/",
-    AllowedScopes = { "WebAPI" },
-
-    RequireHttpsMetadata = false
-});
-```
-We complete the configuration by adding IdentityServer in _ConfigureServices_ method:
-```C#
-// Gets the Self-signed certificate for signing credential:
-// see http://docs.identityserver.io/en/release/topics/crypto.html
-var cert = new X509Certificate2("angularspawebapi.pfx", "angularspawebapi");
-
 // Adds IdentityServer.
 services.AddIdentityServer()
-    .AddSigningCredential(cert)
+    // The AddDeveloperSigningCredential extension creates temporary key material for signing tokens.
+    // This might be useful to get started, but needs to be replaced by some persistent key material for production scenarios.
+    // See the http://docs.identityserver.io/en/release/topics/crypto.html#refcrypto for more information.
+    .AddDeveloperSigningCredential()
+    .AddInMemoryPersistedGrants()
     // To configure IdentityServer to use EntityFramework (EF) as the storage mechanism for configuration data (rather than using the in-memory implementations),
     // see https://identityserver4.readthedocs.io/en/release/quickstarts/8_entity_framework.html
     .AddInMemoryIdentityResources(Config.GetIdentityResources())
@@ -97,10 +85,22 @@ services.AddIdentityServer()
     .AddInMemoryClients(Config.GetClients())
     .AddAspNetIdentity<ApplicationUser>(); // IdentityServer4.AspNetIdentity.
 ```
-The extension method _AddAspNetIdentity_ to use the ASP.NET Identity requires another setting:
+The extension method _AddAspNetIdentity_ to use the ASP.NET Identity requires another setting in _Configure_ method:
 ```C#
 app.UseIdentityServer();
 ```
+Because our Web API is in the same project, we add the authentication middleware:
+```C#
+services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
+    .AddIdentityServerAuthentication(options =>
+    {
+        options.Authority = "http://localhost:5000";
+        options.RequireHttpsMetadata = false;
+
+        options.ApiName = "WebAPI";
+    });
+```
+
 Now we can add related services, SQLite & Identity: 
 ```C#
 // SQLite & Identity.
@@ -147,14 +147,16 @@ services.AddAuthorization(options =>
 We add the authorization to the _Identity_ controller, which is used by the dashboard:
 ```C#
 [Route("api/[controller]")]
-[Authorize(Policy = "Manage Accounts")] // Authorization policy for this API.
+// Authorization policy for this API.
+[Authorize(AuthenticationSchemes = IdentityServerAuthenticationDefaults.AuthenticationScheme, Policy = "Manage Accounts")]
 public class IdentityController : Controller
 ...
 ```
 and to _Values_ controller, that returns the resources for the authenticated users:
 ```C#
 [Route("api/[controller]")]
-[Authorize(Policy = "Access Resources")] // Authorization policy for this API.
+// Authorization policy for this API.
+[Authorize(AuthenticationSchemes = IdentityServerAuthenticationDefaults.AuthenticationScheme, Policy = "Access Resources")]
 public class ValuesController : Controller
 ...
 ```

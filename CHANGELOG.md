@@ -1,5 +1,11 @@
 ## Angular SPA Web API Changelog
 
+<a name="Oct 10, 2017"></a>
+### Oct 10, 2017
+* Upgrade to ASP.NET Core 2.0
+* Upgrade to IdentityServer4 2.0
+* Update Angular & Material
+
 <a name="Sep 11, 2017"></a>
 ### Sep 11, 2017
 * Handle refresh token expiration.

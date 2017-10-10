@@ -33,10 +33,9 @@ The same scenarios are also supported by [AspNet.Security.OpenIdConnect.Server](
 	- **IdentityController.cs** _Identity APIs_
 	- **ValuesController.cs** _Resources APIs_
 - **Data** _Entity Framework_ migrations
+	- **DbInitializer.cs** _Provides method to populate the db_
 - **Models**
 	- **ApplicationUser.cs** _Profile data for application users_
-- **Services**
-	- **DbService.cs** _Provides method to populate the db_
 - **build.js** _Angular app building process for production_
 - **Config.cs** _IdentityServer4 configuration_
 - **IdentityDB.sqlite** _SQLite database_
@@ -47,7 +46,7 @@ The same scenarios are also supported by [AspNet.Security.OpenIdConnect.Server](
 
 ## Installing
 - Requirements
-	- At least [.NET Core 1.1.2](https://www.microsoft.com/net/download/core)
+	- At least [.NET Core 2.0](https://www.microsoft.com/net/download/core)
 	- At least _node 6.9_ and _npm 4_
 - Edit `ConnectionStrings` in _appsettings.json_
 #### Visual Studio 2017
@@ -74,7 +73,6 @@ To run _npm_ commands in Visual Studio you can use [NPM Task Runner](https://mar
 ### Development
 For the Angular app, we use JiT compilation, with source maps & [Hot Module Replacement](https://webpack.js.org/concepts/hot-module-replacement/).
 #### Visual Studio 2017
-- `npm start`
 - Start debugging
 #### Command line & .NET Core CLI
 - Set _Development_ as environment variable: [Working with multiple environments](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments)

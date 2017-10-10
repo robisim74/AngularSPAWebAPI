@@ -1,0 +1,99 @@
+body {
+    font-family: $font-family;
+
+    * {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    .mat-sidenav {
+        min-width: 20vw;
+
+        .mat-button {
+            width: 100%;
+            position: relative;
+            bottom: 0;
+            margin: 24px 0;
+        }
+    }
+
+    .app-content {
+        padding: 32px;
+        box-sizing: border-box;
+
+        h1 {
+            display: inline-block;
+            font-size: 24px;
+            font-weight: 500;
+            margin: 8px 0px;
+        }
+
+        h1:after {
+            content: "";
+            display: block;
+            height: 1px;
+            width: 40%;
+            margin: 24px 0px 10px;
+            background: $lightgray;
+            clear: both;
+        }
+    }
+
+    .mat-toolbar {
+        .mat-icon {
+            cursor: pointer;
+        }
+
+        .app-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-left: 24px;
+            margin-right: 8px;
+
+            @media ($xsmall) {
+                margin-left: 16px;
+                margin-right: 0px;
+            }
+        }
+    }
+
+    h1 {
+        font-size: 20px;
+    }
+
+    .fill-remaining-space {
+        flex: 1 1 auto;
+    }
+}
+
+// Stretch to screen size in fullscreen mode.
+.app-content {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.active-link {
+	.mat-list-item-content {
+		color: $blue;
+	}
+}
+
+.account-card-container {
+    display: flex;
+    justify-content: center;
+
+    mat-card {
+        width: 400px;
+    }
+}
+
+.has-error {
+    color: $brightred;
+}
+
+.full-width {
+    width: 100%;
+}

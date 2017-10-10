@@ -1,0 +1,23 @@
+@import '../styles/variables.scss';
+
+.home-card-container {
+    display: flex;
+    justify-content: center;
+
+    mat-card {
+        width: 500px;
+
+        mat-card-title {
+            text-align: center;
+            color: $blue;
+        }
+        
+        mat-card-subtitle, mat-card-content {
+            text-align: center;
+        }
+    }
+
+    img {
+        background-color: $lightgray;
+    }
+}

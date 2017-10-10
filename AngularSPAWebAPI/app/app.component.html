@@ -1,0 +1,34 @@
+﻿<mat-sidenav-container class="app-root" fullscreen>
+
+    <mat-sidenav #start mode="over">
+        <mat-nav-list>
+            <a *ngFor="let navItem of navItems" mat-list-item routerLinkActive="active-link" (click)="start.close()" [routerLink]="[navItem.route]">
+                {{ navItem.name }}
+            </a>
+            <a routerLinkActive="active-link" mat-list-item (click)="start.close()" routerLink="/dashboard" *ngIf="isAdmin">Dashboard</a>
+        </mat-nav-list>
+    </mat-sidenav>
+
+    <div>
+        <mat-toolbar color="primary" class="mat-elevation-z6">
+            <button mat-icon-button (click)="start.open()">
+                <mat-icon>menu</mat-icon>
+            </button>
+            <div class="app-toolbar">
+                <h1>{{ title.getTitle() }}</h1>
+            </div>
+            <mat-toolbar-row>
+                <span class="fill-remaining-space"></span>
+                <button mat-raised-button color="accent" routerLink="/account/signin" *ngIf="(signedIn | async) === false">Sign in</button>
+                <button mat-raised-button color="primary" routerLink="/account/signup" *ngIf="(signedIn | async) === false">Sign up</button>
+                <span *ngIf="!!name">Hi {{ name }}!&nbsp;&nbsp;</span>
+                <button mat-raised-button color="primary" (click)="signout()" *ngIf="signedIn | async">Sign out</button>
+            </mat-toolbar-row>
+        </mat-toolbar>
+
+        <div class="app-content">
+            <router-outlet></router-outlet>
+        </div>
+    </div>
+
+</mat-sidenav-container>

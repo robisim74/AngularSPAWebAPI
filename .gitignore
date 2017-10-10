@@ -312,3 +312,5 @@ $RECYCLE.BIN/
 **/app/*.map
 
 PublishProfiles
+
+tempkey.rsa

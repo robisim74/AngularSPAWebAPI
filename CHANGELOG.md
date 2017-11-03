@@ -1,5 +1,10 @@
 ## Angular SPA Web API Changelog
 
+<a name="Nov 3, 2017"></a>
+### Nov 3, 2017
+* Upgrade to Angular v5: [commit](https://github.com/robisim74/AngularSPAWebAPI/commit/e646fde96061557045dd590748172648f209cc2a)
+* Use RxJS lettable operators: [commit](https://github.com/robisim74/AngularSPAWebAPI/commit/3a4ec9bae0993a56556bcea5ac46bc202cd3ce96)
+
 <a name="Oct 10, 2017"></a>
 ### Oct 10, 2017
 * Upgrade to ASP.NET Core 2.0

@@ -275,8 +275,8 @@ public signin(username: string, password: string): Observable<any> {
 
     this.authTime = new Date().valueOf();
 
-    return this.http.post(tokenEndpoint, body, this.options)
-        .map((res: Response) => {
+    return this.http.post(tokenEndpoint, body, this.options).pipe(
+        map((res: Response) => {
             const body: any = res.json();
             if (typeof body.access_token !== "undefined") {
                 // Stores access token & refresh token.
@@ -284,9 +284,11 @@ public signin(username: string, password: string): Observable<any> {
                 // Tells all the subscribers about the new status.
                 this.signinStatus.next(true);
             }
-        }).catch((error: any) => {
-            return Observable.throw(error);
-        });
+        }),
+        catchError((error: any) => {
+            return _throw(error);
+        })
+    );
 }
 ```
 We send a request to _UserInfo_ endpoint to get the user's data 
@@ -296,8 +298,9 @@ using angular2-jwt library, that builds for us the header with the authorization
  * Calls UserInfo endpoint to retrieve user's data.
  */
 public getUserInfo(): Observable<any> {
-    return this.authHttp.get(Config.USERINFO_ENDPOINT)
-        .map((res: any) => res.json());
+    return this.authHttp.get(Config.USERINFO_ENDPOINT).pipe(
+        map((res: any) => res.json())
+    );
 }
 ```
 In this example, we use a scheduler to request a new _access token_ before it expires through the _refresh token_:
@@ -310,7 +313,7 @@ public scheduleRefresh(): void {
     const source = this.authHttp.tokenStream.flatMap(
         (token: string) => {
             const delay: number = this.expiresIn - this.offsetSeconds * 1000;
-            return Observable.interval(delay);
+            return interval(delay);
         });
 
     this.refreshSubscription = source.subscribe(() => {
@@ -339,7 +342,7 @@ public startupTokenRefresh(): void {
                 const delay: number = exp - now - this.offsetSeconds * 1000;
 
                 // Uses the delay in a timer to run the refresh at the proper time.
-                return Observable.timer(delay);
+                return timer(delay);
             });
 
         // Once the delay time from above is reached, gets a new JWT and schedules additional refreshes.
@@ -374,16 +377,18 @@ public getNewToken(): Observable<any> {
 
     this.authTime = new Date().valueOf();
 
-    return this.http.post(tokenEndpoint, body, this.options)
-        .map((res: Response) => {
+    return this.http.post(tokenEndpoint, body, this.options).pipe(
+        map((res: Response) => {
             const body: any = res.json();
             if (typeof body.access_token !== "undefined") {
                 // Stores access token & refresh token.
                 this.store(body);
             }
-        }).catch((error: any) => {
-            return Observable.throw(error);
-        });
+        }),
+        catchError((error: any) => {
+            return _throw(error);
+        })
+    );
 }
 ```
 

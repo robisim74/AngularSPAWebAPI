@@ -22,7 +22,7 @@ namespace AngularSPAWebAPI
                 {
                     var context = services.GetRequiredService<ApplicationDbContext>();
                     var dbInitializer = services.GetRequiredService<IDbInitializer>();
-                    dbInitializer.Initialize(context);
+                    dbInitializer.Initialize(context).GetAwaiter().GetResult();
                 }
                 catch (Exception ex)
                 {

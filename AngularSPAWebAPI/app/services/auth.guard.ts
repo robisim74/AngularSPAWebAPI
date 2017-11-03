@@ -1,7 +1,7 @@
 ﻿import { Injectable } from '@angular/core';
 import { Router, CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/operator/map';
+import { map, flatMap } from 'rxjs/operators';
 
 import { AuthenticationService } from './authentication.service';
 
@@ -15,10 +15,10 @@ import { AuthenticationService } from './authentication.service';
     constructor(private authenticationService: AuthenticationService, private router: Router) { }
 
     public canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> | boolean {
-        return this.authenticationService.isSignedIn()
-            .map((signedIn: boolean) => { this.signedIn = signedIn; })
-            .flatMap(() => this.authenticationService.userChanged()
-                .map(() => {
+        return this.authenticationService.isSignedIn().pipe(
+            map((signedIn: boolean) => { this.signedIn = signedIn; }),
+            flatMap(() => this.authenticationService.userChanged().pipe(
+                map(() => {
                     const url: string = state.url;
 
                     if (this.signedIn) {
@@ -41,7 +41,8 @@ import { AuthenticationService } from './authentication.service';
                     this.router.navigate(['/account/signin']);
                     return false;
                 })
-            );
+            ))
+        );
     }
 
 }

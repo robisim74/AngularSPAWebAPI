@@ -2,9 +2,8 @@
 import { Http, Headers, RequestOptions, Response } from '@angular/http';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/catch';
-import 'rxjs/add/observable/throw';
+import { map, catchError } from 'rxjs/operators';
+import { _throw } from 'rxjs/observable/throw';
 
 import { AuthHttp } from 'angular2-jwt';
 
@@ -46,13 +45,14 @@ import { AuthHttp } from 'angular2-jwt';
     public create(model: any): Observable<any> {
         const body: string = JSON.stringify(model);
 
-        return this.http.post("/api/identity/Create", body, this.options)
-            .map((res: Response) => {
+        return this.http.post("/api/identity/Create", body, this.options).pipe(
+            map((res: Response) => {
                 return res.json();
+            }),
+            catchError((error: any) => {
+                return _throw(error);
             })
-            .catch((error: any) => {
-                return Observable.throw(error);
-            });
+        );
     }
 
     /**

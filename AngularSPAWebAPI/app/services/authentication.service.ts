@@ -3,11 +3,10 @@ import { Http, Headers, RequestOptions, Response } from '@angular/http';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/catch';
-import 'rxjs/add/observable/throw';
-import 'rxjs/add/observable/interval';
-import 'rxjs/add/observable/timer';
+import { map, catchError } from 'rxjs/operators';
+import { _throw } from 'rxjs/observable/throw';
+import { interval } from 'rxjs/observable/interval';
+import { timer } from 'rxjs/observable/timer';
 
 import { AuthHttp } from 'angular2-jwt';
 
@@ -84,8 +83,8 @@ import { BrowserStorage } from './browser-storage';
 
         this.authTime = new Date().valueOf();
 
-        return this.http.post(tokenEndpoint, body, this.options)
-            .map((res: Response) => {
+        return this.http.post(tokenEndpoint, body, this.options).pipe(
+            map((res: Response) => {
                 const body: any = res.json();
                 if (typeof body.access_token !== "undefined") {
                     // Stores access token & refresh token.
@@ -93,9 +92,11 @@ import { BrowserStorage } from './browser-storage';
                     // Tells all the subscribers about the new status.
                     this.signinStatus.next(true);
                 }
-            }).catch((error: any) => {
-                return Observable.throw(error);
-            });
+            }),
+            catchError((error: any) => {
+                return _throw(error);
+            })
+        );
     }
 
     /**
@@ -106,7 +107,7 @@ import { BrowserStorage } from './browser-storage';
         const source = this.authHttp.tokenStream.flatMap(
             (token: string) => {
                 const delay: number = this.expiresIn - this.offsetSeconds * 1000;
-                return Observable.interval(delay);
+                return interval(delay);
             });
 
         this.refreshSubscription = source.subscribe(() => {
@@ -135,7 +136,7 @@ import { BrowserStorage } from './browser-storage';
                     const delay: number = exp - now - this.offsetSeconds * 1000;
 
                     // Uses the delay in a timer to run the refresh at the proper time.
-                    return Observable.timer(delay);
+                    return timer(delay);
                 });
 
             // Once the delay time from above is reached, gets a new JWT and schedules additional refreshes.
@@ -203,16 +204,18 @@ import { BrowserStorage } from './browser-storage';
 
         this.authTime = new Date().valueOf();
 
-        return this.http.post(tokenEndpoint, body, this.options)
-            .map((res: Response) => {
+        return this.http.post(tokenEndpoint, body, this.options).pipe(
+            map((res: Response) => {
                 const body: any = res.json();
                 if (typeof body.access_token !== "undefined") {
                     // Stores access token & refresh token.
                     this.store(body);
                 }
-            }).catch((error: any) => {
-                return Observable.throw(error);
-            });
+            }),
+            catchError((error: any) => {
+                return _throw(error);
+            })
+        );
     }
 
     /**
@@ -270,8 +273,9 @@ import { BrowserStorage } from './browser-storage';
      * Calls UserInfo endpoint to retrieve user's data.
      */
     public getUserInfo(): Observable<any> {
-        return this.authHttp.get(Config.USERINFO_ENDPOINT)
-            .map((res: any) => res.json());
+        return this.authHttp.get(Config.USERINFO_ENDPOINT).pipe(
+            map((res: any) => res.json())
+        );
     }
 
     public changeUser(userInfo: any): void {

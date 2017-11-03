@@ -3,6 +3,7 @@ const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ngToolsWebpack = require('@ngtools/webpack');
+const rxPaths = require('rxjs/_esm5/path-mapping');
 
 const environment = (process.env.NODE_ENV || "development").trim();
 
@@ -58,6 +59,7 @@ if (environment === "development") {
         },
 
         plugins: [
+            new webpack.optimize.ModuleConcatenationPlugin(),
             // Adds script for the bundle in index.html.
             new HtmlWebpackPlugin({
                 filename: 'index.html',
@@ -67,7 +69,8 @@ if (environment === "development") {
         ],
 
         resolve: {
-            extensions: ['.ts', '.js']
+            extensions: ['.ts', '.js'],
+            alias: rxPaths()
         },
 
         devtool: 'source-map',
@@ -95,8 +98,10 @@ if (environment === "development") {
         module: {
             rules: [
                 {
-                    test: /\.ts$/,
-                    use: '@ngtools/webpack'
+                    test: /(?:\.ngfactory\.js|\.ngstyle\.js|\.ts)$/,
+                    use: [
+                        '@ngtools/webpack'
+                    ]
                 },
                 {
                     test: /\.html$/,
@@ -124,10 +129,11 @@ if (environment === "development") {
         },
 
         plugins: [
-            // AoT plugin.
-            new ngToolsWebpack.AotPlugin({
+            // AngularCompilerPlugin.
+            new ngToolsWebpack.AngularCompilerPlugin({
                 tsConfigPath: './tsconfig-aot.json'
             }),
+            new webpack.optimize.ModuleConcatenationPlugin(),
             // Minimizes the bundle.
             new webpack.optimize.UglifyJsPlugin({
                 compress: {
@@ -147,7 +153,8 @@ if (environment === "development") {
         ],
 
         resolve: {
-            extensions: ['.ts', '.js']
+            extensions: ['.ts', '.js'],
+            alias: rxPaths()
         },
 
         devtool: false,

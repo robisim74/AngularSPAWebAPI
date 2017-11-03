@@ -1,6 +1,6 @@
 # Angular SPA Web API
 
-> **Angular 2+** Single Page Application with an ASP.NET Core Web API that uses token authentication. 
+> **Angular v5** Single Page Application with an ASP.NET Core Web API that uses token authentication. 
 > The OAuth 2.0 _Resource Owner Password Credentials grant_ (ROPC) is implemented using IdentityServer4 
 > and ASP.NET Core Identity as membership system with a SQLite database.
 
@@ -36,7 +36,6 @@ The same scenarios are also supported by [AspNet.Security.OpenIdConnect.Server](
 	- **DbInitializer.cs** _Provides method to populate the db_
 - **Models**
 	- **ApplicationUser.cs** _Profile data for application users_
-- **build.js** _Angular app building process for production_
 - **Config.cs** _IdentityServer4 configuration_
 - **IdentityDB.sqlite** _SQLite database_
 - **package.json** _Packages for Angular app_

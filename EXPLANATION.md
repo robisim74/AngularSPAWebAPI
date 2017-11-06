@@ -310,11 +310,13 @@ In this example, we use a scheduler to request a new _access token_ before it ex
  * Will schedule a refresh at the appropriate time.
  */
 public scheduleRefresh(): void {
-    const source = this.authHttp.tokenStream.flatMap(
-        (token: string) => {
-            const delay: number = this.expiresIn - this.offsetSeconds * 1000;
-            return interval(delay);
-        });
+    const source = this.authHttp.tokenStream.pipe(
+        flatMap(
+            (token: string) => {
+                const delay: number = this.expiresIn - this.offsetSeconds * 1000;
+                return interval(delay);
+            })
+    );
 
     this.refreshSubscription = source.subscribe(() => {
         this.getNewToken().subscribe(
@@ -335,15 +337,17 @@ public startupTokenRefresh(): void {
     // If the user is authenticated, uses the token stream
     // provided by angular2-jwt and flatMap the token.
     if (this.tokenNotExpired()) {
-        const source = this.authHttp.tokenStream.flatMap(
-            (token: string) => {
-                const now: number = new Date().valueOf();
-                const exp: number = this.getExpiry();
-                const delay: number = exp - now - this.offsetSeconds * 1000;
+        const source = this.authHttp.tokenStream.pipe(
+            flatMap(
+                (token: string) => {
+                    const now: number = new Date().valueOf();
+                    const exp: number = this.getExpiry();
+                    const delay: number = exp - now - this.offsetSeconds * 1000;
 
-                // Uses the delay in a timer to run the refresh at the proper time.
-                return timer(delay);
-            });
+                    // Uses the delay in a timer to run the refresh at the proper time.
+                    return timer(delay);
+                })
+        );
 
         // Once the delay time from above is reached, gets a new JWT and schedules additional refreshes.
         source.subscribe(() => {

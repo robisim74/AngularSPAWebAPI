@@ -3,7 +3,7 @@ import { Http, Headers, RequestOptions, Response } from '@angular/http';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { map, catchError } from 'rxjs/operators';
+import { map, catchError, flatMap } from 'rxjs/operators';
 import { _throw } from 'rxjs/observable/throw';
 import { interval } from 'rxjs/observable/interval';
 import { timer } from 'rxjs/observable/timer';
@@ -104,11 +104,13 @@ import { BrowserStorage } from './browser-storage';
      * Will schedule a refresh at the appropriate time.
      */
     public scheduleRefresh(): void {
-        const source = this.authHttp.tokenStream.flatMap(
-            (token: string) => {
-                const delay: number = this.expiresIn - this.offsetSeconds * 1000;
-                return interval(delay);
-            });
+        const source = this.authHttp.tokenStream.pipe(
+            flatMap(
+                (token: string) => {
+                    const delay: number = this.expiresIn - this.offsetSeconds * 1000;
+                    return interval(delay);
+                })
+        );
 
         this.refreshSubscription = source.subscribe(() => {
             this.getNewToken().subscribe(
@@ -129,15 +131,17 @@ import { BrowserStorage } from './browser-storage';
         // If the user is authenticated, uses the token stream
         // provided by angular2-jwt and flatMap the token.
         if (this.tokenNotExpired()) {
-            const source = this.authHttp.tokenStream.flatMap(
-                (token: string) => {
-                    const now: number = new Date().valueOf();
-                    const exp: number = this.getExpiry();
-                    const delay: number = exp - now - this.offsetSeconds * 1000;
+            const source = this.authHttp.tokenStream.pipe(
+                flatMap(
+                    (token: string) => {
+                        const now: number = new Date().valueOf();
+                        const exp: number = this.getExpiry();
+                        const delay: number = exp - now - this.offsetSeconds * 1000;
 
-                    // Uses the delay in a timer to run the refresh at the proper time.
-                    return timer(delay);
-                });
+                        // Uses the delay in a timer to run the refresh at the proper time.
+                        return timer(delay);
+                    })
+            );
 
             // Once the delay time from above is reached, gets a new JWT and schedules additional refreshes.
             source.subscribe(() => {

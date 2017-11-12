@@ -10,9 +10,9 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceRoot}/AngularSPAWebAPI/bin/Debug/netcoreapp2.0/AngularSPAWebAPI.dll",
+            "program": "${workspaceFolder}/bin/Debug/netcoreapp2.0/AngularSPAWebAPI.dll",
             "args": [],
-            "cwd": "${workspaceRoot}/AngularSPAWebAPI",
+            "cwd": "${workspaceFolder}",
             "stopAtEntry": false,
             "internalConsoleOptions": "openOnSessionStart",
             "launchBrowser": {
@@ -33,7 +33,7 @@
                 "ASPNETCORE_ENVIRONMENT": "Development"
             },
             "sourceFileMap": {
-                "/Views": "${workspaceRoot}/Views"
+                "/Views": "${workspaceFolder}/Views"
             }
         },
         {

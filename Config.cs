@@ -57,8 +57,8 @@ namespace AngularSPAWebAPI
                     RefreshTokenExpiration = TokenExpiration.Sliding,
                     AllowedCorsOrigins = new List<string>
                     {
-                         "http://localhost:4200"
-                    }
+                        "http://localhost:4200"
+                    } // Only for development.
                 }
             };
         }

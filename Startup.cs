@@ -70,7 +70,7 @@ namespace AngularSPAWebAPI
             services.AddIdentityServer()
                 // The AddDeveloperSigningCredential extension creates temporary key material for signing tokens.
                 // This might be useful to get started, but needs to be replaced by some persistent key material for production scenarios.
-                // See the http://docs.identityserver.io/en/release/topics/crypto.html#refcrypto for more information.
+                // See http://docs.identityserver.io/en/release/topics/crypto.html#refcrypto for more information.
                 .AddDeveloperSigningCredential()
                 .AddInMemoryPersistedGrants()
                 // To configure IdentityServer to use EntityFramework (EF) as the storage mechanism for configuration data (rather than using the in-memory implementations),
@@ -119,7 +119,7 @@ namespace AngularSPAWebAPI
                         //
                     }
                     npmProcess.Start();
-                    
+
                     // Registers the application shutdown event.
                     var applicationLifetime = app.ApplicationServices.GetRequiredService<IApplicationLifetime>();
                     applicationLifetime.ApplicationStopping.Register(OnShutDown);

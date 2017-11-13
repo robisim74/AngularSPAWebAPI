@@ -1,7 +1,7 @@
 # Angular SPA Web API - Explanation
 
 ### Configuring the ASP.NET Core Web API & IdentityServer4
-Let's see what the _Config.cs_ file contains for configuring IdentityServer4. The following is the identification of our client app:
+Let's see what the _Config.cs_ file contains for configuring _IdentityServer4_. The following is the identification of our client app:
 ```C#
 // Clients want to access resources.
 public static IEnumerable<Client> GetClients()
@@ -22,14 +22,18 @@ public static IEnumerable<Client> GetClients()
             AllowedScopes = {
                 IdentityServerConstants.StandardScopes.OpenId, // For UserInfo endpoint.
                 IdentityServerConstants.StandardScopes.Profile,
-                "WebAPI",
-                "roles"
+                "roles",
+                "WebAPI"
             },
             AllowOfflineAccess = true, // For refresh token.
             RefreshTokenUsage = TokenUsage.OneTimeOnly,
             AbsoluteRefreshTokenLifetime = 7200,
             SlidingRefreshTokenLifetime = 900,
-            RefreshTokenExpiration = TokenExpiration.Sliding
+            RefreshTokenExpiration = TokenExpiration.Sliding,
+            AllowedCorsOrigins = new List<string>
+            {
+                "http://localhost:4200"
+            } // Only for development.
         }
     };
 }
@@ -67,7 +71,6 @@ public static IEnumerable<ApiResource> GetApiResources()
     };
 }
 ```
-Note that we can define which user claims will be included in the access token.
 
 We add IdentityServer in _ConfigureServices_ method of _Startup.cs_ file:
 ```C#
@@ -75,7 +78,7 @@ We add IdentityServer in _ConfigureServices_ method of _Startup.cs_ file:
 services.AddIdentityServer()
     // The AddDeveloperSigningCredential extension creates temporary key material for signing tokens.
     // This might be useful to get started, but needs to be replaced by some persistent key material for production scenarios.
-    // See the http://docs.identityserver.io/en/release/topics/crypto.html#refcrypto for more information.
+    // See http://docs.identityserver.io/en/release/topics/crypto.html#refcrypto for more information.
     .AddDeveloperSigningCredential()
     .AddInMemoryPersistedGrants()
     // To configure IdentityServer to use EntityFramework (EF) as the storage mechanism for configuration data (rather than using the in-memory implementations),
@@ -160,7 +163,7 @@ and to _Values_ controller, that returns the resources for the authenticated use
 public class ValuesController : Controller
 ...
 ```
-Recall: when we have defined our _APIResource_, we have included the user claim _role_ to allow the user to access the resources.
+When we have defined our _APIResource_, we have included the user claim _role_ to allow the user to access the resources.
 
 Finally, we set the startup on the entry point of the client application:
 ```C#
@@ -257,76 +260,31 @@ client_id=AngularSPA&grant_type=refresh_token&refresh_token=f78a2edc...
 ### Implementing the Angular SPA
 Ok, how do we transform the requests done via Postman in an Angular app?
 
-In this sample, to send unauthenticated requests for signing in and signing up the user, we use the Angular _http_ module, 
-as in _AuthenticationService_ class:
-```TypeScript
-public signin(username: string, password: string): Observable<any> {
-    const tokenEndpoint: string = Config.TOKEN_ENDPOINT;
+In this sample, we use [angular-oauth2-oidc](https://github.com/manfredsteyer/angular-oauth2-oidc) library to:
+ - load the discovery document
+ - get the access token
+ - get the refresh token 
+ - get the user info
 
-    const params: any = {
-        client_id: Config.CLIENT_ID,
-        grant_type: Config.GRANT_TYPE,
-        username: username,
-        password: password,
-        scope: Config.SCOPE
-    };
-
-    const body: string = this.encodeParams(params);
-
-    this.authTime = new Date().valueOf();
-
-    return this.http.post(tokenEndpoint, body, this.options).pipe(
-        map((res: Response) => {
-            const body: any = res.json();
-            if (typeof body.access_token !== "undefined") {
-                // Stores access token & refresh token.
-                this.store(body);
-                // Tells all the subscribers about the new status.
-                this.signinStatus.next(true);
-            }
-        }),
-        catchError((error: any) => {
-            return _throw(error);
-        })
-    );
-}
-```
-We send a request to _UserInfo_ endpoint to get the user's data 
-using angular2-jwt library, that builds for us the header with the authorization token:
-```TypeScript
-/**
- * Calls UserInfo endpoint to retrieve user's data.
- */
-public getUserInfo(): Observable<any> {
-    return this.authHttp.get(Config.USERINFO_ENDPOINT).pipe(
-        map((res: any) => res.json())
-    );
-}
-```
-In this example, we use a scheduler to request a new _access token_ before it expires through the _refresh token_:
+Then we use a scheduler to request a new _access token_ before it expires through the _refresh token_:
 ```TypeScript
 /**
  * Strategy for refresh token through a scheduler.
  * Will schedule a refresh at the appropriate time.
  */
 public scheduleRefresh(): void {
-    const source = this.authHttp.tokenStream.pipe(
-        flatMap(
-            (token: string) => {
-                const delay: number = this.expiresIn - this.offsetSeconds * 1000;
-                return interval(delay);
-            })
+    const source: Observable<number> = interval(
+        this.calcDelay(this.getAuthTime())
     );
 
     this.refreshSubscription = source.subscribe(() => {
-        this.getNewToken().subscribe(
-            () => {
+        this.oAuthService.refreshToken()
+            .then(() => {
                 // Scheduler works.
-            },
-            (error: any) => {
+            })
+            .catch((error: any) => {
                 this.handleRefreshTokenError();
-            }
-        );
+            });
     });
 }
 
@@ -334,107 +292,38 @@ public scheduleRefresh(): void {
  * Case when the user comes back to the app after closing it.
  */
 public startupTokenRefresh(): void {
-    // If the user is authenticated, uses the token stream
-    // provided by angular2-jwt and flatMap the token.
-    if (this.tokenNotExpired()) {
-        const source = this.authHttp.tokenStream.pipe(
-            flatMap(
-                (token: string) => {
-                    const now: number = new Date().valueOf();
-                    const exp: number = this.getExpiry();
-                    const delay: number = exp - now - this.offsetSeconds * 1000;
+    if (this.oAuthService.hasValidAccessToken()) {
+        const source: Observable<number> = timer(this.calcDelay(new Date().valueOf()));
 
-                    // Uses the delay in a timer to run the refresh at the proper time.
-                    return timer(delay);
-                })
-        );
-
-        // Once the delay time from above is reached, gets a new JWT and schedules additional refreshes.
+        // Once the delay time from above is reached, gets a new access token and schedules additional refreshes.
         source.subscribe(() => {
-            this.getNewToken().subscribe(
-                () => {
+            this.oAuthService.refreshToken()
+                .then(() => {
                     this.scheduleRefresh();
-                },
-                (error: any) => {
+                })
+                .catch((error: any) => {
                     this.handleRefreshTokenError();
-                }
-            );
+                });
         });
     }
 }
-
-/**
- * Tries to get a new token using refresh token.
- */
-public getNewToken(): Observable<any> {
-    const refreshToken: string = this.browserStorage.get("refresh_token");
-
-    const tokenEndpoint: string = Config.TOKEN_ENDPOINT;
-
-    const params: any = {
-        client_id: Config.CLIENT_ID,
-        grant_type: "refresh_token",
-        refresh_token: refreshToken
-    };
-
-    const body: string = this.encodeParams(params);
-
-    this.authTime = new Date().valueOf();
-
-    return this.http.post(tokenEndpoint, body, this.options).pipe(
-        map((res: Response) => {
-            const body: any = res.json();
-            if (typeof body.access_token !== "undefined") {
-                // Stores access token & refresh token.
-                this.store(body);
-            }
-        }),
-        catchError((error: any) => {
-            return _throw(error);
-        })
-    );
-}
 ```
 
-To send authenticated requests, as in _ResourcesComponent_ class, we still use angular2-jwt library:
+To send authenticated requests, as in _ResourcesComponent_ class, we add the token to the header:
 ```TypeScript
 // Sends an authenticated request.
-this.authHttp.get("/api/values")
-    .subscribe(
-    (res: any) => {
-        this.values = res.json();
+this.http
+    .get("/api/values", {
+        headers: this.authenticationService.getAuthorizationHeader()
+    })
+    .subscribe((data: any) => {
+        this.values = data;
     },
-    (error: any) => {
-        console.log(error);
+    (error: HttpErrorResponse) => {
+        if (error.error instanceof Error) {
+            console.log('An error occurred:', error.error.message);
+        } else {
+            console.log(`Backend returned code ${error.status}, body was: ${error.error}`);
+        }
     });
-```
-
-### Building the Angular app with AoT compilation & webpack
-For production, we build the Angular app with webpack & `@ngtools/webpack`. 
-To do this, in _webpack.config.js_ file we set as entry point _main-aot.ts_:
-```JavaScript
-// In production mode, we use AoT compilation, tree shaking & minification.
-module.exports = {
-    entry: {
-        'app-aot': './app/main-aot.ts'
-    },
-	...
-```
-and as output the _wwwroot_ folder (as set in _Startup.cs_):
-```JavaScript
-// We use long term caching.
-output: {
-    path: "./wwwroot/",
-    filename: "dist/[name].[hash].bundle.js",
-    chunkFilename: 'dist/[id].[hash].chunk.js'
-},
-```
-Finally, we ask webpack to insert the script of the bundle in our _index.html_:
-```JavaScript
-// Adds script for the bundle in index.html.
-new HtmlWebpackPlugin({
-    filename: 'index.html',
-    inject: 'body',
-    template: 'app/index.html'
-})
 ```

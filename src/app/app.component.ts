@@ -1,4 +1,4 @@
-﻿import { Component, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
@@ -37,6 +37,7 @@ export class AppComponent implements OnInit {
         //this.oAuthService.issuer = "http://angularspawebapi.azurewebsites.net";
         this.oAuthService.issuer = "http://localhost:5000";
         this.oAuthService.oidc = false;
+        this.oAuthService.requireHttps = false;
 
         //const url: string = 'http://angularspawebapi.azurewebsites.net/.well-known/openid-configuration';
         const url: string = 'http://localhost:5000/.well-known/openid-configuration';

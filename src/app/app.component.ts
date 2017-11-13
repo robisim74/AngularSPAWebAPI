@@ -42,14 +42,14 @@ export class AppComponent implements OnInit {
         const url: string = 'http://localhost:5000/.well-known/openid-configuration';
 
         // Loads Discovery Document.
-        this.oAuthService.loadDiscoveryDocument(url).then(() => {
-            if (this.oAuthService.hasValidAccessToken()) {
-                this.authenticationService.init();
+        this.oAuthService.loadDiscoveryDocument(url);
 
-                // Strategy for refresh token through a scheduler.
-                this.authenticationService.startupTokenRefresh();
-            }
-        });
+        if (this.oAuthService.hasValidAccessToken()) {
+            this.authenticationService.init();
+
+            // Strategy for refresh token through a scheduler.
+            this.authenticationService.startupTokenRefresh();
+        }
     }
 
     ngOnInit() {

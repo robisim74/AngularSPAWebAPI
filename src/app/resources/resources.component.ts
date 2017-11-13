@@ -1,6 +1,8 @@
 ﻿import { Component, OnInit } from '@angular/core';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
-import { AuthHttp } from 'angular2-jwt';
+import { AuthenticationService } from '../services/authentication.service';
+
 
 @Component({
     selector: 'app-resources',
@@ -11,17 +13,25 @@ export class ResourcesComponent implements OnInit {
 
     values: any;
 
-    constructor(private authHttp: AuthHttp) { }
+    constructor(
+        private http: HttpClient,
+        private authenticationService: AuthenticationService) { }
 
     ngOnInit() {
         // Sends an authenticated request.
-        this.authHttp.get("/api/values")
-            .subscribe(
-            (res: any) => {
-                this.values = res.json();
+        this.http
+            .get("/api/values", {
+                headers: this.authenticationService.getAuthorizationHeader()
+            })
+            .subscribe((data: any) => {
+                this.values = data;
             },
-            (error: any) => {
-                console.log(error);
+            (error: HttpErrorResponse) => {
+                if (error.error instanceof Error) {
+                    console.log('An error occurred:', error.error.message);
+                } else {
+                    console.log(`Backend returned code ${error.status}, body was: ${error.error}`);
+                }
             });
     }
 

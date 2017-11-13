@@ -1,5 +1,5 @@
 ﻿import { Injectable } from '@angular/core';
-import { Http, Headers, RequestOptions, Response } from '@angular/http';
+import { HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
@@ -8,16 +8,17 @@ import { _throw } from 'rxjs/observable/throw';
 import { interval } from 'rxjs/observable/interval';
 import { timer } from 'rxjs/observable/timer';
 
-import { AuthHttp } from 'angular2-jwt';
+import { OAuthService } from 'angular-oauth2-oidc';
 
-import { Config } from '../config';
 import { User } from '../models/user';
-import { BrowserStorage } from './browser-storage';
 
 /**
  * ROPC Authentication service.
  */
 @Injectable() export class AuthenticationService {
+
+    // Defines the storage.
+    public storage: Storage = localStorage;
 
     /**
      * Stores the URL so we can redirect after signing in.
@@ -27,14 +28,8 @@ import { BrowserStorage } from './browser-storage';
     /**
      * Behavior subjects of the user's status & data.
      */
-    private signinStatus = new BehaviorSubject<boolean>(this.tokenNotExpired());
-    private user = new BehaviorSubject<User>(this.getUser());
-
-    /**
-     * Token info.
-     */
-    private expiresIn: number;
-    private authTime: number;
+    private signinStatus = new BehaviorSubject<boolean>(false);
+    private user = new BehaviorSubject<User>(new User());
 
     /**
      * Scheduling of the refresh token.
@@ -46,259 +41,43 @@ import { BrowserStorage } from './browser-storage';
      */
     private offsetSeconds: number = 30;
 
-    private headers: Headers;
-    private options: RequestOptions;
-
     constructor(
         private router: Router,
-        private http: Http,
-        private authHttp: AuthHttp,
-        private browserStorage: BrowserStorage
-    ) {
-        // Creates header for post requests.
-        this.headers = new Headers({ 'Content-Type': 'application/x-www-form-urlencoded' });
-        this.options = new RequestOptions({ headers: this.headers });
+        private oAuthService: OAuthService
+    ) { }
 
-        if (!this.tokenNotExpired()) {
-            // Removes user's info.
-            this.browserStorage.remove("user_info");
-            // Revokes tokens.
-            this.revokeToken();
-            this.revokeRefreshToken();
-        }
-    }
-
-    public signin(username: string, password: string): Observable<any> {
-        const tokenEndpoint: string = Config.TOKEN_ENDPOINT;
-
-        const params: any = {
-            client_id: Config.CLIENT_ID,
-            grant_type: Config.GRANT_TYPE,
-            username: username,
-            password: password,
-            scope: Config.SCOPE
-        };
-
-        const body: string = this.encodeParams(params);
-
-        this.authTime = new Date().valueOf();
-
-        return this.http.post(tokenEndpoint, body, this.options).pipe(
-            map((res: Response) => {
-                const body: any = res.json();
-                if (typeof body.access_token !== "undefined") {
-                    // Stores access token & refresh token.
-                    this.store(body);
-                    // Tells all the subscribers about the new status.
-                    this.signinStatus.next(true);
-                }
-            }),
-            catchError((error: any) => {
-                return _throw(error);
-            })
-        );
-    }
-
-    /**
-     * Strategy for refresh token through a scheduler.
-     * Will schedule a refresh at the appropriate time.
-     */
-    public scheduleRefresh(): void {
-        const source = this.authHttp.tokenStream.pipe(
-            flatMap(
-                (token: string) => {
-                    const delay: number = this.expiresIn - this.offsetSeconds * 1000;
-                    return interval(delay);
-                })
-        );
-
-        this.refreshSubscription = source.subscribe(() => {
-            this.getNewToken().subscribe(
-                () => {
-                    // Scheduler works.
-                },
-                (error: any) => {
-                    this.handleRefreshTokenError();
-                }
-            );
-        });
-    }
-
-    /**
-     * Case when the user comes back to the app after closing it.
-     */
-    public startupTokenRefresh(): void {
-        // If the user is authenticated, uses the token stream
-        // provided by angular2-jwt and flatMap the token.
-        if (this.tokenNotExpired()) {
-            const source = this.authHttp.tokenStream.pipe(
-                flatMap(
-                    (token: string) => {
-                        const now: number = new Date().valueOf();
-                        const exp: number = this.getExpiry();
-                        const delay: number = exp - now - this.offsetSeconds * 1000;
-
-                        // Uses the delay in a timer to run the refresh at the proper time.
-                        return timer(delay);
-                    })
-            );
-
-            // Once the delay time from above is reached, gets a new JWT and schedules additional refreshes.
-            source.subscribe(() => {
-                this.getNewToken().subscribe(
-                    () => {
-                        this.scheduleRefresh();
-                    },
-                    (error: any) => {
-                        this.handleRefreshTokenError();
-                    }
-                );
-            });
-        }
-    }
-
-    /**
-     * Unsubscribes from the scheduling of the refresh token.
-     */
-    public unscheduleRefresh(): void {
-        if (this.refreshSubscription) {
-            this.refreshSubscription.unsubscribe();
-        }
-    }
-
-    /**
-     * Handles errors on refresh token, like expiration.
-     */
-    public handleRefreshTokenError(): void {
-        this.redirectUrl = this.router.url;
-
-        // Removes user's info.
-        this.browserStorage.remove("user_info");
-
+    public init(): void {
         // Tells all the subscribers about the new status & data.
-        this.signinStatus.next(false);
-        this.user.next(new User());
-
-        // Unschedules the refresh token.
-        this.unscheduleRefresh();
-
-        // Revokes tokens.
-        this.revokeToken();
-        this.revokeRefreshToken();
-
-        // The user is forced to sign in again.
-        this.router.navigate(['/account/signin']);
+        this.signinStatus.next(true);
+        this.user.next(this.getUser());
     }
 
-    /**
-     * Tries to get a new token using refresh token.
-     */
-    public getNewToken(): Observable<any> {
-        const refreshToken: string = this.browserStorage.get("refresh_token");
-
-        const tokenEndpoint: string = Config.TOKEN_ENDPOINT;
-
-        const params: any = {
-            client_id: Config.CLIENT_ID,
-            grant_type: "refresh_token",
-            refresh_token: refreshToken
-        };
-
-        const body: string = this.encodeParams(params);
-
-        this.authTime = new Date().valueOf();
-
-        return this.http.post(tokenEndpoint, body, this.options).pipe(
-            map((res: Response) => {
-                const body: any = res.json();
-                if (typeof body.access_token !== "undefined") {
-                    // Stores access token & refresh token.
-                    this.store(body);
-                }
-            }),
-            catchError((error: any) => {
-                return _throw(error);
-            })
-        );
-    }
-
-    /**
-     * Revokes token.
-     */
-    public revokeToken(): void {
-        this.browserStorage.remove("id_token");
-        this.browserStorage.remove("expires");
-    }
-
-    public revokeRefreshToken(): void {
-        const refreshToken: string = this.browserStorage.get("refresh_token");
-
-        if (refreshToken != null) {
-            const revocationEndpoint: string = Config.REVOCATION_ENDPOINT;
-
-            const params: any = {
-                client_id: Config.CLIENT_ID,
-                token_type_hint: "refresh_token",
-                token: refreshToken
-            };
-
-            const body: string = this.encodeParams(params);
-
-            this.http.post(revocationEndpoint, body, this.options)
-                .subscribe(
-                () => {
-                    this.browserStorage.remove("refresh_token");
-                });
-        }
-    }
-
-    /**
-     * Removes user and revokes tokens.
-     */
     public signout(): void {
+        this.oAuthService.logOut(true);
+
         this.redirectUrl = null;
 
-        // Removes user's info.
-        this.browserStorage.remove("user_info");
-
         // Tells all the subscribers about the new status & data.
         this.signinStatus.next(false);
         this.user.next(new User());
 
         // Unschedules the refresh token.
         this.unscheduleRefresh();
-
-        // Revokes tokens.
-        this.revokeToken();
-        this.revokeRefreshToken();
     }
 
-    /**
-     * Calls UserInfo endpoint to retrieve user's data.
-     */
-    public getUserInfo(): Observable<any> {
-        return this.authHttp.get(Config.USERINFO_ENDPOINT).pipe(
-            map((res: any) => res.json())
-        );
+    public getAuthorizationHeader(): HttpHeaders {
+        // Creates header for the auth requests.
+        let headers: HttpHeaders = new HttpHeaders().set('Content-Type', 'application/json');
+        headers = headers.append('Accept', 'application/json');
+
+        const token: string = this.oAuthService.getAccessToken();
+        if (token !== '') {
+            const tokenValue: string = 'Bearer ' + token;
+            headers = headers.append('Authorization', tokenValue);
+        }
+        return headers;
     }
 
-    public changeUser(userInfo: any): void {
-        const user: User = new User();
-
-        user.givenName = userInfo.given_name;
-        user.familyName = userInfo.family_name;
-        user.userName = userInfo.name;
-        user.roles = userInfo.role;
-
-        // Stores user info.
-        this.storeUser(user);
-        // Tells all the subscribers about the new data.
-        this.user.next(user);
-    }
-
-    /**
-     * Checks if user is signed in.
-     */
     public isSignedIn(): Observable<boolean> {
         return this.signinStatus.asObservable();
     }
@@ -307,67 +86,99 @@ import { BrowserStorage } from './browser-storage';
         return this.user.asObservable();
     }
 
-    /**
-     * Checks if user is in the given role.
-     */
     public isInRole(role: string): boolean {
         const user: User = this.getUser();
         const roles: string[] = user && typeof user.roles !== "undefined" ? user.roles : [];
         return roles.indexOf(role) != -1;
     }
 
-    /**
-     * Checks for presence of token and that token hasn't expired.
-     */
-    private tokenNotExpired(): boolean {
-        const token: string = this.browserStorage.get("id_token");
-        return token != null && (this.getExpiry() > new Date().valueOf());
-    }
+    public getUser(): User {
+        const user: User = new User();
+        if (this.oAuthService.hasValidAccessToken()) {
+            const userInfo: any = this.oAuthService.getIdentityClaims();
 
-    private encodeParams(params: any): string {
-        let body: string = "";
-        for (const key in params) {
-            if (body.length) {
-                body += "&";
-            }
-            body += key + "=";
-            body += encodeURIComponent(params[key]);
+            user.givenName = userInfo.given_name;
+            user.familyName = userInfo.family_name;
+            user.userName = userInfo.name;
+            user.roles = userInfo.role;
         }
-        return body;
+        return user;
     }
 
     /**
-     * Stores access token & refresh token.
+     * Strategy for refresh token through a scheduler.
+     * Will schedule a refresh at the appropriate time.
      */
-    private store(body: any): void {
-        this.browserStorage.set("id_token", body.access_token);
-        this.browserStorage.set("refresh_token", body.refresh_token);
+    public scheduleRefresh(): void {
+        const source: Observable<number> = interval(
+            this.calcDelay(this.getAuthTime())
+        );
 
-        // Calculates token expiration.
-        this.expiresIn = body.expires_in as number * 1000; // To milliseconds.
-        this.storeExpiry(this.authTime + this.expiresIn);
+        this.refreshSubscription = source.subscribe(() => {
+            this.oAuthService.refreshToken()
+                .then(() => {
+                    // Scheduler works.
+                })
+                .catch((error: any) => {
+                    this.handleRefreshTokenError();
+                });
+        });
     }
 
     /**
-     * Returns token expiration in milliseconds.
+     * Case when the user comes back to the app after closing it.
      */
-    private getExpiry(): number {
-        return parseInt(this.browserStorage.get("expires"));
-    }
+    public startupTokenRefresh(): void {
+        if (this.oAuthService.hasValidAccessToken()) {
+            const source: Observable<number> = timer(this.calcDelay(new Date().valueOf()));
 
-    private storeExpiry(exp: number): void {
-        this.browserStorage.set("expires", exp.toString());
-    }
-
-    private getUser(): User {
-        if (this.tokenNotExpired()) {
-            return JSON.parse(this.browserStorage.get("user_info"));
+            // Once the delay time from above is reached, gets a new access token and schedules additional refreshes.
+            source.subscribe(() => {
+                this.oAuthService.refreshToken()
+                    .then(() => {
+                        this.scheduleRefresh();
+                    })
+                    .catch((error: any) => {
+                        this.handleRefreshTokenError();
+                    });
+            });
         }
-        return new User();
     }
 
-    private storeUser(user: User): void {
-        this.browserStorage.set("user_info", JSON.stringify(user));
+    /**
+     * Unsubscribes from the scheduling of the refresh token.
+     */
+    private unscheduleRefresh(): void {
+        if (this.refreshSubscription) {
+            this.refreshSubscription.unsubscribe();
+        }
+    }
+
+    /**
+     * Handles errors on refresh token, like expiration.
+     */
+    private handleRefreshTokenError(): void {
+        this.redirectUrl = this.router.url;
+
+        // Tells all the subscribers about the new status & data.
+        this.signinStatus.next(false);
+        this.user.next(new User());
+
+        // Unschedules the refresh token.
+        this.unscheduleRefresh();
+
+        // The user is forced to sign in again.
+        this.router.navigate(['/account/signin']);
+    }
+
+    private calcDelay(time: number): number {
+        const expiresAt: number = this.oAuthService.getAccessTokenExpiration();
+        const delay: number = expiresAt - time - this.offsetSeconds * 1000;
+        return delay > 0 ? delay : 0;
+    }
+
+    private getAuthTime(): number {
+        return parseInt(this.storage.getItem('access_token_stored_at'), 10);
     }
 
 }

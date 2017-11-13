@@ -1,11 +1,11 @@
 ﻿import { Injectable } from '@angular/core';
-import { Http, Headers, RequestOptions, Response } from '@angular/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import { map, catchError } from 'rxjs/operators';
 import { _throw } from 'rxjs/observable/throw';
 
-import { AuthHttp } from 'angular2-jwt';
+import { AuthenticationService } from './authentication.service';
 
 /**
  * Identity service (to Identity Web API controller).
@@ -14,26 +14,29 @@ import { AuthHttp } from 'angular2-jwt';
 
     public users: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
 
-    private headers: Headers;
-    private options: RequestOptions;
-
-    constructor(private authHttp: AuthHttp, private http: Http) {
-        // Creates header for post requests.
-        this.headers = new Headers({ 'Content-Type': 'application/json' });
-        this.options = new RequestOptions({ headers: this.headers });
+    constructor(
+        private http: HttpClient,
+        private authenticationService: AuthenticationService) {
     }
 
     /**
-     * Gets all users through AuthHttp.
+     * Gets all users.
      */
     public getAll(): void {
         // Sends an authenticated request.
-        this.authHttp.get("/api/identity/GetAll")
-            .subscribe((value: any) => {
-                this.users.next(value.json());
+        this.http
+            .get("/api/identity/GetAll", {
+                headers: this.authenticationService.getAuthorizationHeader()
+            })
+            .subscribe((data: any) => {
+                this.users.next(data);
             },
-            (error: any) => {
-                console.log(error);
+            (error: HttpErrorResponse) => {
+                if (error.error instanceof Error) {
+                    console.log('An error occurred:', error.error.message);
+                } else {
+                    console.log(`Backend returned code ${error.status}, body was: ${error.error}`);
+                }
             });
     }
 
@@ -45,18 +48,20 @@ import { AuthHttp } from 'angular2-jwt';
     public create(model: any): Observable<any> {
         const body: string = JSON.stringify(model);
 
-        return this.http.post("/api/identity/Create", body, this.options).pipe(
-            map((res: Response) => {
-                return res.json();
+        // Sends an authenticated request.
+        return this.http.post("/api/identity/Create", body, {
+            headers: new HttpHeaders().set('Content-Type', 'application/json')
+        }).pipe(
+            map((response: Response) => {
+                return response;
             }),
             catchError((error: any) => {
                 return _throw(error);
-            })
-        );
+            }));
     }
 
     /**
-     * Deletes a user through AuthHttp.
+     * Deletes a user.
      * @param username Username of the user
      * @return An IdentityResult
      */
@@ -64,13 +69,20 @@ import { AuthHttp } from 'angular2-jwt';
         const body: string = JSON.stringify(username);
 
         // Sends an authenticated request.
-        this.authHttp.post("/api/identity/Delete", body, this.options)
+        this.http
+            .post("/api/identity/Delete", body, {
+                headers: this.authenticationService.getAuthorizationHeader()
+            })
             .subscribe(() => {
                 // Refreshes the users.
                 this.getAll();
             },
-            (error: any) => {
-                console.log(error);
+            (error: HttpErrorResponse) => {
+                if (error.error instanceof Error) {
+                    console.log('An error occurred:', error.error.message);
+                } else {
+                    console.log(`Backend returned code ${error.status}, body was: ${error.error}`);
+                }
             });
     }
 

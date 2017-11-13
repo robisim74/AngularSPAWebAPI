@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using AngularSPAWebAPI.Data;
 using AngularSPAWebAPI.Models;
 using AngularSPAWebAPI.Services;
@@ -102,16 +103,23 @@ namespace AngularSPAWebAPI
                 // Starts "npm start" command.
                 try
                 {
-                    npmProcess = new Process
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                     {
-                        StartInfo = new ProcessStartInfo
+                        npmProcess = new Process
                         {
-                            FileName = "cmd.exe",
-                            Arguments = "/C npm start",
-                            UseShellExecute = false
-                        }
-                    };
+                            StartInfo = new ProcessStartInfo("cmd.exe", "/C npm start") { UseShellExecute = false }
+                        };
+                    }
+                    else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                    {
+                        //
+                    }
+                    else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                    {
+                        //
+                    }
                     npmProcess.Start();
+                    
                     // Registers the application shutdown event.
                     var applicationLifetime = app.ApplicationServices.GetRequiredService<IApplicationLifetime>();
                     applicationLifetime.ApplicationStopping.Register(OnShutDown);

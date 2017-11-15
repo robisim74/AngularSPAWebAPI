@@ -37,6 +37,8 @@ The structure of the project is based on [Angular CLI ASP.NET Core](https://gith
 	- **ValuesController.cs** _Resources APIs_
 - **Data** _Entity Framework_ migrations
 	- **DbInitializer.cs** _Provides method to populate the db_
+- **Extensions**
+	- **ShellExtensions.cs** _Extension to run npm commands in dev environment_
 - **Models**
 	- **ApplicationUser.cs** _Profile data for application users_
 - **Properties**

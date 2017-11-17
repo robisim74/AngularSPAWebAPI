@@ -25,7 +25,7 @@
       },
       "applicationUrl": "http://localhost:5000/"
     },
-    "AngularSPAWebAPI_Prod": {
+    "AngularSPAWebAPI_Staging": {
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {

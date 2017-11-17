@@ -16,9 +16,12 @@ namespace AngularSPAWebAPI
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        private readonly IHostingEnvironment currentEnvironment;
+
+        public Startup(IConfiguration configuration, IHostingEnvironment env)
         {
             Configuration = configuration;
+            currentEnvironment = env;
         }
 
         public IConfiguration Configuration { get; }
@@ -76,15 +79,28 @@ namespace AngularSPAWebAPI
                 .AddInMemoryClients(Config.GetClients())
                 .AddAspNetIdentity<ApplicationUser>(); // IdentityServer4.AspNetIdentity.
 
-            services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
-                .AddIdentityServerAuthentication(options =>
-                {
-                    options.Authority = "http://localhost:5000/";
-                    //options.Authority = "http://angularspawebapi.azurewebsites.net/";
-                    options.RequireHttpsMetadata = false;
+            if (currentEnvironment.IsProduction())
+            {
+                services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
+                    .AddIdentityServerAuthentication(options =>
+                    {
+                        options.Authority = "http://angularspawebapi.azurewebsites.net/";
+                        options.RequireHttpsMetadata = false;
 
-                    options.ApiName = "WebAPI";
-                });
+                        options.ApiName = "WebAPI";
+                    });
+            }
+            else
+            {
+                services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
+                    .AddIdentityServerAuthentication(options =>
+                    {
+                        options.Authority = "http://localhost:5000/";
+                        options.RequireHttpsMetadata = false;
+
+                        options.ApiName = "WebAPI";
+                    });
+            }
 
             services.AddMvc();
         }

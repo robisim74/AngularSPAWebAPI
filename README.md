@@ -27,6 +27,7 @@ you should use an OpenID Connect implicit flow.
 - Resource Owner Password Credentials grant
 - Refresh token
 - Role based Authorization
+- Development, Staging & Production environments
 
 ## Project structure
 The structure of the project is based on [Angular CLI ASP.NET Core](https://github.com/robisim74/AngularCliAspNetCore).
@@ -87,10 +88,14 @@ The structure of the project is based on [Angular CLI ASP.NET Core](https://gith
 
 Make the changes to the Angular app: the browser will update without refreshing.
 
-#### Staging / Production
-- `npm run build`
+#### Staging
+- `npm run build:staging`
 - Set _Staging_ as environment variable
 - `dotnet run --no-launch-profile`
+
+#### Production
+- `npm run build:prod`
+- Publish
 
 ### Visual Studio 2017
 
@@ -101,10 +106,14 @@ Make the changes to the Angular app: the browser will update without refreshing.
 
 Make the changes to the Angular app: the browser will update without refreshing.
 
-#### Staging / Production
-- `npm run build`
-- Select _AngularSPAWebAPI_Prod_ profile
+#### Staging
+- `npm run build:staging`
+- Select _AngularSPAWebAPI_Staging_ profile
 - Start debugging
+
+#### Production
+- `npm run build:prod`
+- Publish
 
 ## Changing db
 To use another database:

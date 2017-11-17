@@ -1,4 +1,4 @@
-﻿import { NgModule } from '@angular/core';
+﻿import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { BrowserModule, Title } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
@@ -13,6 +13,11 @@ import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
 
 import { OAuthModule } from 'angular-oauth2-oidc';
+import { OAuthConfig } from './oauth.config';
+
+export function initOAuth(oAuthConfig: OAuthConfig): Function {
+    return () => oAuthConfig.load();
+}
 
 @NgModule({
     imports: [
@@ -30,6 +35,13 @@ import { OAuthModule } from 'angular-oauth2-oidc';
     ],
     providers: [
         Title,
+        OAuthConfig,
+        {
+            provide: APP_INITIALIZER,
+            useFactory: initOAuth,
+            deps: [OAuthConfig],
+            multi: true
+        },
         AuthGuard,
         AuthenticationService,
         IdentityService

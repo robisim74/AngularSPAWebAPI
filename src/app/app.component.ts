@@ -30,21 +30,6 @@ export class AppComponent implements OnInit {
         private authenticationService: AuthenticationService,
         private router: Router
     ) {
-        // angular-oauth2-oidc configuration.
-        this.oAuthService.clientId = "AngularSPA";
-        this.oAuthService.scope = "openid offline_access WebAPI profile roles";
-        this.oAuthService.setStorage(this.authenticationService.storage);
-        //this.oAuthService.issuer = "http://angularspawebapi.azurewebsites.net";
-        this.oAuthService.issuer = "http://localhost:5000";
-        this.oAuthService.oidc = false;
-        this.oAuthService.requireHttps = false;
-
-        //const url: string = 'http://angularspawebapi.azurewebsites.net/.well-known/openid-configuration';
-        const url: string = 'http://localhost:5000/.well-known/openid-configuration';
-
-        // Loads Discovery Document.
-        this.oAuthService.loadDiscoveryDocument(url);
-
         if (this.oAuthService.hasValidAccessToken()) {
             this.authenticationService.init();
 

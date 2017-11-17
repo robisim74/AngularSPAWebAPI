@@ -1,5 +1,9 @@
 ## Angular SPA Web API Changelog
 
+<a name="Nov 17, 2017"></a>
+### Nov 17, 2017
+* Create different environments for Staging & Production
+
 <a name="Nov 12-13, 2017"></a>
 ### Nov 12-13, 2017
 * Switch to angular-oauth2-oidc

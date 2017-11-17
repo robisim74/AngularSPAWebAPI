@@ -17,7 +17,7 @@ import { User } from '../models/user';
  */
 @Injectable() export class AuthenticationService {
 
-    // Defines the storage.
+    // As in OAuthConfig.
     public storage: Storage = localStorage;
 
     /**

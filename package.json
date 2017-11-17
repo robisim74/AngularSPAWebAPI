@@ -5,7 +5,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --aot --proxy-config proxy.config.js --hmr -e=hmr",
-    "build": "ng build --prod",
+    "build:staging": "ng build --prod --env=staging",
+    "build:prod": "ng build --prod",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"

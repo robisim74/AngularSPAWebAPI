@@ -27,4 +27,13 @@
     <Folder Include="Properties\PublishProfiles\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="wwwroot\**\*" CopyToPublishDirectory="PreserveNewest" />
+    <Content Update="e2e\*" CopyToPublishDirectory="Never" />
+    <Content Update="src\*" CopyToPublishDirectory="Never" />
+    <Content Update="package*.json" CopyToPublishDirectory="Never" />
+    <Content Update="?angular*.json" CopyToPublishDirectory="Never" />
+    <Content Update="ts*.json" CopyToPublishDirectory="Never" />
+  </ItemGroup>
+
 </Project>

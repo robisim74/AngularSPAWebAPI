@@ -116,20 +116,17 @@ Make the changes to the Angular app: the browser will update without refreshing.
 - Publish
 
 ## Changing db
-To use another database:
-- Edit `ConnectionStrings` in _appsettings.json_
+To use another database, for example _SQLServer_:
 - Edit in _Startup.cs_:
 ```C#
 services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 ```
-
-## EF Core commands
-
-### Command line & .NET Core CLI
-```Shell
-dotnet ef migrations add [Name] -o Data/Migrations
-dotnet ef database update
+- Edit `ConnectionStrings` in _appsettings.json_:
+```Json
+"ConnectionStrings": {
+  "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=IdentityDB;Trusted_Connection=True;MultipleActiveResultSets=true"
+}
 ```
 
 ## License

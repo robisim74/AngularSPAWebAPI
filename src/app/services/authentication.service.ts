@@ -3,8 +3,6 @@ import { HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { map, catchError, flatMap } from 'rxjs/operators';
-import { _throw } from 'rxjs/observable/throw';
 import { interval } from 'rxjs/observable/interval';
 import { timer } from 'rxjs/observable/timer';
 

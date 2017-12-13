@@ -1,7 +1,7 @@
 ﻿import { Injectable } from '@angular/core';
 import { Router, CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
-import { map, flatMap } from 'rxjs/operators';
+import { map, concatMap } from 'rxjs/operators';
 
 import { AuthenticationService } from './authentication.service';
 
@@ -17,7 +17,7 @@ import { AuthenticationService } from './authentication.service';
     public canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> | boolean {
         return this.authenticationService.isSignedIn().pipe(
             map((signedIn: boolean) => { this.signedIn = signedIn; }),
-            flatMap(() => this.authenticationService.userChanged().pipe(
+            concatMap(() => this.authenticationService.userChanged().pipe(
                 map(() => {
                     const url: string = state.url;
 

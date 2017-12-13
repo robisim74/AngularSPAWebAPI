@@ -57,7 +57,7 @@ The structure of the project is based on [Angular CLI ASP.NET Core](https://gith
 - Requirements
 	- At least [.NET Core 2.0](https://www.microsoft.com/net/download/core)
 	- [Node.js and npm](https://docs.npmjs.com/getting-started/installing-node)
-    - At least [Angular CLI 1.5.0](https://github.com/angular/angular-cli)
+    - At least [Angular CLI 1.6.0](https://github.com/angular/angular-cli)
 - Edit `ConnectionStrings` in _appsettings.json_
 
 #### Command line & .NET Core CLI

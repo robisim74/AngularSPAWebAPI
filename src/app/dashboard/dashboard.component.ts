@@ -1,8 +1,28 @@
-﻿import { Component, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { DataSource } from '@angular/cdk/collections';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 
 import { IdentityService } from '../services/identity.service';
+
+/**
+ * Data source to provide data rendered in the table.
+ */
+export class UsersDataSource extends DataSource<any> {
+    constructor(private identityService: IdentityService) {
+        super();
+    }
+
+    /**
+     * Connect function called by the table to retrieve one stream containing the data to render.
+     */
+    connect(): Observable<any[]> {
+        return this.identityService.users;
+    }
+
+    disconnect() {
+        //
+    }
+}
 
 @Component({
     selector: 'app-dashboard',
@@ -25,24 +45,4 @@ export class DashboardComponent implements OnInit {
         this.identityService.delete(username);
     }
 
-}
-
-/**
- * Data source to provide data rendered in the table.
- */
-export class UsersDataSource extends DataSource<any> {
-    constructor(private identityService: IdentityService) {
-        super();
-    }
-
-    /**
-     * Connect function called by the table to retrieve one stream containing the data to render.
-     */
-    connect(): Observable<any[]> {
-        return this.identityService.users;
-    }
-
-    disconnect() {
-        //
-    }
 }

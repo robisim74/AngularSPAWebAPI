@@ -1,6 +1,6 @@
 # Angular SPA Web API
 
-> **Angular v5** Single Page Application with an ASP.NET Core Web API that uses token authentication. 
+> **Angular v6** Single Page Application with an ASP.NET Core Web API that uses token authentication. 
 > The OAuth 2.0 [Resource Owner Password Credentials grant](https://tools.ietf.org/html/rfc6749#section-4.3) (ROPC) is implemented using IdentityServer4 
 > and ASP.NET Core Identity as membership system with a SQLite database.
 
@@ -14,7 +14,7 @@ Get the [Changelog](https://github.com/robisim74/AngularSPAWebAPI/blob/master/CH
 you should use an OpenID Connect implicit flow.
 
 ## Features
-- Angular v5 & ASP.NET Core 2
+- Angular v6 & ASP.NET Core 2
 - Angular CLI
 - AoT compilation in development & production mode
 - Angular CLI, .NET Core CLI or Visual Studio 2017
@@ -57,7 +57,7 @@ The structure of the project is based on [Angular CLI ASP.NET Core](https://gith
 - Requirements
 	- At least [.NET Core 2.0](https://www.microsoft.com/net/download/core)
 	- [Node.js and npm](https://docs.npmjs.com/getting-started/installing-node)
-    - At least [Angular CLI 1.6.0](https://github.com/angular/angular-cli)
+    - At least [Angular CLI 6.0.0](https://github.com/angular/angular-cli)
 - Edit `ConnectionStrings` in _appsettings.json_
 
 #### Command line & .NET Core CLI
@@ -83,7 +83,7 @@ The structure of the project is based on [Angular CLI ASP.NET Core](https://gith
 ### Command line & .NET Core CLI
 
 #### Development
-- Set _Development_ as environment variable: [Working with multiple environments](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments)
+- Set _Development_ as environment variable: [Working with multiple environments](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments?view=aspnetcore-2.0#setting-the-environment)
 - `dotnet watch run`
 
 Make the changes to the Angular app: the browser will update without refreshing.

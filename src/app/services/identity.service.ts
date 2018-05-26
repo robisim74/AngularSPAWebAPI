@@ -1,9 +1,7 @@
-﻿import { Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { Observable } from 'rxjs/Observable';
+import { BehaviorSubject, Observable, throwError as _throw } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
-import { _throw } from 'rxjs/observable/throw';
 
 import { AuthenticationService } from './authentication.service';
 
@@ -31,13 +29,13 @@ import { AuthenticationService } from './authentication.service';
             .subscribe((data: any) => {
                 this.users.next(data);
             },
-            (error: HttpErrorResponse) => {
-                if (error.error instanceof Error) {
-                    console.log('An error occurred:', error.error.message);
-                } else {
-                    console.log(`Backend returned code ${error.status}, body was: ${error.error}`);
-                }
-            });
+                (error: HttpErrorResponse) => {
+                    if (error.error instanceof Error) {
+                        console.log('An error occurred:', error.error.message);
+                    } else {
+                        console.log(`Backend returned code ${error.status}, body was: ${error.error}`);
+                    }
+                });
     }
 
     /**
@@ -77,13 +75,13 @@ import { AuthenticationService } from './authentication.service';
                 // Refreshes the users.
                 this.getAll();
             },
-            (error: HttpErrorResponse) => {
-                if (error.error instanceof Error) {
-                    console.log('An error occurred:', error.error.message);
-                } else {
-                    console.log(`Backend returned code ${error.status}, body was: ${error.error}`);
-                }
-            });
+                (error: HttpErrorResponse) => {
+                    if (error.error instanceof Error) {
+                        console.log('An error occurred:', error.error.message);
+                    } else {
+                        console.log(`Backend returned code ${error.status}, body was: ${error.error}`);
+                    }
+                });
     }
 
     // Add other methods.

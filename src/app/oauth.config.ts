@@ -11,7 +11,7 @@ export const oAuthDevelopmentConfig: AuthConfig = {
     issuer: "http://localhost:5000",
     requireHttps: false
 
-}
+};
 
 export const oAuthProductionConfig: AuthConfig = {
 
@@ -21,7 +21,7 @@ export const oAuthProductionConfig: AuthConfig = {
     issuer: "http://angularspawebapi.azurewebsites.net",
     requireHttps: false
 
-}
+};
 
 /**
  * angular-oauth2-oidc configuration.
@@ -31,7 +31,7 @@ export const oAuthProductionConfig: AuthConfig = {
     constructor(private oAuthService: OAuthService) { }
 
     load(): Promise<object> {
-        let url: string
+        let url: string;
 
         if (environment.production) {
             // Production environment.

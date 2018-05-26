@@ -1,5 +1,9 @@
 ## Angular SPA Web API Changelog
 
+<a name="May 26, 2018"></a>
+### May 26, 2018
+* Upgrade to Angular v6
+
 <a name="Nov 17, 2017"></a>
 ### Nov 17, 2017
 * Create different environments for Staging & Production

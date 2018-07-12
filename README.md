@@ -46,7 +46,7 @@ The structure of the project is based on [Angular CLI ASP.NET Core](https://gith
 	- **lanchSettings.json** _ASP.NET Core environments_
 - **src** _Angular application_
 - **wwwroot** _Root for Angular application deployment_
-- **.angular-cli.json** _Angular CLI configuration_
+- **angular.json** _Angular CLI configuration_
 - **Config.cs** _IdentityServer4 configuration_
 - **IdentityDB.sqlite** _SQLite database_
 - **package.json** _Packages for Angular app_
@@ -56,7 +56,7 @@ The structure of the project is based on [Angular CLI ASP.NET Core](https://gith
 ## Installing
 - Requirements
 	- At least [.NET Core 2.0](https://www.microsoft.com/net/download/core)
-	- [Node.js and npm](https://docs.npmjs.com/getting-started/installing-node)
+	- [Node.js and npm](https://nodejs.org)
     - At least [Angular CLI 6.0.0](https://github.com/angular/angular-cli)
 - Edit `ConnectionStrings` in _appsettings.json_
 

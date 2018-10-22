@@ -6,8 +6,6 @@
 
 Get the [Changelog](https://github.com/robisim74/AngularSPAWebAPI/blob/master/CHANGELOG.md).
 
-[Live example](http://angularspawebapi.azurewebsites.net) and its [explanation](https://github.com/robisim74/AngularSPAWebAPI/blob/master/EXPLANATION.md).
-
 > ROPC grant requires the use of SSL.
 
 > For more complex scenarios, where web services are required by more than one application or third-party applications, 

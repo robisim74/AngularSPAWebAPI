@@ -1,16 +1,22 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using AngularSPAWebAPI.Data;
 using AngularSPAWebAPI.Models;
-using AngularSPAWebAPI.Services;
-using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Microsoft.EntityFrameworkCore;
+using AngularSPAWebAPI.Services;
+using IdentityServer4.AccessTokenValidation;
 
 namespace AngularSPAWebAPI
 {
@@ -62,7 +68,6 @@ namespace AngularSPAWebAPI
             });
 
             // Adds application services.
-            services.AddTransient<IEmailSender, EmailSender>();
             services.AddTransient<IDbInitializer, DbInitializer>();
 
             // Adds IdentityServer.
@@ -84,9 +89,8 @@ namespace AngularSPAWebAPI
                 services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
                     .AddIdentityServerAuthentication(options =>
                     {
-                        options.Authority = "http://angularspawebapi.azurewebsites.net/";
+                        options.Authority = "https://angularspawebapi.azurewebsites.net/";
                         options.RequireHttpsMetadata = false;
-
                         options.ApiName = "WebAPI";
                     });
             }
@@ -95,14 +99,25 @@ namespace AngularSPAWebAPI
                 services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
                     .AddIdentityServerAuthentication(options =>
                     {
-                        options.Authority = "http://localhost:5000/";
+                        options.Authority = "https://localhost:5001/";
                         options.RequireHttpsMetadata = false;
-
                         options.ApiName = "WebAPI";
                     });
             }
 
-            services.AddMvc();
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+            services.AddSpaStaticFiles(configuration =>
+            {
+                if (currentEnvironment.IsDevelopment())
+                {
+                    configuration.RootPath = "ClientApp/dist/ClientApp";
+                }
+                else
+                {
+                    configuration.RootPath = "wwwroot";
+                }
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -111,39 +126,38 @@ namespace AngularSPAWebAPI
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-
-                // Starts "npm start" command using Shell extension.
-                app.Shell("npm start");
+            }
+            else
+            {
+                app.UseHsts();
             }
 
-            // Router on the server must match the router on the client (see app.routing.module.ts) to use PathLocationStrategy.
-            var appRoutes = new[] {
-                 "/home",
-                 "/account/signin",
-                 "/account/signup",
-                 "/resources",
-                 "/dashboard"
-            };
-
-            app.Use(async (context, next) =>
-            {
-                if (context.Request.Path.HasValue && appRoutes.Contains(context.Request.Path.Value))
-                {
-                    context.Request.Path = new PathString("/");
-                }
-
-                await next();
-            });
+            app.UseHttpsRedirection();
 
             app.UseIdentityServer();
 
-            app.UseMvc();
-
             // Microsoft.AspNetCore.StaticFiles: API for starting the application from wwwroot.
             // Uses default files as index.html.
-            app.UseDefaultFiles();
-            // Uses static file for the current path.
             app.UseStaticFiles();
+
+            app.UseSpaStaticFiles();
+
+            app.UseMvc(routes =>
+            {
+                routes.MapRoute(
+                    name: "default",
+                    template: "{controller}/{action=Index}/{id?}");
+            });
+
+            app.UseSpa(spa =>
+            {
+                spa.Options.SourcePath = "ClientApp";
+
+                if (env.IsDevelopment())
+                {
+                    spa.UseAngularCliServer(npmScript: "start");
+                }
+            });
         }
     }
 }

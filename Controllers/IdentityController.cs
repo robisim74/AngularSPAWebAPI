@@ -1,6 +1,5 @@
 ﻿using AngularSPAWebAPI.Models;
 using AngularSPAWebAPI.Models.AccountViewModels;
-using AngularSPAWebAPI.Services;
 using IdentityModel;
 using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Authorization;
@@ -13,10 +12,9 @@ using System.Threading.Tasks;
 
 namespace AngularSPAWebAPI.Controllers
 {
-    /// <summary>
-    /// Identity Web API controller.
-    /// </summary>
+    // Identity WebAPI controller.
     [Route("api/[controller]")]
+    [ApiController]
     // Authorization policy for this API.
     [Authorize(AuthenticationSchemes = IdentityServerAuthenticationDefaults.AuthenticationScheme, Policy = "Manage Accounts")]
     public class IdentityController : Controller
@@ -24,27 +22,21 @@ namespace AngularSPAWebAPI.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly IEmailSender _emailSender;
         private readonly ILogger _logger;
 
         public IdentityController(
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             SignInManager<ApplicationUser> signInManager,
-            IEmailSender emailSender,
             ILogger<IdentityController> logger)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _signInManager = signInManager;
-            _emailSender = emailSender;
+
             _logger = logger;
         }
 
-        /// <summary>
-        /// Gets all the users.
-        /// </summary>
-        /// <returns>Returns all the users</returns>
         // GET api/identity/GetAll
         [HttpGet("GetAll")]
         public async Task<IActionResult> GetAll()
@@ -55,10 +47,6 @@ namespace AngularSPAWebAPI.Controllers
             return new JsonResult(users);
         }
 
-        /// <summary>
-        /// Registers a new user.
-        /// </summary>
-        /// <returns>IdentityResult</returns>
         // POST: api/identity/Create
         [HttpPost("Create")]
         [AllowAnonymous]
@@ -89,10 +77,6 @@ namespace AngularSPAWebAPI.Controllers
             return new JsonResult(result);
         }
 
-        /// <summary>
-        /// Deletes a user.
-        /// </summary>
-        /// <returns>IdentityResult</returns>
         // POST: api/identity/Delete
         [HttpPost("Delete")]
         public async Task<IActionResult> Delete([FromBody]string username)

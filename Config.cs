@@ -54,11 +54,7 @@ namespace AngularSPAWebAPI
                     RefreshTokenUsage = TokenUsage.OneTimeOnly,
                     AbsoluteRefreshTokenLifetime = 7200,
                     SlidingRefreshTokenLifetime = 900,
-                    RefreshTokenExpiration = TokenExpiration.Sliding,
-                    AllowedCorsOrigins = new List<string>
-                    {
-                        "http://localhost:4200"
-                    } // Only for development.
+                    RefreshTokenExpiration = TokenExpiration.Sliding
                 }
             };
         }

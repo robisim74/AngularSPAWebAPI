@@ -10,7 +10,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/bin/Debug/netcoreapp2.0/AngularSPAWebAPI.dll",
+            "program": "${workspaceFolder}/bin/Debug/netcoreapp2.1/AngularSPAWebAPI.dll",
             "args": [],
             "cwd": "${workspaceFolder}",
             "stopAtEntry": false,
@@ -42,5 +42,5 @@
             "request": "attach",
             "processId": "${command:pickProcess}"
         }
-    ]
+    ,]
 }

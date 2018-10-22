@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26906.1
+VisualStudioVersion = 15.0.28010.2041
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AngularSPAWebAPI", "AngularSPAWebAPI.csproj", "{F0FB30F9-2B8C-4658-92B7-0A99702A2586}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AngularSPAWebAPI", "AngularSPAWebAPI.csproj", "{0839F31C-2761-465A-909C-78BF06D53232}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F0FB30F9-2B8C-4658-92B7-0A99702A2586}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F0FB30F9-2B8C-4658-92B7-0A99702A2586}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F0FB30F9-2B8C-4658-92B7-0A99702A2586}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F0FB30F9-2B8C-4658-92B7-0A99702A2586}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0839F31C-2761-465A-909C-78BF06D53232}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0839F31C-2761-465A-909C-78BF06D53232}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0839F31C-2761-465A-909C-78BF06D53232}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0839F31C-2761-465A-909C-78BF06D53232}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {3FC3562D-CA79-401A-850A-BFAF4B76B7D0}
+		SolutionGuid = {9D037958-8A08-42C5-80D1-3BA36ED1A6D1}
 	EndGlobalSection
 EndGlobal

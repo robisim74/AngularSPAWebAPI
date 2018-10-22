@@ -29,11 +29,7 @@ public static IEnumerable<Client> GetClients()
             RefreshTokenUsage = TokenUsage.OneTimeOnly,
             AbsoluteRefreshTokenLifetime = 7200,
             SlidingRefreshTokenLifetime = 900,
-            RefreshTokenExpiration = TokenExpiration.Sliding,
-            AllowedCorsOrigins = new List<string>
-            {
-                "http://localhost:4200"
-            } // Only for development.
+            RefreshTokenExpiration = TokenExpiration.Sliding
         }
     };
 }
@@ -97,7 +93,7 @@ Because our Web API is in the same project, we add the authentication middleware
 services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
     .AddIdentityServerAuthentication(options =>
     {
-        options.Authority = "http://localhost:5000";
+        options.Authority = "https://localhost:5001";
         options.RequireHttpsMetadata = false;
 
         options.ApiName = "WebAPI";
@@ -129,10 +125,7 @@ services.Configure<IdentityOptions>(options =>
     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromDays(1);
 });
 ```
-and add Identity to the pipeline:
-```C#
-app.UseIdentity();
-```
+
 Also we define the policy of access to the Web Api controllers. 
 In our sample, we create two policies:
 - _Manage Account_ only for _administrator_ role;
@@ -170,8 +163,6 @@ Finally, we set the startup on the entry point of the client application:
 // Microsoft.AspNetCore.StaticFiles: API for starting the application from wwwroot.
 // Uses default files as index.html.
 app.UseDefaultFiles();
-// Uses static file for the current path.
-app.UseStaticFiles();
 ```
 
 ### Understanding how it works
@@ -180,13 +171,13 @@ in order to implement the client app.
 
 If you debug the app and navigate the browers to:
 
-`http://localhost:5000/.well-known/openid-configuration`
+`https://localhost:5001/.well-known/openid-configuration`
 
 you should see the so-called discovery document. 
 The discovery endpoint can be used to retrieve metadata about IdentityServer.
 For an authentication, we need to send the request at the `token_endpoint`:
 
-`http://localhost:5000/connect/token`
+`https://localhost:5001/connect/token`
 
 For example, you can use [Postman](https://www.getpostman.com/) as client to send this POST request:
 ```
@@ -211,9 +202,9 @@ You can use a tool like [JSON Web Token](https://www.jsonwebtoken.io/) to decode
 {
   "nbf": 1496739308,
   "exp": 1496740208,
-  "iss": "http://localhost:5000",
+  "iss": "https://localhost:5001",
   "aud": [
-    "http://localhost:5000/resources",
+    "https://localhost:5001/resources",
     "WebAPI"
   ],
   "client_id": "AngularSPA",

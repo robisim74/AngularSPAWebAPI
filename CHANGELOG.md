@@ -1,5 +1,9 @@
 ## Angular SPA Web API Changelog
 
+<a name="Oct 22, 2018"></a>
+### Oct 22, 2018
+* Upgrade to Angular v7, .NET Core 2.1 and switch to SpaServices
+
 <a name="May 26, 2018"></a>
 ### May 26, 2018
 * Upgrade to Angular v6

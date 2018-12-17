@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Observable, throwError as _throw } from 'rxjs';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
 import { AuthenticationService } from './authentication.service';
@@ -26,11 +26,12 @@ import { AuthenticationService } from './authentication.service';
             .get('/api/identity/GetAll', {
                 headers: this.authenticationService.getAuthorizationHeader()
             })
-            .subscribe((data: any) => {
-                this.users.next(data);
-            },
+            .subscribe(
+                (data: any) => {
+                    this.users.next(data);
+                },
                 (error: HttpErrorResponse) => {
-                    if (error.error instanceof Error) {
+                    if (error.error instanceof ErrorEvent) {
                         console.log('An error occurred:', error.error.message);
                     } else {
                         console.log(`Backend returned code ${error.status}, body was: ${error.error}`);
@@ -54,7 +55,7 @@ import { AuthenticationService } from './authentication.service';
                 return response;
             }),
             catchError((error: any) => {
-                return _throw(error);
+                return throwError(error);
             }));
     }
 
@@ -71,12 +72,13 @@ import { AuthenticationService } from './authentication.service';
             .post('/api/identity/Delete', body, {
                 headers: this.authenticationService.getAuthorizationHeader()
             })
-            .subscribe(() => {
-                // Refreshes the users.
-                this.getAll();
-            },
+            .subscribe(
+                () => {
+                    // Refreshes the users.
+                    this.getAll();
+                },
                 (error: HttpErrorResponse) => {
-                    if (error.error instanceof Error) {
+                    if (error.error instanceof ErrorEvent) {
                         console.log('An error occurred:', error.error.message);
                     } else {
                         console.log(`Backend returned code ${error.status}, body was: ${error.error}`);

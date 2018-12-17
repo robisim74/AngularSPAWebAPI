@@ -23,16 +23,17 @@ export class ResourcesComponent implements OnInit {
             .get('/api/values', {
                 headers: this.authenticationService.getAuthorizationHeader()
             })
-            .subscribe((data: any) => {
-                this.values = data;
-            },
-            (error: HttpErrorResponse) => {
-                if (error.error instanceof Error) {
-                    console.log('An error occurred:', error.error.message);
-                } else {
-                    console.log(`Backend returned code ${error.status}, body was: ${error.error}`);
-                }
-            });
+            .subscribe(
+                (data: any) => {
+                    this.values = data;
+                },
+                (error: HttpErrorResponse) => {
+                    if (error.error instanceof Error) {
+                        console.log('An error occurred:', error.error.message);
+                    } else {
+                        console.log(`Backend returned code ${error.status}, body was: ${error.error}`);
+                    }
+                });
     }
 
 }

@@ -23,21 +23,18 @@ export class SignupComponent extends Signin {
     signup(): void {
         this.identityService.create(this.model)
             .subscribe(
-            (res: any) => {
-                // IdentityResult.
-                if (res.succeeded) {
-                    // Signs in the user.
-                    this.signin();
-                } else {
-                    this.errorMessages = res.errors;
-                }
-            },
-            (error: any) => {
-                const errMsg = (error.message) ? error.message :
-                    error.status ? `${error.status} - ${error.statusText}` : 'Server error';
-                console.log(errMsg);
-                this.errorMessages.push({ description: 'Server error. Try later.' });
-            });
+                (res: any) => {
+                    // IdentityResult.
+                    if (res.succeeded) {
+                        // Signs in the user.
+                        this.signin();
+                    } else {
+                        this.errorMessages = res.errors;
+                    }
+                },
+                (error: any) => {
+                    this.errorMessages.push({ description: 'Server error. Try later.' });
+                });
     }
 
 }

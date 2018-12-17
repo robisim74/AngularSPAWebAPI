@@ -1,4 +1,5 @@
 ﻿import { Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 
 import { OAuthService } from 'angular-oauth2-oidc';
 
@@ -35,12 +36,10 @@ export class Signin {
                 // Redirects the user.
                 this.router.navigate([redirect]);
             })
-            .catch((error: any) => {
+            .catch((errorResponse: HttpErrorResponse) => {
                 // Checks for error in response (error from the Token endpoint).
-                if (error.body !== '') {
-                    const body: any = error.json();
-
-                    switch (body.error) {
+                if (errorResponse.error !== '') {
+                    switch (errorResponse.error.error) {
                         case 'invalid_grant':
                             this.errorMessages.push({ description: 'Invalid email or password.' });
                             break;
@@ -48,9 +47,6 @@ export class Signin {
                             this.errorMessages.push({ description: 'Unexpected error. Try again.' });
                     }
                 } else {
-                    const errMsg = (error.message) ? error.message :
-                        error.status ? `${error.status} - ${error.statusText}` : 'Server error';
-                    console.log(errMsg);
                     this.errorMessages.push({ description: 'Server error. Try later.' });
                 }
             });
